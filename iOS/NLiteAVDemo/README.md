@@ -31,7 +31,7 @@
 
 1. NERtcVideoCall组件：
 
-   ![](/Users/yinhaichao/Documents/Doc/image-20200902204955182.png)
+   ![](https://github.com/netease-im/NEVideoCall-1to1/blob/feature/feature_iOS/iOS/NLiteAVDemo/Images/image-20200902204955182.png)
 
 2. UI组件：
 
@@ -101,7 +101,7 @@ userB.imToken = @"";
 }];
 ```
 
-##### 步骤4:接听呼叫
+##### 步骤5:接听呼叫
 
 ```
 [[NERtcVideoCall shared] acceptCompletion:^(NSError * _Nullable error) {
