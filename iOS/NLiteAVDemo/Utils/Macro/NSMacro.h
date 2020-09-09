@@ -11,6 +11,11 @@
 // base host
 #define BASE_HOST @""
 
+// 隐私政策URL
+static NSString *kPrivatePolicyURL = @"https://reg.163.com/agreement_mobile_ysbh_wap.shtml?v=20171127";
+// 用户协议URL
+static NSString *kUserAgreementURL = @"http://yunxin.163.com/clauses";
+
 // UIColor宏定义
 
 #define HEXCOLORA(rgbValue, alphaValue) [UIColor \

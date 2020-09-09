@@ -159,13 +159,13 @@
     NSDictionary *norAttr = @{NSForegroundColorAttributeName: HEXCOLOR(0x999999)};
     NSMutableAttributedString *attr = [[NSMutableAttributedString alloc] initWithString:@"登录即视为您已同意 " attributes:norAttr];
     
-    NSMutableAttributedString *tempAttr = [[NSMutableAttributedString alloc] initWithString:@"隐私政策" attributes:@{NSForegroundColorAttributeName: HEXCOLOR(0x337EFF), NSLinkAttributeName: @"http://www.baidu.com"}];
+    NSMutableAttributedString *tempAttr = [[NSMutableAttributedString alloc] initWithString:@"隐私政策" attributes:@{NSForegroundColorAttributeName: HEXCOLOR(0x337EFF), NSLinkAttributeName: kPrivatePolicyURL}];
     [attr appendAttributedString:[tempAttr copy]];
     
     tempAttr = [[NSMutableAttributedString alloc] initWithString:@" 和 " attributes:norAttr];
     [attr appendAttributedString:[tempAttr copy]];
     
-    tempAttr = [[NSMutableAttributedString alloc] initWithString:@"用户服务协议" attributes:@{NSForegroundColorAttributeName: HEXCOLOR(0x337EFF), NSLinkAttributeName: @"http://www.bilibili.com"}];
+    tempAttr = [[NSMutableAttributedString alloc] initWithString:@"用户协议" attributes:@{NSForegroundColorAttributeName: HEXCOLOR(0x337EFF), NSLinkAttributeName: kUserAgreementURL}];
     [attr appendAttributedString:[tempAttr copy]];
     
     return [attr copy];
