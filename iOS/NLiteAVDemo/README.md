@@ -20,7 +20,7 @@
 
 #### 运行示例项目
 
-**注意：在运行前，请联系商务经理开通非安全模式。**
+**注意：在运行前，请联系商务经理开通非安全模式（因Demo中RTCSDK中的token传空）。**
 
 1. 下载完成场景Demo后，终端进入Podfile所在文件夹，执行`pod install`命令。如未安装Cocoapods，请参考[安装说明](https://guides.cocoapods.org/using/getting-started.html#getting-started)。
 2. 执行 `pod install` 完成安装后，双击 `NLiteAVDemo.xcworkspace` 通过 Xcode 打开工程。然后打开 `AppDelegate.h` 文件，填入您的AppKey，`APNSCerName`和`VoIPCerName`可以需要时再填写。随后运行工程即可。
@@ -38,6 +38,15 @@
    | NERtcContactsViewController | 联系人搜索页      |
    | --------------------------- | ----------------- |
    | NECallViewController        | 呼叫&被呼叫主页面 |
+   
+   ##### 复用UI：
+
+   Demo跑通之后，可以修改NERtcVideoCall/UI文件夹下的类文件，复用**联系人搜索页**以及**视频通话页**UI。
+
+   ##### 自定义UI：
+
+   仅需拷贝NERtcVideoCall/Model文件夹到自己的工程，导入`NERtcVideoCall.h`头文件，创建自定义UI界面，即可实现视频通话功能。具体步骤如下：
+
 
 ##### 步骤1:集成SDK
 
