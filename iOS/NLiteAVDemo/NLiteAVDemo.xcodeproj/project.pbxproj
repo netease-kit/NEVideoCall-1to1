@@ -722,7 +722,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.netease.NEAVDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.netease.NELiteAVDemo;
 				PRODUCT_NAME = "网易云信 NERTC";
 				PROVISIONING_PROFILE_SPECIFIER = NELiteAVDemo_Profile_Dev;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -746,7 +746,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.netease.NEAVDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.netease.NELiteAVDemo;
 				PRODUCT_NAME = "网易云信 NERTC";
 				PROVISIONING_PROFILE_SPECIFIER = NEAVDemo_AppStore;
 				TARGETED_DEVICE_FAMILY = "1,2";

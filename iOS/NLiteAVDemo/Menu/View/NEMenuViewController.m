@@ -137,6 +137,8 @@ static NSString *cellID = @"menuCellID";
         [alerVC addAction:cancelAction];
         [alerVC addAction:okAction];
         [self presentViewController:alerVC animated:YES completion:nil];
+    }else {
+        [[NENavigator shared] loginWithOptions:nil];
     }
 }
 #pragma mark - NERtcVideoCallDelegate

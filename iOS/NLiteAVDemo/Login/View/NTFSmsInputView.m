@@ -11,7 +11,7 @@
 @interface NTFSmsInputView () <UITextViewDelegate>
 
 @property (nonatomic, strong) UIView            *contairView;
-@property (nonatomic, strong) UITextView        *textView;
+@property (nonatomic, strong) UITextField       *textField;
 @property (nonatomic, strong) NSMutableArray    *viewArr;
 @property (nonatomic, strong) NSMutableArray    *labelArr;
 @property (nonatomic, strong) NSMutableArray    *pointLineArr;
@@ -29,7 +29,7 @@
         _highlightBorderColor = [UIColor colorWithRed:255/255.0 green:70/255.0 blue:62/255.0 alpha:1];
         _cornerRadius = 4;
         self.backgroundColor = [UIColor clearColor];
-        [self.textView becomeFirstResponder];
+        [self.textField becomeFirstResponder];
     }
     return self;
 }
@@ -47,8 +47,8 @@
     [self addSubview:_contairView];
     _contairView.frame = self.bounds;
     
-    [_contairView addSubview:self.textView];
-    self.textView.frame = _contairView.bounds;
+    [_contairView addSubview:self.textField];
+    self.textField.frame = _contairView.bounds;
     
     CGFloat padding = (CGRectGetWidth(self.frame) - _maxLenght * CGRectGetHeight(self.frame)) / (_maxLenght - 1);
     UIView *lastView;
@@ -102,17 +102,15 @@
     _contairView.frame = frame;
 }
 
-#pragma mark - textView method
-
-- (void)textViewDidChange:(UITextView *)textView
+- (void)textFieldDidChanged:(UITextField *)textField
 {
-    NSString *verStr = textView.text;
+    NSString *verStr = textField.text;
     verStr = [verStr stringByReplacingOccurrencesOfString:@" " withString:@""];
     if (verStr.length >= _maxLenght) {
         verStr = [verStr substringToIndex:_maxLenght];
-        [self.textView resignFirstResponder];
+        [self.textField resignFirstResponder];
     }
-    textView.text = verStr;
+    textField.text = verStr;
 
     if (self.delegate && [self.delegate respondsToSelector:@selector(inputViewDidChanged:content:)]) {
         [self.delegate inputViewDidChanged:self content:verStr];
@@ -169,7 +167,7 @@
 - (void)setKeyBoardType:(UIKeyboardType)keyBoardType
 {
     _keyBoardType = keyBoardType;
-    self.textView.keyboardType = keyBoardType;
+    self.textField.keyboardType = keyBoardType;
 }
 
 - (void)setBorderColor:(UIColor *)borderColor
@@ -182,17 +180,20 @@
     _highlightBorderColor = highlightBorderColor;
 }
 
-- (UITextView *)textView
+- (UITextField *)textField
 {
-    if (!_textView) {
-        _textView = [UITextView new];
-        _textView.tintColor = [UIColor clearColor];
-        _textView.backgroundColor = [UIColor clearColor];
-        _textView.textColor = [UIColor clearColor];
-        _textView.delegate = self;
-        _textView.keyboardType = UIKeyboardTypeDefault;
+    if (!_textField) {
+        _textField = [[UITextField alloc] init];
+        _textField.tintColor = [UIColor clearColor];
+        _textField.backgroundColor = [UIColor clearColor];
+        _textField.textColor = [UIColor clearColor];
+        _textField.keyboardType = UIKeyboardTypeDefault;
+        if (@available(iOS 12.0, *)) {
+            _textField.textContentType = UITextContentTypeOneTimeCode;
+        }
+        [_textField addTarget:self action:@selector(textFieldDidChanged:) forControlEvents:UIControlEventEditingChanged];
     }
-    return _textView;
+    return _textField;
 }
 
 -(NSMutableArray *)pointLineArr
