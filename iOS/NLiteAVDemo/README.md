@@ -38,14 +38,14 @@
    | NERtcContactsViewController | 联系人搜索页      |
    | --------------------------- | ----------------- |
    | NECallViewController        | 呼叫&被呼叫主页面 |
-   
-   ##### 复用UI：
 
-   Demo跑通之后，可以修改NERtcVideoCall/UI文件夹下的类文件，复用**联系人搜索页**以及**视频通话页**UI。
+##### 复用UI：
 
-   ##### 自定义UI：
+Demo跑通之后，可以修改NERtcVideoCall/UI文件夹下的类文件，复用**联系人搜索页**以及**视频通话页**UI。
 
-   仅需拷贝NERtcVideoCall/Model文件夹到自己的工程，导入`NERtcVideoCall.h`头文件，创建自定义UI界面，即可实现视频通话功能。具体步骤如下：
+##### 自定义UI：
+
+仅需拷贝NERtcVideoCall/Model文件夹到自己的工程，导入`NERtcVideoCall.h`头文件，创建自定义UI界面，即可实现视频通话功能。具体步骤如下：
 
 
 ##### 步骤1:集成SDK
