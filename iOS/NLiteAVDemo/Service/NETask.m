@@ -14,7 +14,6 @@
 
 @interface NETask ()
 @property(strong,nonatomic)NSString *URLString;
-//@property (nonatomic, copy) NERequestHandler _Nullable handler;
 @end
 
 @implementation NETask
