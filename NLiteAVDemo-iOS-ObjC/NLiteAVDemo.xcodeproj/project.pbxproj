@@ -746,7 +746,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.netease.NELiteAVDemo;
 				PRODUCT_NAME = "网易云信 NERTC";
-				PROVISIONING_PROFILE_SPECIFIER = NEAVDemo_dev;
+				PROVISIONING_PROFILE_SPECIFIER = NELiteAVDemo_Profile_Dev;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -760,7 +760,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 9;
-				DEVELOPMENT_TEAM = J669Y64Z9Y;
+				DEVELOPMENT_TEAM = 569GNZ5392;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/NLiteAVDemo/PrefixHeader.pch";
 				INFOPLIST_FILE = NLiteAVDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
@@ -770,7 +770,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.netease.NELiteAVDemo;
 				PRODUCT_NAME = "网易云信 NERTC";
-				PROVISIONING_PROFILE_SPECIFIER = NEAVDemo_AppStore;
+				PROVISIONING_PROFILE_SPECIFIER = NELiteAVDemo_Profile_InHouse;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
