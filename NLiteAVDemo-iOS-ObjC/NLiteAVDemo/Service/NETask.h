@@ -9,11 +9,13 @@
 #import <Foundation/Foundation.h>
 #import "NEServiceTask.h"
 #import "NETask.h"
+#import "AppKey.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 // 请求闭包
 typedef void(^NERequestHandler)(NSDictionary * _Nullable data, NSError * _Nullable error);
-static NSString *baseURL = @"";
+static NSString *baseURL = kApiHost;
 
 @interface NETask : NSObject<NEServiceTask>
 + (instancetype)task;

@@ -1,0 +1,802 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 51;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4B1CE8D87B045036DB9DCCAE /* Pods_NLiteAVDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 351BD670226DDD5B57B8EBF7 /* Pods_NLiteAVDemo.framework */; };
+		C758CCDA24EB7F5A003C406A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C758CCD924EB7F5A003C406A /* AppDelegate.m */; };
+		C758CCE324EB7F5A003C406A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C758CCE124EB7F5A003C406A /* Main.storyboard */; };
+		C758CCE524EB7F5F003C406A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C758CCE424EB7F5F003C406A /* Assets.xcassets */; };
+		C758CCE824EB7F5F003C406A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C758CCE624EB7F5F003C406A /* LaunchScreen.storyboard */; };
+		C758CCEB24EB7F5F003C406A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C758CCEA24EB7F5F003C406A /* main.m */; };
+		C7664EBE2511AE1D005E26A2 /* NESearchResultCell.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E6E2511AE1D005E26A2 /* NESearchResultCell.m */; };
+		C7664EBF2511AE1D005E26A2 /* NEHistoryView.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E6F2511AE1D005E26A2 /* NEHistoryView.m */; };
+		C7664EC02511AE1D005E26A2 /* NEBaseUserListView.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E702511AE1D005E26A2 /* NEBaseUserListView.m */; };
+		C7664EC12511AE1D005E26A2 /* NEHistoryCell.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E712511AE1D005E26A2 /* NEHistoryCell.m */; };
+		C7664EC22511AE1D005E26A2 /* NESearchResultView.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E722511AE1D005E26A2 /* NESearchResultView.m */; };
+		C7664EC32511AE1D005E26A2 /* NEVideoView.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E732511AE1D005E26A2 /* NEVideoView.m */; };
+		C7664EC42511AE1D005E26A2 /* NECustomButton.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E742511AE1D005E26A2 /* NECustomButton.m */; };
+		C7664EC52511AE1D005E26A2 /* NEVideoOperationView.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E752511AE1D005E26A2 /* NEVideoOperationView.m */; };
+		C7664EC62511AE1E005E26A2 /* NECallViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E772511AE1D005E26A2 /* NECallViewController.m */; };
+		C7664EC72511AE1E005E26A2 /* NERtcContactsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E782511AE1D005E26A2 /* NERtcContactsViewController.m */; };
+		C7664EC82511AE1E005E26A2 /* NESearchTask.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E7D2511AE1D005E26A2 /* NESearchTask.m */; };
+		C7664EC92511AE1E005E26A2 /* NERtcVideoCallModel.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E832511AE1D005E26A2 /* NERtcVideoCallModel.m */; };
+		C7664ECA2511AE1E005E26A2 /* NEUser.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E842511AE1D005E26A2 /* NEUser.m */; };
+		C7664ECB2511AE1E005E26A2 /* NERtcVideoCall.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E852511AE1D005E26A2 /* NERtcVideoCall.m */; };
+		C7664ECC2511AE1E005E26A2 /* NESendSmsCodeTask.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E8A2511AE1D005E26A2 /* NESendSmsCodeTask.m */; };
+		C7664ECD2511AE1E005E26A2 /* NEAccountTask.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E8B2511AE1D005E26A2 /* NEAccountTask.m */; };
+		C7664ECE2511AE1E005E26A2 /* NEAccountTask.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E8E2511AE1D005E26A2 /* NEAccountTask.m */; };
+		C7664ECF2511AE1E005E26A2 /* NTFInputSmsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E912511AE1D005E26A2 /* NTFInputSmsVC.m */; };
+		C7664ED02511AE1E005E26A2 /* NELoginOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E922511AE1D005E26A2 /* NELoginOptions.m */; };
+		C7664ED12511AE1E005E26A2 /* NTELoginVC.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E952511AE1D005E26A2 /* NTELoginVC.m */; };
+		C7664ED22511AE1E005E26A2 /* NECountDownButton.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E962511AE1D005E26A2 /* NECountDownButton.m */; };
+		C7664ED32511AE1E005E26A2 /* NTFSmsInputView.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E992511AE1D005E26A2 /* NTFSmsInputView.m */; };
+		C7664ED42511AE1E005E26A2 /* NEMenuCell.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E9C2511AE1D005E26A2 /* NEMenuCell.m */; };
+		C7664ED52511AE1E005E26A2 /* NEMenuViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E9D2511AE1D005E26A2 /* NEMenuViewController.m */; };
+		C7664ED62511AE1E005E26A2 /* NENavCustomView.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E9E2511AE1D005E26A2 /* NENavCustomView.m */; };
+		C7664ED72511AE1E005E26A2 /* NETask.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664EA42511AE1D005E26A2 /* NETask.m */; };
+		C7664ED82511AE1E005E26A2 /* NEService.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664EA62511AE1D005E26A2 /* NEService.m */; };
+		C7664ED92511AE1E005E26A2 /* UIView+NTES.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664EAB2511AE1D005E26A2 /* UIView+NTES.m */; };
+		C7664EDA2511AE1E005E26A2 /* UIImage+NTES.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664EAE2511AE1D005E26A2 /* UIImage+NTES.m */; };
+		C7664EDB2511AE1E005E26A2 /* UIColor+NTES.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664EB02511AE1D005E26A2 /* UIColor+NTES.m */; };
+		C7664EDC2511AE1E005E26A2 /* NSDictionary+NTESJson.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664EB12511AE1D005E26A2 /* NSDictionary+NTESJson.m */; };
+		C7664EDD2511AE1E005E26A2 /* NEBaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664EB42511AE1D005E26A2 /* NEBaseViewController.m */; };
+		C7664EDE2511AE1E005E26A2 /* NSMacro.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664EB62511AE1D005E26A2 /* NSMacro.m */; };
+		C7664EDF2511AE1E005E26A2 /* NENavigator.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664EBA2511AE1D005E26A2 /* NENavigator.m */; };
+		C7664EE02511AE1E005E26A2 /* NEAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664EBD2511AE1D005E26A2 /* NEAccount.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		C79685B524F901890093AF5C /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		351BD670226DDD5B57B8EBF7 /* Pods_NLiteAVDemo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NLiteAVDemo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9C3E631E57C6DCADE269362E /* Pods-NLiteAVDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NLiteAVDemo.debug.xcconfig"; path = "Target Support Files/Pods-NLiteAVDemo/Pods-NLiteAVDemo.debug.xcconfig"; sourceTree = "<group>"; };
+		C728EEE32500D77D00D27176 /* AppKey.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppKey.h; sourceTree = "<group>"; };
+		C758CCD524EB7F5A003C406A /* 网易云信 NERTC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "网易云信 NERTC.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C758CCD824EB7F5A003C406A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		C758CCD924EB7F5A003C406A /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		C758CCE224EB7F5A003C406A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		C758CCE424EB7F5F003C406A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C758CCE724EB7F5F003C406A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		C758CCE924EB7F5F003C406A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C758CCEA24EB7F5F003C406A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		C7664E662511AE1D005E26A2 /* NEHistoryView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NEHistoryView.h; sourceTree = "<group>"; };
+		C7664E672511AE1D005E26A2 /* NEBaseUserListView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NEBaseUserListView.h; sourceTree = "<group>"; };
+		C7664E682511AE1D005E26A2 /* NESearchResultCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NESearchResultCell.h; sourceTree = "<group>"; };
+		C7664E692511AE1D005E26A2 /* NEVideoView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NEVideoView.h; sourceTree = "<group>"; };
+		C7664E6A2511AE1D005E26A2 /* NESearchResultView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NESearchResultView.h; sourceTree = "<group>"; };
+		C7664E6B2511AE1D005E26A2 /* NEHistoryCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NEHistoryCell.h; sourceTree = "<group>"; };
+		C7664E6C2511AE1D005E26A2 /* NEVideoOperationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NEVideoOperationView.h; sourceTree = "<group>"; };
+		C7664E6D2511AE1D005E26A2 /* NECustomButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NECustomButton.h; sourceTree = "<group>"; };
+		C7664E6E2511AE1D005E26A2 /* NESearchResultCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NESearchResultCell.m; sourceTree = "<group>"; };
+		C7664E6F2511AE1D005E26A2 /* NEHistoryView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NEHistoryView.m; sourceTree = "<group>"; };
+		C7664E702511AE1D005E26A2 /* NEBaseUserListView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NEBaseUserListView.m; sourceTree = "<group>"; };
+		C7664E712511AE1D005E26A2 /* NEHistoryCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NEHistoryCell.m; sourceTree = "<group>"; };
+		C7664E722511AE1D005E26A2 /* NESearchResultView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NESearchResultView.m; sourceTree = "<group>"; };
+		C7664E732511AE1D005E26A2 /* NEVideoView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NEVideoView.m; sourceTree = "<group>"; };
+		C7664E742511AE1D005E26A2 /* NECustomButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NECustomButton.m; sourceTree = "<group>"; };
+		C7664E752511AE1D005E26A2 /* NEVideoOperationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NEVideoOperationView.m; sourceTree = "<group>"; };
+		C7664E772511AE1D005E26A2 /* NECallViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NECallViewController.m; sourceTree = "<group>"; };
+		C7664E782511AE1D005E26A2 /* NERtcContactsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NERtcContactsViewController.m; sourceTree = "<group>"; };
+		C7664E792511AE1D005E26A2 /* NERtcContactsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NERtcContactsViewController.h; sourceTree = "<group>"; };
+		C7664E7A2511AE1D005E26A2 /* NECallViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NECallViewController.h; sourceTree = "<group>"; };
+		C7664E7C2511AE1D005E26A2 /* NESearchTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NESearchTask.h; sourceTree = "<group>"; };
+		C7664E7D2511AE1D005E26A2 /* NESearchTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NESearchTask.m; sourceTree = "<group>"; };
+		C7664E7F2511AE1D005E26A2 /* NERtcVideoCallModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NERtcVideoCallModel.h; sourceTree = "<group>"; };
+		C7664E802511AE1D005E26A2 /* NEUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NEUser.h; sourceTree = "<group>"; };
+		C7664E812511AE1D005E26A2 /* NERtcVideoCall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NERtcVideoCall.h; sourceTree = "<group>"; };
+		C7664E822511AE1D005E26A2 /* NERtcVideoCallDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NERtcVideoCallDelegate.h; sourceTree = "<group>"; };
+		C7664E832511AE1D005E26A2 /* NERtcVideoCallModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NERtcVideoCallModel.m; sourceTree = "<group>"; };
+		C7664E842511AE1D005E26A2 /* NEUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NEUser.m; sourceTree = "<group>"; };
+		C7664E852511AE1D005E26A2 /* NERtcVideoCall.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NERtcVideoCall.m; sourceTree = "<group>"; };
+		C7664E882511AE1D005E26A2 /* NEAccountTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NEAccountTask.h; sourceTree = "<group>"; };
+		C7664E892511AE1D005E26A2 /* NESendSmsCodeTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NESendSmsCodeTask.h; sourceTree = "<group>"; };
+		C7664E8A2511AE1D005E26A2 /* NESendSmsCodeTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NESendSmsCodeTask.m; sourceTree = "<group>"; };
+		C7664E8B2511AE1D005E26A2 /* NEAccountTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NEAccountTask.m; sourceTree = "<group>"; };
+		C7664E8D2511AE1D005E26A2 /* NEAccountTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NEAccountTask.h; sourceTree = "<group>"; };
+		C7664E8E2511AE1D005E26A2 /* NEAccountTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NEAccountTask.m; sourceTree = "<group>"; };
+		C7664E902511AE1D005E26A2 /* NTELoginVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTELoginVC.h; sourceTree = "<group>"; };
+		C7664E912511AE1D005E26A2 /* NTFInputSmsVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTFInputSmsVC.m; sourceTree = "<group>"; };
+		C7664E922511AE1D005E26A2 /* NELoginOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NELoginOptions.m; sourceTree = "<group>"; };
+		C7664E932511AE1D005E26A2 /* NECountDownButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NECountDownButton.h; sourceTree = "<group>"; };
+		C7664E942511AE1D005E26A2 /* NTFSmsInputView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTFSmsInputView.h; sourceTree = "<group>"; };
+		C7664E952511AE1D005E26A2 /* NTELoginVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTELoginVC.m; sourceTree = "<group>"; };
+		C7664E962511AE1D005E26A2 /* NECountDownButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NECountDownButton.m; sourceTree = "<group>"; };
+		C7664E972511AE1D005E26A2 /* NELoginOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NELoginOptions.h; sourceTree = "<group>"; };
+		C7664E982511AE1D005E26A2 /* NTFInputSmsVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTFInputSmsVC.h; sourceTree = "<group>"; };
+		C7664E992511AE1D005E26A2 /* NTFSmsInputView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NTFSmsInputView.m; sourceTree = "<group>"; };
+		C7664E9C2511AE1D005E26A2 /* NEMenuCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NEMenuCell.m; sourceTree = "<group>"; };
+		C7664E9D2511AE1D005E26A2 /* NEMenuViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NEMenuViewController.m; sourceTree = "<group>"; };
+		C7664E9E2511AE1D005E26A2 /* NENavCustomView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NENavCustomView.m; sourceTree = "<group>"; };
+		C7664E9F2511AE1D005E26A2 /* NEMenuCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NEMenuCell.h; sourceTree = "<group>"; };
+		C7664EA02511AE1D005E26A2 /* NENavCustomView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NENavCustomView.h; sourceTree = "<group>"; };
+		C7664EA12511AE1D005E26A2 /* NEMenuViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NEMenuViewController.h; sourceTree = "<group>"; };
+		C7664EA32511AE1D005E26A2 /* NEService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NEService.h; sourceTree = "<group>"; };
+		C7664EA42511AE1D005E26A2 /* NETask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NETask.m; sourceTree = "<group>"; };
+		C7664EA52511AE1D005E26A2 /* NEServiceTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NEServiceTask.h; sourceTree = "<group>"; };
+		C7664EA62511AE1D005E26A2 /* NEService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NEService.m; sourceTree = "<group>"; };
+		C7664EA72511AE1D005E26A2 /* NETask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NETask.h; sourceTree = "<group>"; };
+		C7664EAA2511AE1D005E26A2 /* UIColor+NTES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+NTES.h"; sourceTree = "<group>"; };
+		C7664EAB2511AE1D005E26A2 /* UIView+NTES.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+NTES.m"; sourceTree = "<group>"; };
+		C7664EAC2511AE1D005E26A2 /* UIImage+NTES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+NTES.h"; sourceTree = "<group>"; };
+		C7664EAD2511AE1D005E26A2 /* NSDictionary+NTESJson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+NTESJson.h"; sourceTree = "<group>"; };
+		C7664EAE2511AE1D005E26A2 /* UIImage+NTES.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+NTES.m"; sourceTree = "<group>"; };
+		C7664EAF2511AE1D005E26A2 /* UIView+NTES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+NTES.h"; sourceTree = "<group>"; };
+		C7664EB02511AE1D005E26A2 /* UIColor+NTES.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+NTES.m"; sourceTree = "<group>"; };
+		C7664EB12511AE1D005E26A2 /* NSDictionary+NTESJson.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+NTESJson.m"; sourceTree = "<group>"; };
+		C7664EB32511AE1D005E26A2 /* NEBaseViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NEBaseViewController.h; sourceTree = "<group>"; };
+		C7664EB42511AE1D005E26A2 /* NEBaseViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NEBaseViewController.m; sourceTree = "<group>"; };
+		C7664EB62511AE1D005E26A2 /* NSMacro.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSMacro.m; sourceTree = "<group>"; };
+		C7664EB72511AE1D005E26A2 /* NSMacro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSMacro.h; sourceTree = "<group>"; };
+		C7664EB92511AE1D005E26A2 /* NENavigator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NENavigator.h; sourceTree = "<group>"; };
+		C7664EBA2511AE1D005E26A2 /* NENavigator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NENavigator.m; sourceTree = "<group>"; };
+		C7664EBC2511AE1D005E26A2 /* NEAccount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NEAccount.h; sourceTree = "<group>"; };
+		C7664EBD2511AE1D005E26A2 /* NEAccount.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NEAccount.m; sourceTree = "<group>"; };
+		C7B5068624F6439E00C4D992 /* NLiteAVDemo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NLiteAVDemo.entitlements; sourceTree = "<group>"; };
+		C7D05B1E24EE2E3E00079BF5 /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
+		F529C3FC806BA1848C19DF0C /* Pods-NLiteAVDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NLiteAVDemo.release.xcconfig"; path = "Target Support Files/Pods-NLiteAVDemo/Pods-NLiteAVDemo.release.xcconfig"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C758CCD224EB7F5A003C406A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4B1CE8D87B045036DB9DCCAE /* Pods_NLiteAVDemo.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		39278A13850E2BDF727DCC9E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				351BD670226DDD5B57B8EBF7 /* Pods_NLiteAVDemo.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C758CCCC24EB7F5A003C406A = {
+			isa = PBXGroup;
+			children = (
+				C758CCD724EB7F5A003C406A /* NLiteAVDemo */,
+				C758CCD624EB7F5A003C406A /* Products */,
+				ED60ED5323840FB0919BFBAC /* Pods */,
+				39278A13850E2BDF727DCC9E /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		C758CCD624EB7F5A003C406A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C758CCD524EB7F5A003C406A /* 网易云信 NERTC.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C758CCD724EB7F5A003C406A /* NLiteAVDemo */ = {
+			isa = PBXGroup;
+			children = (
+				C7664E862511AE1D005E26A2 /* Login */,
+				C7664E9A2511AE1D005E26A2 /* Menu */,
+				C7664E632511AE1D005E26A2 /* NERtcVideoCall */,
+				C7664EA22511AE1D005E26A2 /* Service */,
+				C7664EA82511AE1D005E26A2 /* Utils */,
+				C7B5068624F6439E00C4D992 /* NLiteAVDemo.entitlements */,
+				C758CCD824EB7F5A003C406A /* AppDelegate.h */,
+				C758CCD924EB7F5A003C406A /* AppDelegate.m */,
+				C728EEE32500D77D00D27176 /* AppKey.h */,
+				C758CCE124EB7F5A003C406A /* Main.storyboard */,
+				C758CCE424EB7F5F003C406A /* Assets.xcassets */,
+				C758CCE624EB7F5F003C406A /* LaunchScreen.storyboard */,
+				C758CCE924EB7F5F003C406A /* Info.plist */,
+				C758CCEA24EB7F5F003C406A /* main.m */,
+				C7D05B1E24EE2E3E00079BF5 /* PrefixHeader.pch */,
+			);
+			path = NLiteAVDemo;
+			sourceTree = "<group>";
+		};
+		C7664E632511AE1D005E26A2 /* NERtcVideoCall */ = {
+			isa = PBXGroup;
+			children = (
+				C7664E642511AE1D005E26A2 /* UI */,
+				C7664E7B2511AE1D005E26A2 /* Task */,
+				C7664E7E2511AE1D005E26A2 /* Model */,
+			);
+			path = NERtcVideoCall;
+			sourceTree = "<group>";
+		};
+		C7664E642511AE1D005E26A2 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				C7664E652511AE1D005E26A2 /* View */,
+				C7664E762511AE1D005E26A2 /* ViewController */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		C7664E652511AE1D005E26A2 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				C7664E672511AE1D005E26A2 /* NEBaseUserListView.h */,
+				C7664E702511AE1D005E26A2 /* NEBaseUserListView.m */,
+				C7664E6D2511AE1D005E26A2 /* NECustomButton.h */,
+				C7664E742511AE1D005E26A2 /* NECustomButton.m */,
+				C7664E6B2511AE1D005E26A2 /* NEHistoryCell.h */,
+				C7664E712511AE1D005E26A2 /* NEHistoryCell.m */,
+				C7664E662511AE1D005E26A2 /* NEHistoryView.h */,
+				C7664E6F2511AE1D005E26A2 /* NEHistoryView.m */,
+				C7664E682511AE1D005E26A2 /* NESearchResultCell.h */,
+				C7664E6E2511AE1D005E26A2 /* NESearchResultCell.m */,
+				C7664E6A2511AE1D005E26A2 /* NESearchResultView.h */,
+				C7664E722511AE1D005E26A2 /* NESearchResultView.m */,
+				C7664E6C2511AE1D005E26A2 /* NEVideoOperationView.h */,
+				C7664E752511AE1D005E26A2 /* NEVideoOperationView.m */,
+				C7664E692511AE1D005E26A2 /* NEVideoView.h */,
+				C7664E732511AE1D005E26A2 /* NEVideoView.m */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		C7664E762511AE1D005E26A2 /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				C7664E7A2511AE1D005E26A2 /* NECallViewController.h */,
+				C7664E772511AE1D005E26A2 /* NECallViewController.m */,
+				C7664E792511AE1D005E26A2 /* NERtcContactsViewController.h */,
+				C7664E782511AE1D005E26A2 /* NERtcContactsViewController.m */,
+			);
+			path = ViewController;
+			sourceTree = "<group>";
+		};
+		C7664E7B2511AE1D005E26A2 /* Task */ = {
+			isa = PBXGroup;
+			children = (
+				C7664E7C2511AE1D005E26A2 /* NESearchTask.h */,
+				C7664E7D2511AE1D005E26A2 /* NESearchTask.m */,
+			);
+			path = Task;
+			sourceTree = "<group>";
+		};
+		C7664E7E2511AE1D005E26A2 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				C7664E812511AE1D005E26A2 /* NERtcVideoCall.h */,
+				C7664E852511AE1D005E26A2 /* NERtcVideoCall.m */,
+				C7664E822511AE1D005E26A2 /* NERtcVideoCallDelegate.h */,
+				C7664E7F2511AE1D005E26A2 /* NERtcVideoCallModel.h */,
+				C7664E832511AE1D005E26A2 /* NERtcVideoCallModel.m */,
+				C7664E802511AE1D005E26A2 /* NEUser.h */,
+				C7664E842511AE1D005E26A2 /* NEUser.m */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		C7664E862511AE1D005E26A2 /* Login */ = {
+			isa = PBXGroup;
+			children = (
+				C7664E872511AE1D005E26A2 /* Task */,
+				C7664E8C2511AE1D005E26A2 /* Model */,
+				C7664E8F2511AE1D005E26A2 /* View */,
+			);
+			path = Login;
+			sourceTree = "<group>";
+		};
+		C7664E872511AE1D005E26A2 /* Task */ = {
+			isa = PBXGroup;
+			children = (
+				C7664E882511AE1D005E26A2 /* NEAccountTask.h */,
+				C7664E892511AE1D005E26A2 /* NESendSmsCodeTask.h */,
+				C7664E8A2511AE1D005E26A2 /* NESendSmsCodeTask.m */,
+				C7664E8B2511AE1D005E26A2 /* NEAccountTask.m */,
+			);
+			path = Task;
+			sourceTree = "<group>";
+		};
+		C7664E8C2511AE1D005E26A2 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				C7664E8D2511AE1D005E26A2 /* NEAccountTask.h */,
+				C7664E8E2511AE1D005E26A2 /* NEAccountTask.m */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		C7664E8F2511AE1D005E26A2 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				C7664E932511AE1D005E26A2 /* NECountDownButton.h */,
+				C7664E962511AE1D005E26A2 /* NECountDownButton.m */,
+				C7664E972511AE1D005E26A2 /* NELoginOptions.h */,
+				C7664E922511AE1D005E26A2 /* NELoginOptions.m */,
+				C7664E902511AE1D005E26A2 /* NTELoginVC.h */,
+				C7664E952511AE1D005E26A2 /* NTELoginVC.m */,
+				C7664E982511AE1D005E26A2 /* NTFInputSmsVC.h */,
+				C7664E912511AE1D005E26A2 /* NTFInputSmsVC.m */,
+				C7664E942511AE1D005E26A2 /* NTFSmsInputView.h */,
+				C7664E992511AE1D005E26A2 /* NTFSmsInputView.m */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		C7664E9A2511AE1D005E26A2 /* Menu */ = {
+			isa = PBXGroup;
+			children = (
+				C7664E9B2511AE1D005E26A2 /* View */,
+			);
+			path = Menu;
+			sourceTree = "<group>";
+		};
+		C7664E9B2511AE1D005E26A2 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				C7664E9F2511AE1D005E26A2 /* NEMenuCell.h */,
+				C7664E9C2511AE1D005E26A2 /* NEMenuCell.m */,
+				C7664EA12511AE1D005E26A2 /* NEMenuViewController.h */,
+				C7664E9D2511AE1D005E26A2 /* NEMenuViewController.m */,
+				C7664EA02511AE1D005E26A2 /* NENavCustomView.h */,
+				C7664E9E2511AE1D005E26A2 /* NENavCustomView.m */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		C7664EA22511AE1D005E26A2 /* Service */ = {
+			isa = PBXGroup;
+			children = (
+				C7664EA32511AE1D005E26A2 /* NEService.h */,
+				C7664EA62511AE1D005E26A2 /* NEService.m */,
+				C7664EA52511AE1D005E26A2 /* NEServiceTask.h */,
+				C7664EA72511AE1D005E26A2 /* NETask.h */,
+				C7664EA42511AE1D005E26A2 /* NETask.m */,
+			);
+			path = Service;
+			sourceTree = "<group>";
+		};
+		C7664EA82511AE1D005E26A2 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				C7664EA92511AE1D005E26A2 /* Category */,
+				C7664EB22511AE1D005E26A2 /* BaseVC */,
+				C7664EB52511AE1D005E26A2 /* Macro */,
+				C7664EB82511AE1D005E26A2 /* Navigator */,
+				C7664EBB2511AE1D005E26A2 /* Account */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		C7664EA92511AE1D005E26A2 /* Category */ = {
+			isa = PBXGroup;
+			children = (
+				C7664EAA2511AE1D005E26A2 /* UIColor+NTES.h */,
+				C7664EAB2511AE1D005E26A2 /* UIView+NTES.m */,
+				C7664EAC2511AE1D005E26A2 /* UIImage+NTES.h */,
+				C7664EAD2511AE1D005E26A2 /* NSDictionary+NTESJson.h */,
+				C7664EAE2511AE1D005E26A2 /* UIImage+NTES.m */,
+				C7664EAF2511AE1D005E26A2 /* UIView+NTES.h */,
+				C7664EB02511AE1D005E26A2 /* UIColor+NTES.m */,
+				C7664EB12511AE1D005E26A2 /* NSDictionary+NTESJson.m */,
+			);
+			path = Category;
+			sourceTree = "<group>";
+		};
+		C7664EB22511AE1D005E26A2 /* BaseVC */ = {
+			isa = PBXGroup;
+			children = (
+				C7664EB32511AE1D005E26A2 /* NEBaseViewController.h */,
+				C7664EB42511AE1D005E26A2 /* NEBaseViewController.m */,
+			);
+			path = BaseVC;
+			sourceTree = "<group>";
+		};
+		C7664EB52511AE1D005E26A2 /* Macro */ = {
+			isa = PBXGroup;
+			children = (
+				C7664EB62511AE1D005E26A2 /* NSMacro.m */,
+				C7664EB72511AE1D005E26A2 /* NSMacro.h */,
+			);
+			path = Macro;
+			sourceTree = "<group>";
+		};
+		C7664EB82511AE1D005E26A2 /* Navigator */ = {
+			isa = PBXGroup;
+			children = (
+				C7664EB92511AE1D005E26A2 /* NENavigator.h */,
+				C7664EBA2511AE1D005E26A2 /* NENavigator.m */,
+			);
+			path = Navigator;
+			sourceTree = "<group>";
+		};
+		C7664EBB2511AE1D005E26A2 /* Account */ = {
+			isa = PBXGroup;
+			children = (
+				C7664EBC2511AE1D005E26A2 /* NEAccount.h */,
+				C7664EBD2511AE1D005E26A2 /* NEAccount.m */,
+			);
+			path = Account;
+			sourceTree = "<group>";
+		};
+		ED60ED5323840FB0919BFBAC /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				9C3E631E57C6DCADE269362E /* Pods-NLiteAVDemo.debug.xcconfig */,
+				F529C3FC806BA1848C19DF0C /* Pods-NLiteAVDemo.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C758CCD424EB7F5A003C406A /* NLiteAVDemo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C758CCEE24EB7F5F003C406A /* Build configuration list for PBXNativeTarget "NLiteAVDemo" */;
+			buildPhases = (
+				BB55C8E33DE19AD847449B27 /* [CP] Check Pods Manifest.lock */,
+				C758CCD124EB7F5A003C406A /* Sources */,
+				C758CCD224EB7F5A003C406A /* Frameworks */,
+				C758CCD324EB7F5A003C406A /* Resources */,
+				CD7A9B1FF40F66D34F55150E /* [CP] Embed Pods Frameworks */,
+				C79685B524F901890093AF5C /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NLiteAVDemo;
+			productName = NLiteAVDemo;
+			productReference = C758CCD524EB7F5A003C406A /* 网易云信 NERTC.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C758CCCD24EB7F5A003C406A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1150;
+				ORGANIZATIONNAME = Netease;
+				TargetAttributes = {
+					C758CCD424EB7F5A003C406A = {
+						CreatedOnToolsVersion = 11.5;
+					};
+				};
+			};
+			buildConfigurationList = C758CCD024EB7F5A003C406A /* Build configuration list for PBXProject "NLiteAVDemo" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C758CCCC24EB7F5A003C406A;
+			productRefGroup = C758CCD624EB7F5A003C406A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C758CCD424EB7F5A003C406A /* NLiteAVDemo */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C758CCD324EB7F5A003C406A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C758CCE824EB7F5F003C406A /* LaunchScreen.storyboard in Resources */,
+				C758CCE524EB7F5F003C406A /* Assets.xcassets in Resources */,
+				C758CCE324EB7F5A003C406A /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		BB55C8E33DE19AD847449B27 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-NLiteAVDemo-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		CD7A9B1FF40F66D34F55150E /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-NLiteAVDemo/Pods-NLiteAVDemo-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-NLiteAVDemo/Pods-NLiteAVDemo-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NLiteAVDemo/Pods-NLiteAVDemo-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C758CCD124EB7F5A003C406A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C7664ED92511AE1E005E26A2 /* UIView+NTES.m in Sources */,
+				C7664EBE2511AE1D005E26A2 /* NESearchResultCell.m in Sources */,
+				C7664ECC2511AE1E005E26A2 /* NESendSmsCodeTask.m in Sources */,
+				C7664EC42511AE1D005E26A2 /* NECustomButton.m in Sources */,
+				C758CCDA24EB7F5A003C406A /* AppDelegate.m in Sources */,
+				C7664EC52511AE1D005E26A2 /* NEVideoOperationView.m in Sources */,
+				C7664ECA2511AE1E005E26A2 /* NEUser.m in Sources */,
+				C7664ED52511AE1E005E26A2 /* NEMenuViewController.m in Sources */,
+				C7664ED22511AE1E005E26A2 /* NECountDownButton.m in Sources */,
+				C7664EDC2511AE1E005E26A2 /* NSDictionary+NTESJson.m in Sources */,
+				C7664EBF2511AE1D005E26A2 /* NEHistoryView.m in Sources */,
+				C7664EC12511AE1D005E26A2 /* NEHistoryCell.m in Sources */,
+				C7664EDB2511AE1E005E26A2 /* UIColor+NTES.m in Sources */,
+				C7664ED12511AE1E005E26A2 /* NTELoginVC.m in Sources */,
+				C7664ED32511AE1E005E26A2 /* NTFSmsInputView.m in Sources */,
+				C7664EDA2511AE1E005E26A2 /* UIImage+NTES.m in Sources */,
+				C7664EDD2511AE1E005E26A2 /* NEBaseViewController.m in Sources */,
+				C7664EC72511AE1E005E26A2 /* NERtcContactsViewController.m in Sources */,
+				C7664ED72511AE1E005E26A2 /* NETask.m in Sources */,
+				C7664EC02511AE1D005E26A2 /* NEBaseUserListView.m in Sources */,
+				C7664EC32511AE1D005E26A2 /* NEVideoView.m in Sources */,
+				C7664ECE2511AE1E005E26A2 /* NEAccountTask.m in Sources */,
+				C7664ED02511AE1E005E26A2 /* NELoginOptions.m in Sources */,
+				C7664ED82511AE1E005E26A2 /* NEService.m in Sources */,
+				C7664EDE2511AE1E005E26A2 /* NSMacro.m in Sources */,
+				C7664ECB2511AE1E005E26A2 /* NERtcVideoCall.m in Sources */,
+				C7664ED42511AE1E005E26A2 /* NEMenuCell.m in Sources */,
+				C7664EE02511AE1E005E26A2 /* NEAccount.m in Sources */,
+				C7664ED62511AE1E005E26A2 /* NENavCustomView.m in Sources */,
+				C7664EC82511AE1E005E26A2 /* NESearchTask.m in Sources */,
+				C7664ECF2511AE1E005E26A2 /* NTFInputSmsVC.m in Sources */,
+				C7664ECD2511AE1E005E26A2 /* NEAccountTask.m in Sources */,
+				C7664EC92511AE1E005E26A2 /* NERtcVideoCallModel.m in Sources */,
+				C7664EC62511AE1E005E26A2 /* NECallViewController.m in Sources */,
+				C7664EC22511AE1D005E26A2 /* NESearchResultView.m in Sources */,
+				C7664EDF2511AE1E005E26A2 /* NENavigator.m in Sources */,
+				C758CCEB24EB7F5F003C406A /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		C758CCE124EB7F5A003C406A /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C758CCE224EB7F5A003C406A /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		C758CCE624EB7F5F003C406A /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C758CCE724EB7F5F003C406A /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		C758CCEC24EB7F5F003C406A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		C758CCED24EB7F5F003C406A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C758CCEF24EB7F5F003C406A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9C3E631E57C6DCADE269362E /* Pods-NLiteAVDemo.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = NLiteAVDemo/NLiteAVDemo.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 569GNZ5392;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/NLiteAVDemo/PrefixHeader.pch";
+				INFOPLIST_FILE = NLiteAVDemo/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.netease.NELiteAVDemo;
+				PRODUCT_NAME = "网易云信 NERTC";
+				PROVISIONING_PROFILE_SPECIFIER = NEAVDemo_dev;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C758CCF024EB7F5F003C406A /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F529C3FC806BA1848C19DF0C /* Pods-NLiteAVDemo.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = NLiteAVDemo/NLiteAVDemo.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = J669Y64Z9Y;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/NLiteAVDemo/PrefixHeader.pch";
+				INFOPLIST_FILE = NLiteAVDemo/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.netease.NELiteAVDemo;
+				PRODUCT_NAME = "网易云信 NERTC";
+				PROVISIONING_PROFILE_SPECIFIER = NEAVDemo_AppStore;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C758CCD024EB7F5A003C406A /* Build configuration list for PBXProject "NLiteAVDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C758CCEC24EB7F5F003C406A /* Debug */,
+				C758CCED24EB7F5F003C406A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C758CCEE24EB7F5F003C406A /* Build configuration list for PBXNativeTarget "NLiteAVDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C758CCEF24EB7F5F003C406A /* Debug */,
+				C758CCF024EB7F5F003C406A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C758CCCD24EB7F5A003C406A /* Project object */;
+}

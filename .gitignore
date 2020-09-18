@@ -21,7 +21,7 @@ DerivedData
 .DS_Store
 rvm.env
 
-iOS/NLiteAVDemo/Pods/
+Pods/
 
 # NIMGitVersion.h
 # NIMAVChatGitVersion.h
