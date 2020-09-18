@@ -29,13 +29,26 @@
 
 1. NERtcVideoCall组件：
 
-   ![](https://github.com/netease-im/NEVideoCall-1to1/blob/feature/feature_iOS/iOS/NLiteAVDemo/Images/image-20200902204955182.png)
+   ![](https://github.com/netease-im/NEVideoCall-1to1/blob/feature/feature_iOS/NLiteAVDemo-iOS-ObjC/Images/image-20200902204955182.png)
 
-2. UI组件：
+#### 修改Demo源代码：
 
-   | NERtcContactsViewController | 联系人搜索页      |
-   | --------------------------- | ----------------- |
-   | NECallViewController        | 呼叫&被呼叫主页面 |
+Demo跑通之后，可以修改NERtcVideoCall/UI文件夹下的类文件，复用**联系人搜索页**以及**视频通话页**。
+
+|         文件/文件夹         |                   功能                   |
+| :-------------------------: | :--------------------------------------: |
+|          AppKey.h           |   配置AppKey、推送证书名称、服务器域名   |
+|    NEMenuViewController     |               功能列表首页               |
+| NERtcContactsViewController |             **联系人搜索页**             |
+|    NECallViewController     |              **视频通话页**              |
+|           Login/            |            登录&注册功能模块             |
+|          Service/           |             网络请求功能模块             |
+|           Utils/            | 通用功能：UI父类、分类、宏定义、账户信息 |
+
+#### 基于NERtcVideoCall实现自定义UI：
+
+仅需拷贝NERtcVideoCall/Model文件夹到自己的工程，导入`NERtcVideoCall.h`头文件，创建自定义UI界面，即可实现视频通话功能。具体步骤如下：
+
 
 #### 复用UI：
 

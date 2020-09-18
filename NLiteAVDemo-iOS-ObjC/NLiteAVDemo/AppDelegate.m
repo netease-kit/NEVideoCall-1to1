@@ -35,7 +35,7 @@
 }
 
 - (void)setupSDK {
-    [[NERtcVideoCall shared] setupAppKey:Appkey APNSCerName:APNSCerName VoIPCerName:nil];
+    [[NERtcVideoCall shared] setupAppKey:kAppKey APNSCerName:KAPNSCerName VoIPCerName:nil];
 }
 
 - (void)registerAPNS
