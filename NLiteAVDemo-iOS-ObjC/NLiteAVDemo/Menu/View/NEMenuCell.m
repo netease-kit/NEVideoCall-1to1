@@ -65,7 +65,7 @@
         _titleLabel.font = [UIFont boldSystemFontOfSize:18];
         _titleLabel.textColor = [UIColor whiteColor];
         _titleLabel.textAlignment = NSTextAlignmentCenter;
-        _titleLabel.text = @"音视频通话";
+        _titleLabel.text = @"一对一音视频通话";
     }
     return _titleLabel;
 }
