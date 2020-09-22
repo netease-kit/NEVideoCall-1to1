@@ -8,7 +8,7 @@ on:
 jobs:
   build_video_stream_java:
     name: Build NEChatroom Java
-    runs-on: macos-latest
+    runs-on: windows-latest
     env:
       CONFIG_FILE_PATH: ${{ './baselib/src/main/cpp/config.cpp' }}
       CONFIG_STUB_SCRIPT_PATH: ${{ './workflow/config_stub.py' }}
@@ -47,7 +47,7 @@ jobs:
 
     - name: Build APK
       run:
-        ./gradlew assembleRelease
+        gradlew assembleRelease
 
     - name: Sign APK
       run:
