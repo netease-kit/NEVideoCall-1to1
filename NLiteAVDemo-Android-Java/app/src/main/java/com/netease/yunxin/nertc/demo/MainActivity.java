@@ -71,7 +71,9 @@ public class MainActivity extends AppCompatActivity {
         tvVersion = findViewById(R.id.tv_version);
 
         ivAccountIcon.setOnClickListener(view -> {
-            showLogoutDialog();
+            if (ProfileManager.getInstance().isLogin() && ProfileManager.getInstance().getUserModel() != null) {
+                showLogoutDialog();
+            }
         });
 
         rlyVideoCall.setOnClickListener(view -> {

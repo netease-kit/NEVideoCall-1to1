@@ -25,12 +25,6 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            //此处填写APPKey
-            manifestPlaceholders = [nim_key:'you app key for release']
-        }
-        debug {
-            //此处填写APPKey
-            manifestPlaceholders = [nim_key:'you app key for debug']
         }
     }
     compileOptions {
