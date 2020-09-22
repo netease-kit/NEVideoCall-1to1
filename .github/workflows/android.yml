@@ -19,6 +19,7 @@ jobs:
       APP_KEY: ${{ secrets.APP_KEY }}
       BASE_URL: ${{ secrets.API_BASE_URL }}
       KEYSTORE_ENC_PWD: ${{ secrets.KEYSTORE_ENC_PWD }}
+      ANDROID_SDK: ${{ 'C:/Program Files (x86)/Android/android-sdk'}}
     defaults:
       run:
         shell: bash
@@ -51,7 +52,7 @@ jobs:
 
     - name: Sign APK
       run:
-        C:/Program Files (x86)/Android/android-sdk/build-tools/29.0.3/apksigner sign --ks $DECRYPTED_KEYSTORE_PATH --ks-pass pass:$KEYSTORE_ENC_PWD --key-pass pass:$KEYSTORE_ENC_PWD --v1-signing-enabled true --v2-signing-enabled true --in $UNSIGNED_APK_PATH --out $SIGNED_APK_PATH
+        $ANDROID_SDK/build-tools/29.0.3/apksigner sign --ks $DECRYPTED_KEYSTORE_PATH --ks-pass pass:$KEYSTORE_ENC_PWD --key-pass pass:$KEYSTORE_ENC_PWD --v1-signing-enabled true --v2-signing-enabled true --in $UNSIGNED_APK_PATH --out $SIGNED_APK_PATH
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
