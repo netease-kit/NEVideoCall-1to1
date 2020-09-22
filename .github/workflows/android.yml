@@ -47,7 +47,7 @@ jobs:
 
     - name: Build APK
       run:
-        gradlew assembleRelease
+        ./gradlew assembleRelease
 
     - name: Sign APK
       run:
