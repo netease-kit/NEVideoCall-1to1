@@ -16,7 +16,7 @@ public class BaseService {
 
     public static final int ERROR_CODE_UNKNOWN = -1;
 
-    private static final String BASE_URL = BuildConfig.SEVER_URL;
+    private static final String BASE_URL = NativeConfig.getBaseURL();
 
     public static BaseService getInstance() {
         return RetrofitHolder.retrofit;

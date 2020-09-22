@@ -35,6 +35,7 @@ import com.netease.nimlib.sdk.avsignalling.event.InvitedEvent;
 import com.netease.nimlib.sdk.avsignalling.event.UserJoinEvent;
 import com.netease.nimlib.sdk.avsignalling.event.UserLeaveEvent;
 import com.netease.nimlib.sdk.avsignalling.model.ChannelFullInfo;
+import com.netease.yunxin.nertc.baselib.NativeConfig;
 import com.netease.yunxin.nertc.login.model.ProfileManager;
 import com.netease.yunxin.nertc.login.model.UserModel;
 import com.netease.yunxin.nertc.nertcvideocalldemo.model.NERTCCallingDelegate;
@@ -248,10 +249,7 @@ public class NERTCVideoCallImpl extends NERTCVideoCall {
         NERtcParameters parameters = new NERtcParameters();
         NERtc.getInstance().setParameters(parameters); //先设置参数，后初始化
         try {
-            ApplicationInfo appInfo = context.getPackageManager()
-                    .getApplicationInfo(context.getPackageName(),
-                            PackageManager.GET_META_DATA);
-            String appKey = appInfo.metaData.getString("com.netease.nim.appKey");
+            String appKey = NativeConfig.getAppKey();
             NERtc.getInstance().init(context, appKey, rtcCallback, null);
         } catch (Exception e) {
             ToastUtils.showShort("SDK初始化失败");

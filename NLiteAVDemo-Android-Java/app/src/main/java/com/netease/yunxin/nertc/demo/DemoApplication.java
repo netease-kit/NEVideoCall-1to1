@@ -17,32 +17,12 @@ import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.SDKOptions;
 import com.netease.nimlib.sdk.StatusBarNotificationConfig;
 import com.netease.nimlib.sdk.auth.LoginInfo;
-import com.netease.nimlib.sdk.avsignalling.SignallingServiceObserver;
-import com.netease.nimlib.sdk.avsignalling.builder.InviteParamBuilder;
-import com.netease.nimlib.sdk.avsignalling.constant.SignallingEventType;
-import com.netease.nimlib.sdk.avsignalling.event.CanceledInviteEvent;
-import com.netease.nimlib.sdk.avsignalling.event.ChannelCloseEvent;
-import com.netease.nimlib.sdk.avsignalling.event.ChannelCommonEvent;
-import com.netease.nimlib.sdk.avsignalling.event.ControlEvent;
-import com.netease.nimlib.sdk.avsignalling.event.InviteAckEvent;
-import com.netease.nimlib.sdk.avsignalling.event.InvitedEvent;
-import com.netease.nimlib.sdk.avsignalling.event.UserJoinEvent;
-import com.netease.nimlib.sdk.avsignalling.event.UserLeaveEvent;
-import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
-import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
-import com.netease.nimlib.sdk.uinfo.UserService;
-import com.netease.nimlib.sdk.uinfo.constant.UserInfoFieldEnum;
-import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
-import com.netease.nimlib.sdk.uinfo.model.UserInfo;
+
 import com.netease.nimlib.sdk.util.NIMUtil;
+import com.netease.yunxin.nertc.baselib.NativeConfig;
 import com.netease.yunxin.nertc.login.model.ProfileManager;
 import com.netease.yunxin.nertc.login.model.UserModel;
-import com.netease.yunxin.nertc.nertcvideocalldemo.ui.NERTCVideoCallActivity;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class DemoApplication extends Application {
     @Override
@@ -58,7 +38,10 @@ public class DemoApplication extends Application {
 
     // 如果返回值为 null，则全部使用默认参数。
     private SDKOptions options() {
-        return null;
+        SDKOptions options = new SDKOptions();
+        //此处仅设置appkey，其他设置请自行参看信令文档设置 ：https://dev.yunxin.163.com/docs/product/信令/SDK开发集成/Android开发集成/初始化
+        options.appKey = NativeConfig.getAppKey();
+        return options;
     }
 
     // 如果已经存在用户登录信息，返回LoginInfo，否则返回null即可
