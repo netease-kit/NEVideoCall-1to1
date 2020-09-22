@@ -67,7 +67,7 @@
 		351BD670226DDD5B57B8EBF7 /* Pods_NLiteAVDemo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NLiteAVDemo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C3E631E57C6DCADE269362E /* Pods-NLiteAVDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NLiteAVDemo.debug.xcconfig"; path = "Target Support Files/Pods-NLiteAVDemo/Pods-NLiteAVDemo.debug.xcconfig"; sourceTree = "<group>"; };
 		C728EEE32500D77D00D27176 /* AppKey.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppKey.h; sourceTree = "<group>"; };
-		C758CCD524EB7F5A003C406A /* 网易云信 NERTC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "网易云信 NERTC.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C758CCD524EB7F5A003C406A /* 云信视频通话.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "云信视频通话.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C758CCD824EB7F5A003C406A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		C758CCD924EB7F5A003C406A /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		C758CCE224EB7F5A003C406A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -185,7 +185,7 @@
 		C758CCD624EB7F5A003C406A /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				C758CCD524EB7F5A003C406A /* 网易云信 NERTC.app */,
+				C758CCD524EB7F5A003C406A /* 云信视频通话.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -460,7 +460,7 @@
 			);
 			name = NLiteAVDemo;
 			productName = NLiteAVDemo;
-			productReference = C758CCD524EB7F5A003C406A /* 网易云信 NERTC.app */;
+			productReference = C758CCD524EB7F5A003C406A /* 云信视频通话.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -735,7 +735,7 @@
 				CODE_SIGN_ENTITLEMENTS = NLiteAVDemo/NLiteAVDemo.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_TEAM = 569GNZ5392;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/NLiteAVDemo/PrefixHeader.pch";
 				INFOPLIST_FILE = NLiteAVDemo/Info.plist;
@@ -744,8 +744,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.netease.NELiteAVDemo;
-				PRODUCT_NAME = "网易云信 NERTC";
+				PRODUCT_BUNDLE_IDENTIFIER = com.netease.NEAVDemo;
+				PRODUCT_NAME = "云信视频通话";
 				PROVISIONING_PROFILE_SPECIFIER = NELiteAVDemo_Profile_Dev;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -759,8 +759,8 @@
 				CODE_SIGN_ENTITLEMENTS = NLiteAVDemo/NLiteAVDemo.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 9;
-				DEVELOPMENT_TEAM = 569GNZ5392;
+				CURRENT_PROJECT_VERSION = 13;
+				DEVELOPMENT_TEAM = J669Y64Z9Y;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/NLiteAVDemo/PrefixHeader.pch";
 				INFOPLIST_FILE = NLiteAVDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
@@ -768,9 +768,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.netease.NELiteAVDemo;
-				PRODUCT_NAME = "网易云信 NERTC";
-				PROVISIONING_PROFILE_SPECIFIER = NELiteAVDemo_Profile_InHouse;
+				PRODUCT_BUNDLE_IDENTIFIER = com.netease.NEAVDemo;
+				PRODUCT_NAME = "云信视频通话";
+				PROVISIONING_PROFILE_SPECIFIER = NEAVDemo_AppStore;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

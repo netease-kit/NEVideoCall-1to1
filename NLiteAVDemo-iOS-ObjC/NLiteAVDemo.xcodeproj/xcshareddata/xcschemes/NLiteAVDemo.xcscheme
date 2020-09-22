@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "C758CCD424EB7F5A003C406A"
-               BuildableName = "&#x7f51;&#x6613;&#x4e91;&#x4fe1; NERTC.app"
+               BuildableName = "&#x4e91;&#x4fe1;&#x89c6;&#x9891;&#x901a;&#x8bdd;.app"
                BlueprintName = "NLiteAVDemo"
                ReferencedContainer = "container:NLiteAVDemo.xcodeproj">
             </BuildableReference>
@@ -45,7 +45,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "C758CCD424EB7F5A003C406A"
-            BuildableName = "&#x7f51;&#x6613;&#x4e91;&#x4fe1; NERTC.app"
+            BuildableName = "&#x4e91;&#x4fe1;&#x89c6;&#x9891;&#x901a;&#x8bdd;.app"
             BlueprintName = "NLiteAVDemo"
             ReferencedContainer = "container:NLiteAVDemo.xcodeproj">
          </BuildableReference>
@@ -62,7 +62,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "C758CCD424EB7F5A003C406A"
-            BuildableName = "&#x7f51;&#x6613;&#x4e91;&#x4fe1; NERTC.app"
+            BuildableName = "&#x4e91;&#x4fe1;&#x89c6;&#x9891;&#x901a;&#x8bdd;.app"
             BlueprintName = "NLiteAVDemo"
             ReferencedContainer = "container:NLiteAVDemo.xcodeproj">
          </BuildableReference>

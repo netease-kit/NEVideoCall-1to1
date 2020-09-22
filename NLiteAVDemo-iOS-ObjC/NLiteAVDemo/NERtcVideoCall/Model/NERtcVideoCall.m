@@ -368,9 +368,14 @@ static NERtcVideoCall *instance;
             inviteInfo = (NIMSignalingInviteNotifyInfo *)info;
         }
     }
-    if (inviteInfo) {
-        [self _handleInviteInfo:inviteInfo];
-    }
+    NIMSignalingQueryChannelRequest *request = [[NIMSignalingQueryChannelRequest alloc] init];
+    request.channelId = inviteInfo.channelInfo.channelId;
+    request.channelName = inviteInfo.channelInfo.channelName;
+    [[[NIMSDK sharedSDK] signalManager] signalingQueryChannelInfo:request completion:^(NSError * _Nullable error, NIMSignalingChannelDetailedInfo * _Nullable response) {
+        if (!error) {
+            [self _handleInviteInfo:inviteInfo];
+        }
+    }];
 }
 
 #pragma mark - NERtcEngineDelegateEx

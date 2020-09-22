@@ -19,6 +19,14 @@
     return self;
 }
 - (void)initUI {
+    NSInteger padding = 20;
+    NSInteger arrowLeft = 14;
+
+    CGFloat width = [UIScreen mainScreen].bounds.size.width;
+    if (width <= 320) {
+        padding = 10;
+        arrowLeft = 4;
+    }
     self.backgroundColor = [UIColor clearColor];
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     UIView *bgView = [[UIView alloc] init];
@@ -26,7 +34,7 @@
     bgView.backgroundColor = [UIColor colorWithRed:50/255.0 green:55/255.0 blue:89/255.0 alpha:1.0];
     [self.contentView addSubview:bgView];
     [bgView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.edges.mas_equalTo(UIEdgeInsetsMake(8, 20, 8, 20));
+        make.edges.mas_equalTo(UIEdgeInsetsMake(8, padding, 8, padding));
     }];
     
     [bgView addSubview:self.iconView];
@@ -47,7 +55,7 @@
     arrow.contentMode = UIViewContentModeCenter;
     [bgView addSubview:arrow];
     [arrow mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.right.mas_equalTo(-24);
+        make.right.mas_equalTo(-arrowLeft);
         make.centerY.mas_equalTo(0);
         make.size.mas_equalTo(CGSizeMake(20, 20));
     }];
