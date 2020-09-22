@@ -57,4 +57,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: NEVideoCall-Android-Java
-        path: ./NLiteAVDemo-Android-Java/app/build/outputs/apk/release/VideoStream-Android-Java.apk
+        path: ./NLiteAVDemo-Android-Java/app/build/outputs/apk/release/NEVideoCall-Android-Java.apk
