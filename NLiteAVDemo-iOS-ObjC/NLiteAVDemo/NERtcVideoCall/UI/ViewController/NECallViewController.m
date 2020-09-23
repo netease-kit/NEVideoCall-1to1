@@ -42,16 +42,17 @@
 #pragma mark - SDK
 - (void)setupSDK {
     [[NERtcVideoCall shared] addDelegate:self];
-    [NERtcVideoCall shared].timeOutSeconds = 1.0 * 60;
+    [NERtcVideoCall shared].timeOutSeconds = 30;
     if (self.status == NECallStatusCall) {
         [[NERtcVideoCall shared] call:self.remoteUser completion:^(NSError * _Nullable error) {
             [[NERtcVideoCall shared] setupLocalView:self.bigVideoView.videoView];
             self.bigVideoView.userID = self.localUser.imAccid;
             if (error) {
                 /// 对方离线时 通过APNS推送 UI不弹框提示
-                if (error.code != 10202) {
-                    [self.view makeToast:error.localizedDescription];
+                if (error.code == 10202||error.code == 10201) {
+                    return;
                 }
+                [self.view makeToast:error.localizedDescription];
             }
         }];
     }
@@ -101,20 +102,20 @@
     [self.view addSubview:self.cancelBtn];
     [self.cancelBtn mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.mas_equalTo(self.view.mas_centerX);
-        make.bottom.mas_equalTo(self.view.mas_bottom).offset(-100);
+        make.bottom.mas_equalTo(self.view.mas_bottom).offset(-80);
         make.size.mas_equalTo(CGSizeMake(75, 103));
     }];
     /// 接听和拒接按钮
     [self.view addSubview:self.rejectBtn];
     [self.rejectBtn mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.mas_equalTo(- self.view.frame.size.width/4.0);
-        make.bottom.mas_equalTo(self.view.mas_bottom).offset(-100);
+        make.bottom.mas_equalTo(self.view.mas_bottom).offset(-80);
         make.size.mas_equalTo(CGSizeMake(75, 103));
     }];
     [self.view addSubview:self.acceptBtn];
     [self.acceptBtn mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.mas_equalTo(self.view.frame.size.width/4.0);
-        make.bottom.mas_equalTo(self.view.mas_bottom).offset(-100);
+        make.bottom.mas_equalTo(self.view.mas_bottom).offset(-80);
         make.size.mas_equalTo(CGSizeMake(75, 103));
     }];
     [self.view addSubview:self.operationView];
@@ -181,15 +182,21 @@
     }];
 }
 - (void)rejectEvent:(NECustomButton *)button {
+    self.acceptBtn.userInteractionEnabled = NO;
     [[NERtcVideoCall shared] reject:^(NSError * _Nullable error) {
+        self.acceptBtn.userInteractionEnabled = YES;
         [self destroy];
     }];
 }
 - (void)acceptEvent:(NECustomButton *)button {
+    self.rejectBtn.userInteractionEnabled = NO;
+    self.acceptBtn.userInteractionEnabled = NO;
     [[NERtcVideoCall shared] accept:^(NSError * _Nullable error) {
+        self.rejectBtn.userInteractionEnabled = YES;
+        self.acceptBtn.userInteractionEnabled = YES;
         if (error) {
             [self.view makeToast:error.localizedDescription];
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 [self destroy];
             });
         }else {
@@ -251,7 +258,7 @@
 - (void)timeOut {
     [self.view makeToast:@"对方无响应"];
     [[NERtcVideoCall shared] cancel:^(NSError * _Nullable error) {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self destroy];
         });
     }];
@@ -259,7 +266,7 @@
 
 - (void)onUserBusy:(NSString *)userId {
     [self.view makeToast:@"对方正在通话中"];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self destroy];
     });
 }
@@ -268,7 +275,7 @@
 }
 - (void)onRejectByUserId:(NSString *)userId {
     [self.view makeToast:@"对方拒绝了您的邀请"];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self destroy];
     });
 }
@@ -287,8 +294,10 @@
 }
 #pragma mark - destroy
 - (void)destroy {
+    if (self && [self respondsToSelector:@selector(dismissViewControllerAnimated:completion:)]) {
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }
     [[NERtcVideoCall shared] removeDelegate:self];
-    [self dismissViewControllerAnimated:YES completion:nil];
 }
 #pragma mark - property
 - (NEVideoView *)bigVideoView {
@@ -383,6 +392,6 @@
 }
 
 - (void)dealloc {
-    NSLog(@"%@ dealloc",[self class]);
+    NSLog(@"%@ dealloc%@",[self class],self);
 }
 @end

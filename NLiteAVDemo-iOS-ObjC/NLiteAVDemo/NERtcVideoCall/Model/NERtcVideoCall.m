@@ -148,6 +148,8 @@ static NERtcVideoCall *instance;
 }
 - (void)cancel:(void(^)(NSError * __nullable error))completion {
     self.callStatus = NECallStatusNone;
+    [self cancelTimeout];
+    
     NIMSignalingCancelInviteRequest *request = [[NIMSignalingCancelInviteRequest alloc] init];
     request.channelId = self.currentModel.channelID;
     request.accountId = self.currentModel.remoteUser.imAccid;
@@ -436,16 +438,20 @@ static NERtcVideoCall *instance;
 
 #pragma mark - timer
 - (void)waitTimeout {
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.timeOutSeconds * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        if (self.callStatus == NECallStatusCall) {
-            //超时操作
-            for (id<NERtcVideoCallDelegate>delegate in self.delegateList) {
-                if ([delegate respondsToSelector:@selector(timeOut)]) {
-                    [delegate timeOut];
-                }
+    [self performSelector:@selector(timeout) withObject:nil afterDelay:self.timeOutSeconds];
+}
+- (void)timeout {
+    if (self.callStatus == NECallStatusCall) {
+        //超时操作
+        for (id<NERtcVideoCallDelegate>delegate in self.delegateList) {
+            if ([delegate respondsToSelector:@selector(timeOut)]) {
+                [delegate timeOut];
             }
         }
-    });
+    }
+}
+- (void)cancelTimeout {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
 #pragma mark - requestID
 - (NSString *)generateRequestID {
