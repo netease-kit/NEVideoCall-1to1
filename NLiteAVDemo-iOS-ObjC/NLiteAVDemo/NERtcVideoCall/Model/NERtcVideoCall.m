@@ -147,22 +147,23 @@ static NERtcVideoCall *instance;
     }];
 }
 - (void)cancel:(void(^)(NSError * __nullable error))completion {
-    self.callStatus = NECallStatusNone;
     [self cancelTimeout];
-    
     NIMSignalingCancelInviteRequest *request = [[NIMSignalingCancelInviteRequest alloc] init];
     request.channelId = self.currentModel.channelID;
     request.accountId = self.currentModel.remoteUser.imAccid;
     request.requestId = self.currentModel.requestID;
     [[[NIMSDK sharedSDK] signalManager] signalingCancelInvite:request completion:^(NSError * _Nullable error) {
-        [[NERtcEngine sharedEngine] leaveChannel];
         if (completion) {
             completion(error);
         }
-    }];
-    NIMSignalingCloseChannelRequest *closeRequest = [[NIMSignalingCloseChannelRequest alloc] init];
-    closeRequest.channelId = self.currentModel.channelID;
-    [[[NIMSDK sharedSDK] signalManager] signalingCloseChannel:closeRequest completion:^(NSError * _Nullable error) {
+        if (!error) {
+            self.callStatus = NECallStatusNone;
+            [[NERtcEngine sharedEngine] leaveChannel];
+            NIMSignalingCloseChannelRequest *closeRequest = [[NIMSignalingCloseChannelRequest alloc] init];
+            closeRequest.channelId = self.currentModel.channelID;
+            [[[NIMSDK sharedSDK] signalManager] signalingCloseChannel:closeRequest completion:^(NSError * _Nullable error) {
+            }];
+        }
     }];
 }
 /*
@@ -383,6 +384,7 @@ static NERtcVideoCall *instance;
 #pragma mark - NERtcEngineDelegateEx
 //  其他用户加入频道
 - (void)onNERtcEngineUserDidJoinWithUserID:(uint64_t)userID userName:(NSString *)userName {
+    self.callStatus = NECallStatusCalling;
     NEUser *user = [[NEUser alloc] init];
     user.imAccid = [NSString stringWithFormat:@"%llu",userID];
     for (id<NERtcVideoCallDelegate>delegate in self.delegateList) {

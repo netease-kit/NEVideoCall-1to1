@@ -178,7 +178,11 @@
 }
 - (void)cancelEvent:(NECustomButton *)button {
     [[NERtcVideoCall shared] cancel:^(NSError * _Nullable error) {
-        [self destroy];
+        if (error.code == 10410) {
+            // 邀请已接受 取消失败 不销毁VC
+        }else {
+            [self destroy];
+        }
     }];
 }
 - (void)rejectEvent:(NECustomButton *)button {
@@ -195,7 +199,7 @@
         self.rejectBtn.userInteractionEnabled = YES;
         self.acceptBtn.userInteractionEnabled = YES;
         if (error) {
-            [self.view makeToast:error.localizedDescription];
+            [self.view makeToast:@"接听失败"];
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 [self destroy];
             });
