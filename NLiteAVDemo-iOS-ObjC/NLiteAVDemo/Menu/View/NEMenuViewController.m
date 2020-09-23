@@ -143,13 +143,15 @@ static NSString *cellID = @"menuCellID";
 }
 #pragma mark - NERtcVideoCallDelegate
 - (void)onInvitedByUser:(NEUser *)user {
-    //接听
-    NECallViewController *callVC = [[NECallViewController alloc] init];
-    callVC.localUser = [NEAccount shared].userModel;
-    callVC.remoteUser = user;
-    callVC.status = NECallStatusCalled;
-    callVC.modalPresentationStyle = UIModalPresentationFullScreen;
-    [self.navigationController presentViewController:callVC animated:YES completion:nil];
+    if (!self.presentedViewController)
+    {
+        NECallViewController *callVC = [[NECallViewController alloc] init];
+        callVC.localUser = [NEAccount shared].userModel;
+        callVC.remoteUser = user;
+        callVC.status = NECallStatusCalled;
+        callVC.modalPresentationStyle = UIModalPresentationFullScreen;
+        [self.navigationController presentViewController:callVC animated:YES completion:nil];
+    }
 }
 
 #pragma mark - UITableViewDelegate

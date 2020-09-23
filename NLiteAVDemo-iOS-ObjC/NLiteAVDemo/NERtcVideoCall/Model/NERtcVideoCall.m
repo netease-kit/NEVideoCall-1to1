@@ -147,20 +147,23 @@ static NERtcVideoCall *instance;
     }];
 }
 - (void)cancel:(void(^)(NSError * __nullable error))completion {
-    self.callStatus = NECallStatusNone;
+    [self cancelTimeout];
     NIMSignalingCancelInviteRequest *request = [[NIMSignalingCancelInviteRequest alloc] init];
     request.channelId = self.currentModel.channelID;
     request.accountId = self.currentModel.remoteUser.imAccid;
     request.requestId = self.currentModel.requestID;
     [[[NIMSDK sharedSDK] signalManager] signalingCancelInvite:request completion:^(NSError * _Nullable error) {
-        [[NERtcEngine sharedEngine] leaveChannel];
         if (completion) {
             completion(error);
         }
-    }];
-    NIMSignalingCloseChannelRequest *closeRequest = [[NIMSignalingCloseChannelRequest alloc] init];
-    closeRequest.channelId = self.currentModel.channelID;
-    [[[NIMSDK sharedSDK] signalManager] signalingCloseChannel:closeRequest completion:^(NSError * _Nullable error) {
+        if (!error) {
+            self.callStatus = NECallStatusNone;
+            [[NERtcEngine sharedEngine] leaveChannel];
+            NIMSignalingCloseChannelRequest *closeRequest = [[NIMSignalingCloseChannelRequest alloc] init];
+            closeRequest.channelId = self.currentModel.channelID;
+            [[[NIMSDK sharedSDK] signalManager] signalingCloseChannel:closeRequest completion:^(NSError * _Nullable error) {
+            }];
+        }
     }];
 }
 /*
@@ -368,14 +371,20 @@ static NERtcVideoCall *instance;
             inviteInfo = (NIMSignalingInviteNotifyInfo *)info;
         }
     }
-    if (inviteInfo) {
-        [self _handleInviteInfo:inviteInfo];
-    }
+    NIMSignalingQueryChannelRequest *request = [[NIMSignalingQueryChannelRequest alloc] init];
+    request.channelId = inviteInfo.channelInfo.channelId;
+    request.channelName = inviteInfo.channelInfo.channelName;
+    [[[NIMSDK sharedSDK] signalManager] signalingQueryChannelInfo:request completion:^(NSError * _Nullable error, NIMSignalingChannelDetailedInfo * _Nullable response) {
+        if (!error) {
+            [self _handleInviteInfo:inviteInfo];
+        }
+    }];
 }
 
 #pragma mark - NERtcEngineDelegateEx
 //  其他用户加入频道
 - (void)onNERtcEngineUserDidJoinWithUserID:(uint64_t)userID userName:(NSString *)userName {
+    self.callStatus = NECallStatusCalling;
     NEUser *user = [[NEUser alloc] init];
     user.imAccid = [NSString stringWithFormat:@"%llu",userID];
     for (id<NERtcVideoCallDelegate>delegate in self.delegateList) {
@@ -431,16 +440,20 @@ static NERtcVideoCall *instance;
 
 #pragma mark - timer
 - (void)waitTimeout {
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.timeOutSeconds * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        if (self.callStatus == NECallStatusCall) {
-            //超时操作
-            for (id<NERtcVideoCallDelegate>delegate in self.delegateList) {
-                if ([delegate respondsToSelector:@selector(timeOut)]) {
-                    [delegate timeOut];
-                }
+    [self performSelector:@selector(timeout) withObject:nil afterDelay:self.timeOutSeconds];
+}
+- (void)timeout {
+    if (self.callStatus == NECallStatusCall) {
+        //超时操作
+        for (id<NERtcVideoCallDelegate>delegate in self.delegateList) {
+            if ([delegate respondsToSelector:@selector(timeOut)]) {
+                [delegate timeOut];
             }
         }
-    });
+    }
+}
+- (void)cancelTimeout {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
 #pragma mark - requestID
 - (NSString *)generateRequestID {
