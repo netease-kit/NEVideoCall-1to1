@@ -45,11 +45,6 @@ Demo跑通之后，可以修改NERtcVideoCall/UI文件夹下的类文件，复�
 |          Service/           |             网络请求功能模块             |
 |           Utils/            | 通用功能：UI父类、分类、宏定义、账户信息 |
 
-#### 基于NERtcVideoCall实现自定义UI：
-
-仅需拷贝NERtcVideoCall/Model文件夹到自己的工程，导入`NERtcVideoCall.h`头文件，创建自定义UI界面，即可实现视频通话功能。具体步骤如下：
-
-
 #### 复用UI：
 
 Demo跑通之后，可以修改NERtcVideoCall/UI文件夹下的类文件，复用**联系人搜索页**以及**视频通话页**UI。
