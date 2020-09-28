@@ -122,7 +122,7 @@ userB.imToken = @"";
 }];
 ```
 
-#### NERtcVideoCall API
+### NERtcVideoCall API
 
 **NERtcVideoCall**组件的 API 接口列表如下：
 
