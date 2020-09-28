@@ -1,7 +1,7 @@
 PODS:
   - Masonry (1.1.0)
-  - NERtcSDK (3.5.2)
-  - NIMSDK_LITE (7.8.4)
+  - NERtcSDK (3.6.2)
+  - NIMSDK_LITE (7.9.1)
   - SDWebImage (5.7.4):
     - SDWebImage/Core (= 5.7.4)
   - SDWebImage/Core (5.7.4)
@@ -9,8 +9,8 @@ PODS:
 
 DEPENDENCIES:
   - Masonry
-  - NERtcSDK (~> 3.5.1)
-  - NIMSDK_LITE (= 7.8.4)
+  - NERtcSDK (~> 3.6.1)
+  - NIMSDK_LITE (~> 7.9.1)
   - SDWebImage (~> 5.7.1)
   - Toast
 
@@ -24,11 +24,11 @@ SPEC REPOS:
 
 SPEC CHECKSUMS:
   Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
-  NERtcSDK: a03605d9ed0db330a932e3bc62c8b7a7750f3c1a
-  NIMSDK_LITE: 7648e6c96addbc932bc60dc89e66785cb4412f58
+  NERtcSDK: 01855b97554cf0c856d009db7b296de4f71300c2
+  NIMSDK_LITE: a81b6f4960a905db302d791996520bd119450f53
   SDWebImage: 48b88379b798fd1e4298f95bb25d2cdabbf4deb3
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
 
-PODFILE CHECKSUM: 98a9b1fc94ec2b0ee38cfcd20a8659d02daa601d
+PODFILE CHECKSUM: 183e7e34a71bb378901b45e2361c3eab1be1a9b0
 
 COCOAPODS: 1.9.3

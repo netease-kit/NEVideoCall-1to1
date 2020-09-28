@@ -744,7 +744,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.netease.NEAVDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.netease.NELiteAVDemo;
 				PRODUCT_NAME = "云信视频通话";
 				PROVISIONING_PROFILE_SPECIFIER = NELiteAVDemo_Profile_Dev;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -768,7 +768,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.netease.NEAVDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.netease.NELiteAVDemo;
 				PRODUCT_NAME = "云信视频通话";
 				PROVISIONING_PROFILE_SPECIFIER = NEAVDemo_AppStore;
 				TARGETED_DEVICE_FAMILY = "1,2";

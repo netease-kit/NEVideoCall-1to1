@@ -4,8 +4,8 @@
 target 'NLiteAVDemo' do
   use_frameworks!
 
-pod 'NERtcSDK', '~> 3.5.1'
-pod 'NIMSDK_LITE', '7.8.4'
+pod 'NERtcSDK', '~> 3.6.1'
+pod 'NIMSDK_LITE', '~> 7.9.1'
 pod 'Masonry'
 pod 'SDWebImage', '~> 5.7.1'
 pod 'Toast'
