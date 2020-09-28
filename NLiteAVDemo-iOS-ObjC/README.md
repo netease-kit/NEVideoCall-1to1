@@ -29,7 +29,7 @@
 
 1. NERtcVideoCall组件：
 
-   ![](https://github.com/netease-im/NEVideoCall-1to1/blob/feature/feature_iOS/NLiteAVDemo-iOS-ObjC/Images/image-20200902204955182.png)
+   ![](https://github.com/netease-im/NEVideoCall-1to1/blob/master/NLiteAVDemo-iOS-ObjC/Images/image-20200902204955182.png)
 
 #### 修改Demo源代码：
 
