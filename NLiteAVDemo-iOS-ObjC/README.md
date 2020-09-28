@@ -1,10 +1,10 @@
-## 云信一对一视频通话（iOS）
+# 云信一对一视频通话（iOS）
 
 本文主要展示如何集成云信的NIMSDK以及NERtcSDK，快速实现一对一视频通话功能。您可以直接基于我们的Demo修改适配，也可以使用我们提供的NERtcVideoCall组件，实现自定义UI。效果如下：
 
 ![profile](https://github.com/netease-im/NEVideoCall-1to1/blob/master/NLiteAVDemo-iOS-ObjC/Images/profile.png)
 
-### 功能介绍
+## 功能介绍
 
 - 视频呼叫/接听
 - 开启/关闭麦克风
@@ -12,20 +12,20 @@
 - 切换前后摄像头
 - 视频拒绝/挂断
 
-### 环境准备
+## 环境准备
 
 1. 登录[网易云控制台](https://app.yunxin.163.com/index?clueFrom=nim&from=nim#/)，点击【应用】>【创建】创建自己的App，在【功能管理】中申请开通【信令】和【音视频通话】功能。
 2. 在控制台中【App Key管理】获取App Key。
 3. 下载[本项目]()，将AppDelegate.m中的App Key更换为自己的App Key。
 
-### 运行示例项目
+## 运行示例项目
 
 **注意：在运行前，请联系商务经理开通非安全模式（因Demo中RTCSDK中的token传空）。**
 
 1. 下载完成后，终端进入Podfile所在文件夹，执行`pod install`命令。如未安装Cocoapods，请参考[安装说明](https://guides.cocoapods.org/using/getting-started.html#getting-started)。
 2. 执行 `pod install` 完成安装后，双击 `NLiteAVDemo.xcworkspace` 通过 Xcode 打开工程。然后打开 `AppDelegate.h` 文件，填入您的AppKey，`APNSCerName`和`VoIPCerName`可以需要时再填写。随后运行工程即可。
 
-### 功能实现
+## 功能实现
 
 Demo项目文件目录功能介绍如下：
 
@@ -122,7 +122,7 @@ userB.imToken = @"";
 }];
 ```
 
-### NERtcVideoCall API
+## NERtcVideoCall API
 
 **NERtcVideoCall**组件的 API 接口列表如下：
 
