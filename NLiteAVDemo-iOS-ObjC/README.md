@@ -2,7 +2,7 @@
 
 本文主要展示如何集成云信的NIMSDK以及NERtcSDK，快速实现一对一视频通话功能。您可以直接基于我们的Demo修改适配，也可以使用我们提供的NERtcVideoCall组件，实现自定义UI。效果如下：
 
-![profile](/Users/yinhaichao/Documents/code/NEVideoCall-1to1/NLiteAVDemo-iOS-ObjC/Images/profile.png)
+![profile](https://github.com/netease-im/NEVideoCall-1to1/blob/master/NLiteAVDemo-iOS-ObjC/Images/profile.png)
 
 ### 功能介绍
 
