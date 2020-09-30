@@ -21,7 +21,7 @@
 
 
 ### <span id="功能实现">功能实现</span>
-源码Demo的nertcvideocalldemo模块主要包含`Model`、`UI`两个文件夹，其中Model文件夹包含了可重用的开源组件NERtcVideoCall，您可以在`NERtcVideoCall.java`中查看适用于一对一视频通话的接口。
+源码Demo的nertcvideocalldemo模块主要包含`model`、`ui`、`biz`三个个文件夹，其中Model文件夹包含了可重用的开源组件NERtcVideoCall，ui文件夹是业务UI，biz是业务相关内容，建议您自己实现。您可以在`NERtcVideoCall.java`中查看适用于一对一视频通话的接口。
 
 NERtcVideoCall组件：
 
@@ -112,12 +112,13 @@ public abstract void call(String userId, ChannelType type);
 public abstract void accept(InviteParamBuilder invitedParam);
 ```
 
-##### NERtcVideoCall API
+### NERtcVideoCall API
 
-**NERtcVideoCall**组件的 API 接口列表如下：
+####**NERtcVideoCall**组件的 **API接口**列表如下：
 
-| **setupAppKey**      | **初始化，所有功能需要先初始化**             |
+| **接口名**      | **接口描述**             |
 | :---------------- | :---------------------------------------- |
+| **setupAppKey**      | **初始化，所有功能需要先初始化**           |
 | call             | 开始呼叫                                 |
 | cancel           | 取消呼叫                                 |
 | accept           | 接受呼叫                                 |
@@ -130,10 +131,11 @@ public abstract void accept(InviteParamBuilder invitedParam);
 | switchCamera     | 切换摄像头                               |
 | addDelegate      | 添加代理，接收回调                       |
 
-**NERtcVideoCall**组件的**回调接口**列表如下：
+####**NERtcVideoCall**组件的**回调接口(NERTCCallingDelegate)**列表如下：
 
-| **onInvitedByUser**   | **收到对方邀请**    |
+| **接口名**      | **接口描述**             |
 | :----------------- | :--------------- |
+| onInvitedByUser   | 收到对方邀请    |
 | onUserEnter       | 对方接受呼叫    |
 | onRejectByUserId  | 对方拒绝邀请    |
 | onCancelByUserId  | 对方取消邀请    |
