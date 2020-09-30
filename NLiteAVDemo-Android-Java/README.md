@@ -15,6 +15,7 @@
 1. 登录[网易云控制台](https://app.yunxin.163.com/index?clueFrom=nim&from=nim#/)，点击【应用】>【创建】创建自己的App，在【功能管理】中申请开通【信令】和【音视频通话2.0】功能。
 2. 在控制台中【appkey管理】获取appkey。
 3. 下载[场景Demo](https://github.com/netease-im/NEVideoCall-1to1/tree/develop/NLiteAVDemo-Android-Java)，将config.cpp中的appkey更换为自己的appkey。为了安全我们建议将appkey放在cpp文件中
+4. 替换config.cpp中的baseURL 为自己的业务baseURL，实现验证码等登陆功能。
 
 ### <span id="运行示例项目">运行示例项目</span>
 **注意：在运行前，请联系商务经理开通非安全模式（因Demo中RTCSDK中的token传空）。**
