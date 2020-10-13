@@ -1,4 +1,4 @@
-package com.netease.yunxin.nertc.nertcvideocalldemo.model;
+package com.netease.yunxin.nertc.nertcvideocalldemo.biz;
 
 import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.SPUtils;

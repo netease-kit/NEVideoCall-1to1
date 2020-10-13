@@ -56,6 +56,7 @@
     }
     // 2.注册通知
     [[UIApplication sharedApplication] registerForRemoteNotifications];
+    [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
 }
 
 // 3.APNS注册回调

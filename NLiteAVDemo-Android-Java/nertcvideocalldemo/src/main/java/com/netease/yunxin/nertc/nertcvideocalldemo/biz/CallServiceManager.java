@@ -1,4 +1,4 @@
-package com.netease.yunxin.nertc.nertcvideocalldemo.model;
+package com.netease.yunxin.nertc.nertcvideocalldemo.biz;
 
 import com.netease.yunxin.nertc.baselib.BaseService;
 import com.netease.yunxin.nertc.login.model.UserModel;
@@ -6,17 +6,12 @@ import com.netease.yunxin.nertc.login.model.UserModel;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.http.Body;
-import retrofit2.http.FieldMap;
-import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
 
 import static com.netease.yunxin.nertc.baselib.BaseService.ERROR_CODE_UNKNOWN;

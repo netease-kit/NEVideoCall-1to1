@@ -1,6 +1,5 @@
 package com.netease.yunxin.nertc.nertcvideocalldemo.ui;
 
-import android.accessibilityservice.AccessibilityService;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -28,11 +27,9 @@ import com.bumptech.glide.request.RequestOptions;
 import com.netease.yunxin.nertc.baselib.BaseService;
 import com.netease.yunxin.nertc.login.model.UserModel;
 import com.netease.yunxin.nertc.nertcvideocalldemo.R;
-import com.netease.yunxin.nertc.nertcvideocalldemo.model.CallServiceManager;
-import com.netease.yunxin.nertc.nertcvideocalldemo.model.UserCacheManager;
+import com.netease.yunxin.nertc.nertcvideocalldemo.biz.CallServiceManager;
+import com.netease.yunxin.nertc.nertcvideocalldemo.biz.UserCacheManager;
 import com.netease.yunxin.nertc.nertcvideocalldemo.ui.adapter.RecentUserAdapter;
-
-import java.util.List;
 
 public class NERTCSelectCallUserActivity extends AppCompatActivity {
 
