@@ -240,6 +240,7 @@ public class LoginServiceManager {
             @Override
             public void onSuccess(LoginInfo param) {
                 callBack.onSuccess(null);
+                ProfileManager.getInstance().setLogin(true);//登录IM成功
                 ProfileManager.getInstance().updateUserInfo(userModel);
             }
 
@@ -257,7 +258,6 @@ public class LoginServiceManager {
 
     private void saveUserModel(UserModel userModel) {
         if (userModel != null) {
-            ProfileManager.getInstance().setLogin(true);
             ProfileManager.getInstance().setUserModel(userModel);
             if (!TextUtils.isEmpty(userModel.accessToken)) {
                 ProfileManager.getInstance().setAccessToken(userModel.accessToken);

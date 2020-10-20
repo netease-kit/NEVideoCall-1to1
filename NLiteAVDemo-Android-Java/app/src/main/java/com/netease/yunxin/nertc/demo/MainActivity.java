@@ -15,6 +15,10 @@ import android.widget.TextView;
 import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.netease.lava.nertc.sdk.NERtc;
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.Observer;
+import com.netease.nimlib.sdk.StatusCode;
+import com.netease.nimlib.sdk.auth.AuthServiceObserver;
 import com.netease.yunxin.nertc.baselib.BaseService;
 import com.netease.yunxin.nertc.login.model.LoginServiceManager;
 import com.netease.yunxin.nertc.login.model.ProfileManager;
@@ -50,19 +54,35 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkLogin() {
-        if (!ProfileManager.getInstance().isLogin() && !TextUtils.isEmpty(ProfileManager.getInstance().getAccessToken())) {
-            LoginServiceManager.getInstance().loginWithToken(new BaseService.ResponseCallBack<Void>() {
-                @Override
-                public void onSuccess(Void response) {
-                    ToastUtils.showLong("登录成功");
-                }
-
-                @Override
-                public void onFail(int code) {
-
-                }
-            });
+        if (ProfileManager.getInstance().isLogin()) {
+            return;
         }
+        //此处注册之后会立刻回调一次
+        NIMClient.getService(AuthServiceObserver.class).observeOnlineStatus(new Observer<StatusCode>() {
+            @Override
+            public void onEvent(StatusCode statusCode) {
+                if (statusCode == StatusCode.LOGINED) {
+                    ProfileManager.getInstance().setLogin(true);
+                } else if (statusCode == StatusCode.UNLOGIN) {
+                    ProfileManager.getInstance().setLogin(false);
+                    //NIM 初始化的时候如果有用户信息会自动登录，此处无需根据token再手动登录
+//                    LoginServiceManager.getInstance().loginWithToken(new BaseService.ResponseCallBack<Void>() {
+//                        @Override
+//                        public void onSuccess(Void response) {
+//                            ProfileManager.getInstance().setLogin(true);
+//                            ToastUtils.showLong("登录成功");
+//                        }
+//
+//                        @Override
+//                        public void onFail(int code) {
+//                            ToastUtils.showLong("登录失败");
+//                        }
+//                    });
+                }
+            }
+        }, true);
+
+
     }
 
     private void initView() {
