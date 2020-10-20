@@ -158,6 +158,7 @@ public class CallService extends Service {
         if (nertcVideoCall != null) {
             nertcVideoCall.removeDelegate(callingDelegate);
         }
+        NERTCVideoCall.destroySharedInstance();
     }
 
     @Nullable

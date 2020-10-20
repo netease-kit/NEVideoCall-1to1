@@ -47,11 +47,8 @@ public class DemoApplication extends Application {
     // 如果已经存在用户登录信息，返回LoginInfo，否则返回null即可
     private LoginInfo loginInfo() {
         UserModel userModel = ProfileManager.getInstance().getUserModel();
-        if (userModel != null) {
-            if (TextUtils.isEmpty(userModel.imToken) && userModel.imAccid != 0) {
-                ProfileManager.getInstance().setLogin(true);//如果已有IM数据会自动登录，此处直接设置为已经登录
-                return new LoginInfo(String.valueOf(userModel.imAccid), userModel.imToken);
-            }
+        if (userModel != null && !TextUtils.isEmpty(userModel.imToken) && userModel.imAccid != 0) {
+            return new LoginInfo(String.valueOf(userModel.imAccid), userModel.imToken);
         }
         return null;
     }
