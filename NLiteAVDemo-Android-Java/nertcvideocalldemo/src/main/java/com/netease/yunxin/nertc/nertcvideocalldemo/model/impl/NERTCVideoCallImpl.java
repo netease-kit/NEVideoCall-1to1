@@ -323,6 +323,7 @@ public class NERTCVideoCallImpl extends NERTCVideoCall {
         status = STATE_CALL_OUT;
         startCount();//启动倒计时
         CallParamBuilder paramBuilder = new CallParamBuilder(type, userId, requestId);
+        paramBuilder.offlineEnabled(true);
         //信令呼叫
         NIMClient.getService(SignallingService.class).call(paramBuilder).setCallback(new RequestCallbackWrapper<ChannelFullInfo>() {
 
