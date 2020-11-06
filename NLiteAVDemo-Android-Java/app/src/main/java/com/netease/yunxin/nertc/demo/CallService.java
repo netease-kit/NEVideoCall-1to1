@@ -12,15 +12,12 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-
 import com.blankj.utilcode.util.ServiceUtils;
-import com.netease.nimlib.sdk.avsignalling.builder.InviteParamBuilder;
 import com.netease.nimlib.sdk.avsignalling.event.InvitedEvent;
+import com.netease.videocall.demo.R;
 import com.netease.yunxin.nertc.nertcvideocalldemo.model.NERTCCallingDelegate;
 import com.netease.yunxin.nertc.nertcvideocalldemo.model.NERTCVideoCall;
 import com.netease.yunxin.nertc.nertcvideocalldemo.ui.NERTCVideoCallActivity;
-
-import java.util.Map;
 
 public class CallService extends Service {
     private static final int NOTIFICATION_ID = 1024;

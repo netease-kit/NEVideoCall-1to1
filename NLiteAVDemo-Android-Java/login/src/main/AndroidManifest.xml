@@ -1,15 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.netease.yunxin.nertc.login">
+    package="com.netease.videocall.demo.login">
 
     <application>
         <activity
-            android:name=".ui.LoginActivity"
+            android:name="com.netease.yunxin.nertc.login.ui.LoginActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"></activity>
 
         <activity
-            android:name=".ui.VerifyCodeActivity"
+            android:name="com.netease.yunxin.nertc.login.ui.VerifyCodeActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"></activity>

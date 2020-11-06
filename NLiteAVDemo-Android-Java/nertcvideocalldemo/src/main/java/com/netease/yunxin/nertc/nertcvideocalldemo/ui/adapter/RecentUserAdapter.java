@@ -5,16 +5,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
+import com.netease.videocall.demo.videocall.R;
 import com.netease.yunxin.nertc.login.model.UserModel;
-import com.netease.yunxin.nertc.nertcvideocalldemo.R;
 import com.netease.yunxin.nertc.nertcvideocalldemo.ui.NERTCVideoCallActivity;
 
 import java.util.List;

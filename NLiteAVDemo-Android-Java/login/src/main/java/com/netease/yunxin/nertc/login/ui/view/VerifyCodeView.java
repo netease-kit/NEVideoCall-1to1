@@ -18,7 +18,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.netease.yunxin.nertc.login.R;
+import com.netease.videocall.demo.login.R;
 
 import java.lang.reflect.Field;
 

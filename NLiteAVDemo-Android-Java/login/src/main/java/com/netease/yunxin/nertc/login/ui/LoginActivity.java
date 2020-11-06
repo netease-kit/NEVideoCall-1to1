@@ -10,8 +10,8 @@ import android.widget.EditText;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.netease.videocall.demo.login.R;
 import com.netease.yunxin.nertc.baselib.BaseService;
-import com.netease.yunxin.nertc.login.R;
 import com.netease.yunxin.nertc.login.model.LoginServiceManager;
 
 public class LoginActivity extends AppCompatActivity {

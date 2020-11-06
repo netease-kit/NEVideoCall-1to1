@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Handler;
-import android.text.SpannableString;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -14,12 +12,10 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.blankj.utilcode.util.SpanUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.netease.videocall.demo.login.R;
 import com.netease.yunxin.nertc.baselib.BaseService;
-import com.netease.yunxin.nertc.login.R;
 import com.netease.yunxin.nertc.login.model.LoginServiceManager;
-import com.netease.yunxin.nertc.login.model.UserModel;
 import com.netease.yunxin.nertc.login.ui.view.VerifyCodeView;
 
 public class VerifyCodeActivity extends AppCompatActivity {
