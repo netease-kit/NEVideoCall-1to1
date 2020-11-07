@@ -1,12 +1,9 @@
 package com.netease.yunxin.nertc.nertcvideocalldemo.ui;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -27,7 +24,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.netease.lava.nertc.sdk.NERtc;
-import com.netease.lava.nertc.sdk.NERtcConstants;
 import com.netease.lava.nertc.sdk.video.NERtcVideoConfig;
 import com.netease.lava.nertc.sdk.video.NERtcVideoView;
 import com.netease.nimlib.sdk.NIMClient;
@@ -37,9 +33,9 @@ import com.netease.nimlib.sdk.avsignalling.constant.ChannelType;
 import com.netease.nimlib.sdk.avsignalling.event.InvitedEvent;
 import com.netease.nimlib.sdk.uinfo.UserService;
 import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
+import com.netease.videocall.demo.videocall.R;
 import com.netease.yunxin.nertc.login.model.ProfileManager;
 import com.netease.yunxin.nertc.login.model.UserModel;
-import com.netease.yunxin.nertc.nertcvideocalldemo.R;
 import com.netease.yunxin.nertc.nertcvideocalldemo.model.NERTCCallingDelegate;
 import com.netease.yunxin.nertc.nertcvideocalldemo.model.NERTCVideoCall;
 

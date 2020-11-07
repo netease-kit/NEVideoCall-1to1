@@ -1,16 +1,12 @@
 package com.netease.yunxin.nertc.demo;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.provider.CallLog;
-import android.text.TextUtils;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.ToastUtils;
@@ -19,6 +15,7 @@ import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.StatusCode;
 import com.netease.nimlib.sdk.auth.AuthServiceObserver;
+import com.netease.videocall.demo.R;
 import com.netease.yunxin.nertc.baselib.BaseService;
 import com.netease.yunxin.nertc.login.model.LoginServiceManager;
 import com.netease.yunxin.nertc.login.model.ProfileManager;
