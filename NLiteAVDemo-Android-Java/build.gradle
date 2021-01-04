@@ -16,6 +16,9 @@ allprojects {
     repositories {
         google()
         jcenter()
+        mavenCentral()
+        maven { url 'http://developer.huawei.com/repo/' }
+        maven { url "https://jitpack.io" }
     }
 }
 
@@ -26,11 +29,11 @@ task clean(type: Delete) {
 ext {
     compileSdkVersion = 30
     buildToolsVersion = "30.0.0"
-    minSdkVersion = 18
+    minSdkVersion = 19
     targetSdkVersion = 30
 
-    nimVersion = '7.8.4'
-    nertcSdk = "com.netease.yunxin:nertc:3.6.0"
+    nimVersion = '8.1.0'
+    nertcSdk = "com.netease.yunxin:nertc:3.8.1"
     imSdk = "com.netease.nimlib:basesdk:$nimVersion"
     avsignallingSdk = "com.netease.nimlib:avsignalling:$nimVersion"
     imPushSdk = "com.netease.nimlib:push:$nimVersion"

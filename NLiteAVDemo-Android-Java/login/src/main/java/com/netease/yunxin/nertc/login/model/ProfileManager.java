@@ -1,5 +1,7 @@
 package com.netease.yunxin.nertc.login.model;
 
+import android.text.TextUtils;
+
 import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.netease.nimlib.sdk.AbortableFuture;
@@ -10,11 +12,12 @@ import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.nimlib.sdk.uinfo.UserService;
 import com.netease.nimlib.sdk.uinfo.constant.UserInfoFieldEnum;
 import com.netease.yunxin.nertc.baselib.CommonDataManager;
+import com.netease.yunxin.nertc.nertcvideocall.model.UserInfoInitCallBack;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public final class ProfileManager {
+public final class ProfileManager implements UserInfoInitCallBack {
     private static final ProfileManager instance = new ProfileManager();
 
     public static ProfileManager getInstance() {
@@ -53,11 +56,23 @@ public final class ProfileManager {
      * @param imAccId
      * @return
      */
-    public boolean isCurrentUser(long imAccId) {
+    public boolean isCurrentUser(String imAccId) {
         if (getUserModel() == null) {
             return false;
         }
-        return getUserModel().imAccid == imAccId;
+        return TextUtils.equals(getUserModel().imAccid,imAccId);
+    }
+
+    /**
+     * 音视频uid 判断
+     * @param g2Uid
+     * @return
+     */
+    public boolean isCurrentUser(long g2Uid) {
+        if (getUserModel() == null) {
+            return false;
+        }
+        return getUserModel().avRoomUid == g2Uid;
     }
 
     public String getAccessToken() {
@@ -114,5 +129,13 @@ public final class ProfileManager {
 
     public void logout() {
         NIMClient.getService(AuthService.class).logout();
+    }
+
+    @Override
+    public void onUserLoginToIm(String imAccId, String imToken) {
+        UserModel userModel = new UserModel();
+        userModel.imAccid = imAccId;
+        userModel.imToken = imToken;
+        setUserModel(userModel);
     }
 }

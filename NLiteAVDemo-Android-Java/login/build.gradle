@@ -28,6 +28,7 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation project(':baselib')
+    implementation project(':nertcvideocall')
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.android.support.constraint:constraint-layout:2.0.1'
 }

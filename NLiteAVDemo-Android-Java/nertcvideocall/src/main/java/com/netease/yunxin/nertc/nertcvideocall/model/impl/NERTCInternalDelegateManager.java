@@ -1,22 +1,24 @@
-package com.netease.yunxin.nertc.nertcvideocalldemo.model.impl;
+package com.netease.yunxin.nertc.nertcvideocall.model.impl;
 
+import com.netease.lava.nertc.sdk.stats.NERtcNetworkQualityInfo;
+import com.netease.nimlib.sdk.avsignalling.constant.ChannelType;
 import com.netease.nimlib.sdk.avsignalling.event.InvitedEvent;
-import com.netease.yunxin.nertc.nertcvideocalldemo.model.NERTCCallingDelegate;
+import com.netease.yunxin.nertc.nertcvideocall.model.NERTCCallingDelegate;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 收拢说有的Delegate
  */
 public class NERTCInternalDelegateManager implements NERTCCallingDelegate {
 
-    private List<WeakReference<NERTCCallingDelegate>> mWeakReferenceList;
+    private CopyOnWriteArrayList<WeakReference<NERTCCallingDelegate>> mWeakReferenceList;
 
     public NERTCInternalDelegateManager() {
-        mWeakReferenceList = new ArrayList<>();
+        mWeakReferenceList = new CopyOnWriteArrayList<>();
     }
 
     public void addDelegate(NERTCCallingDelegate listener) {
@@ -24,58 +26,78 @@ public class NERTCInternalDelegateManager implements NERTCCallingDelegate {
         mWeakReferenceList.add(listenerWeakReference);
     }
 
+    public boolean isEmpty() {
+        return mWeakReferenceList == null || mWeakReferenceList.isEmpty();
+    }
+
     public void removeDelegate(NERTCCallingDelegate listener) {
         Iterator iterator = mWeakReferenceList.iterator();
         while (iterator.hasNext()) {
             WeakReference<NERTCCallingDelegate> reference = (WeakReference<NERTCCallingDelegate>) iterator.next();
-            if (reference.get() == null) {
-                iterator.remove();
-                continue;
-            }
-            if (reference.get() == listener) {
-                iterator.remove();
+            if (reference != null && reference.get() == listener) {
+                mWeakReferenceList.remove(reference);
             }
         }
     }
 
     @Override
-    public void onError(int errorCode, String errorMsg) {
+    public void onError(int errorCode, String errorMsg, boolean needFinish) {
         for (WeakReference<NERTCCallingDelegate> reference : mWeakReferenceList) {
             NERTCCallingDelegate listener = reference.get();
             if (listener != null) {
-                listener.onError(errorCode, errorMsg);
+                listener.onError(errorCode, errorMsg, needFinish);
             }
         }
     }
 
     @Override
-    public void onInvitedByUser(InvitedEvent invitedEvent) {
+    public void onInvited(InvitedEvent invitedEvent) {
         for (WeakReference<NERTCCallingDelegate> reference : mWeakReferenceList) {
             NERTCCallingDelegate listener = reference.get();
             if (listener != null) {
-                listener.onInvitedByUser(invitedEvent);
+                listener.onInvited(invitedEvent);
             }
         }
     }
 
 
     @Override
-    public void onUserEnter(long userId) {
+    public void onUserEnter(long uid,String accId) {
         for (WeakReference<NERTCCallingDelegate> reference : mWeakReferenceList) {
             NERTCCallingDelegate listener = reference.get();
             if (listener != null) {
-                listener.onUserEnter(userId);
+                listener.onUserEnter(uid,accId);
             }
         }
     }
 
 
     @Override
-    public void onUserHangup(long userId) {
+    public void onCallEnd(String userId) {
         for (WeakReference<NERTCCallingDelegate> reference : mWeakReferenceList) {
             NERTCCallingDelegate listener = reference.get();
             if (listener != null) {
-                listener.onUserHangup(userId);
+                listener.onCallEnd(userId);
+            }
+        }
+    }
+
+    @Override
+    public void onUserLeave(String accountID) {
+        for (WeakReference<NERTCCallingDelegate> reference : mWeakReferenceList) {
+            NERTCCallingDelegate listener = reference.get();
+            if (listener != null) {
+                listener.onUserLeave(accountID);
+            }
+        }
+    }
+
+    @Override
+    public void onUserDisconnect(String userId) {
+        for (WeakReference<NERTCCallingDelegate> reference : mWeakReferenceList) {
+            NERTCCallingDelegate listener = reference.get();
+            if (listener != null) {
+                listener.onUserDisconnect(userId);
             }
         }
     }
@@ -126,6 +148,26 @@ public class NERTCInternalDelegateManager implements NERTCCallingDelegate {
             NERTCCallingDelegate listener = reference.get();
             if (listener != null) {
                 listener.onAudioAvailable(userId, isVideoAvailable);
+            }
+        }
+    }
+
+    @Override
+    public void onUserNetworkQuality(NERtcNetworkQualityInfo[] stats) {
+        for (WeakReference<NERTCCallingDelegate> reference : mWeakReferenceList) {
+            NERTCCallingDelegate listener = reference.get();
+            if (listener != null) {
+                listener.onUserNetworkQuality(stats);
+            }
+        }
+    }
+
+    @Override
+    public void onCallTypeChange(ChannelType type) {
+        for (WeakReference<NERTCCallingDelegate> reference : mWeakReferenceList) {
+            NERTCCallingDelegate listener = reference.get();
+            if (listener != null) {
+                listener.onCallTypeChange(type);
             }
         }
     }

@@ -10,7 +10,7 @@ import java.io.Serializable;
 public final class UserModel implements Serializable {
     public String mobile;//String  登录的手机号
     public String accessToken;//String  登录令牌，重新生成的新令牌，过期时间重新计算
-    public long imAccid;//long  IM账号
+    public String imAccid;//long  IM账号
     public String imToken;//String  IM令牌，重新生成的新令牌
     public long avRoomUid;//String  音视频房间内成员编号
     public String avatar;//String  头像地址

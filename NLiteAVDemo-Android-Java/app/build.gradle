@@ -39,5 +39,6 @@ dependencies {
     implementation project(':nertcvideocalldemo')
     implementation project(':login')
     implementation project(':baselib')
+    implementation project(':nertcvideocall')
     implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
 }

@@ -2,4 +2,5 @@ include ':baselib'
 include ':nertcvideocalldemo'
 include ':login'
 include ':app'
+include ':nertcvideocall'
 rootProject.name = "NERTCScenesDemo"

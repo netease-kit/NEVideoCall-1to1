@@ -49,11 +49,6 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/AppTheme">
 
-        <service
-            android:name="com.netease.yunxin.nertc.demo.CallService"
-            android:enabled="true"
-            android:exported="false" />
-
         <activity
             android:name="com.netease.yunxin.nertc.demo.SplashActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar"
@@ -117,7 +112,7 @@
         <!-- android:authorities="{包名}.ipc.provider", 请将com.netease.nim.demo替换为自己的包名 -->
         <provider
             android:name="com.netease.nimlib.ipc.NIMContentProvider"
-            android:authorities="com.netease.yunxin.nertc.demo.ipc.provider"
+            android:authorities="com.netease.videocall.demo.ipc.provider"
             android:exported="false"
             android:process=":core" />
     </application>
