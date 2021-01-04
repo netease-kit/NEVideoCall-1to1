@@ -18,11 +18,11 @@
 4. 替换config.cpp中的baseURL 为自己的业务baseURL，实现验证码等登陆功能。
 
 ### <span id="运行示例项目">运行示例项目</span>
-**注意：在运行前，请联系商务经理开通非安全模式（因Demo中RTCSDK中的token传空）。**
 
 
 ### <span id="功能实现">功能实现</span>
-源码Demo的nertcvideocalldemo模块主要包含`model`、`ui`、`biz`三个个文件夹，其中Model文件夹包含了可重用的开源组件NERtcVideoCall，ui文件夹是业务UI，biz是业务相关内容，建议您自己实现。您可以在`NERtcVideoCall.java`中查看适用于一对一视频通话的接口。
+源码Demo的nertcvideocalldemo模块主要包含`ui`、`biz`三个个文件夹，其中ui文件夹是业务UI，biz是业务相关内容，建议您自己实现。
+源码demo的nertcvideocall 是呼叫实现的核心逻辑，已经独立成了一个组件，可参考[NERtcCallKit-Android](https://github.com/netease-im/NERtcCallKit-Android)。
 
 NERtcVideoCall组件：
 
@@ -39,7 +39,7 @@ Demo跑通之后，可以修改nertcvideocalldemo/ui文件夹下的Activity，�
 
 #### 基于NERtcVideoCall实现自定义UI：
 
-仅需拷贝nertcvideocalldemo/model文件夹到自己的工程，创建自定义UI界面，即可实现视频通话功能。具体步骤如下：
+仅需拷贝nertcvideocall文件夹到自己的工程，创建自定义UI界面，即可实现视频通话功能。具体步骤如下：
 
 ##### 步骤1:集成SDK
 
@@ -52,16 +52,16 @@ Demo跑通之后，可以修改nertcvideocalldemo/ui文件夹下的Activity，�
     compile fileTree(dir: 'libs', include: '*.jar')
     // 添加依赖。注意，版本号必须一致。
     // 基础功能 (必需)
-    compile 'com.netease.nimlib:basesdk:6.5.0'
+    compile 'com.netease.nimlib:basesdk:8.1.0'
     // 信令服务需要
-    compile 'com.netease.nimlib:avsignalling:6.5.0'
+    compile 'com.netease.nimlib:avsignalling:8.1.0'
    }
 ```
 
 3. 集成SDK：
 
    ```
-   api 'com.netease.yunxin:nertc:3.6.0'
+   api 'com.netease.yunxin:nertc:3.8.1'
    ```
 
 4. 防止代码混淆，在 proguard-rules.pro 文件中，为 nertc sdk 添加 -keep 类的配置，这样可以防止混淆 nertc sdk 公共类名称:
