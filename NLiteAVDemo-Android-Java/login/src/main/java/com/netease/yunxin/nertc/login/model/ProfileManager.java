@@ -133,7 +133,10 @@ public final class ProfileManager implements UserInfoInitCallBack {
 
     @Override
     public void onUserLoginToIm(String imAccId, String imToken) {
-        UserModel userModel = new UserModel();
+        UserModel userModel = getUserModel();
+        if (userModel==null){
+            userModel=new UserModel();
+        }
         userModel.imAccid = imAccId;
         userModel.imToken = imToken;
         setUserModel(userModel);

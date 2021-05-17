@@ -36,6 +36,10 @@ public class VerifyCodeActivity extends AppCompatActivity {
 
     private TextView tvResendMsm;
 
+    private static final int SMS_CODE_LENGTH=4;
+    private static final int THOUSAND_MS=1000;
+    private static final int SIXTY_THOUSAND_MS=60000;
+
     public static void startVerifyCode(Context context, String phoneNumber) {
         Intent intent = new Intent();
         intent.setClass(context, VerifyCodeActivity.class);
@@ -61,11 +65,13 @@ public class VerifyCodeActivity extends AppCompatActivity {
 
     private void initData() {
         phoneNumber = getIntent().getStringExtra(PHONE_NUMBER);
-        tvMsmComment.setText("验证码已经发送至 +86-" + phoneNumber + "，请在下方输入验证码");
+        tvMsmComment.setText(getString(R.string.login_sms_code_has_been_sent) + phoneNumber + getString(R.string.login_please_input_sms_code));
         btnNext.setOnClickListener(v -> {
             String smsCode = verifyCodeView.getResult();
-            if (!TextUtils.isEmpty(smsCode)) {
+            if (!TextUtils.isEmpty(smsCode)&&smsCode.length()==SMS_CODE_LENGTH) {
                 login(smsCode);
+            }else {
+                ToastUtils.showShort(R.string.login_please_input_correct_sms_code);
             }
         });
         tvTimeCountDown.setOnClickListener(v -> {
@@ -76,19 +82,19 @@ public class VerifyCodeActivity extends AppCompatActivity {
     }
 
     private void initCountDown() {
-        tvTimeCountDown.setText("60s");
+        tvTimeCountDown.setText(R.string.sixty_second);
         tvResendMsm.setVisibility(View.VISIBLE);
         tvTimeCountDown.setEnabled(false);
 
-        countDownTimer = new CountDownTimer(60000, 1000) {
+        countDownTimer = new CountDownTimer(SIXTY_THOUSAND_MS, THOUSAND_MS) {
             @Override
             public void onTick(long l) {
-                tvTimeCountDown.setText((l / 1000) + "s");
+                tvTimeCountDown.setText((l / THOUSAND_MS) + getString(R.string.login_second));
             }
 
             @Override
             public void onFinish() {
-                tvTimeCountDown.setText("重新发送");
+                tvTimeCountDown.setText(R.string.login_resend);
                 tvTimeCountDown.setEnabled(true);
                 tvResendMsm.setVisibility(View.GONE);
             }
@@ -103,13 +109,13 @@ public class VerifyCodeActivity extends AppCompatActivity {
 
                 @Override
                 public void onSuccess(Void response) {
-                    ToastUtils.showLong("验证码重新发送成功");
+                    ToastUtils.showLong(R.string.login_sms_code_send_success);
                     initCountDown();
                 }
 
                 @Override
                 public void onFail(int code) {
-                    ToastUtils.showLong("验证码重新发送失败");
+                    ToastUtils.showLong(R.string.login_sms_code_send_fail);
                 }
             });
         }
@@ -120,13 +126,13 @@ public class VerifyCodeActivity extends AppCompatActivity {
             LoginServiceManager.getInstance().loginWithSms(phoneNumber, msmCode, new BaseService.ResponseCallBack<Void>() {
                 @Override
                 public void onSuccess(Void response) {
-                    ToastUtils.showLong("登录成功");
+                    ToastUtils.showLong(R.string.login_success);
                     startMainActivity();
                 }
 
                 @Override
                 public void onFail(int code) {
-                    ToastUtils.showLong("登录失败");
+                    ToastUtils.showLong(R.string.login_fail);
                 }
             });
         }

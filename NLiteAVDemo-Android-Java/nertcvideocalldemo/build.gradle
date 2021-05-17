@@ -31,7 +31,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation project(':baselib')
     implementation project(':login')
-    implementation project(':nertcvideocall')
+    implementation 'com.netease.yunxin.kit:call:1.2.0'
     implementation ("com.github.bumptech.glide:glide:4.11.0") {
         exclude group: "com.android.support"
     }
