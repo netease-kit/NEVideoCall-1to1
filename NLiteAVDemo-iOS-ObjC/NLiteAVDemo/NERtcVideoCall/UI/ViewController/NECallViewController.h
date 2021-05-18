@@ -8,12 +8,12 @@
 
 #import <UIKit/UIKit.h>
 #import "NEUser.h"
-#import "NERtcVideoCall.h"
+#import <NERtcCallKit/NERtcCallKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NECallViewController : UIViewController<NERtcVideoCallDelegate>
-@property(assign,nonatomic)NECallStatus status;
+@interface NECallViewController : UIViewController<NERtcCallKitDelegate>
+@property(assign,nonatomic)NERtcCallStatus status;
 @property(strong,nonatomic)NEUser *remoteUser;
 @property(strong,nonatomic)NEUser *localUser;
 @end

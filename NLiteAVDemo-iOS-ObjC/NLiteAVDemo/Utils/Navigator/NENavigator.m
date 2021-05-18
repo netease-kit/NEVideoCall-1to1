@@ -38,7 +38,7 @@
     UINavigationController *loginNav = [[UINavigationController alloc] initWithRootViewController:loginVC];
     loginNav.navigationBar.barTintColor = [UIColor whiteColor];
     loginNav.navigationBar.translucent = NO;
-    loginNav.modalPresentationStyle = UIModalPresentationFullScreen;
+    loginNav.modalPresentationStyle = UIModalPresentationOverFullScreen;
     __weak typeof(self) weakSelf = self;
     [_navigationController presentViewController:loginNav animated:YES completion:^{
         __strong typeof(self) strongSelf = weakSelf;

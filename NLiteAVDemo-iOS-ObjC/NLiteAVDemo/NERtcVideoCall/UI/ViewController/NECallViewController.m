@@ -7,10 +7,10 @@
 //
 
 #import "NECallViewController.h"
-#import "NERtcVideoCall.h"
 #import "NECustomButton.h"
 #import "NEVideoOperationView.h"
 #import "NEVideoView.h"
+#import <NERtcSDK/NERtcSDK.h>
 
 @interface NECallViewController ()
 @property(strong,nonatomic)NEVideoView *smallVideoView;
@@ -29,6 +29,7 @@
 @property(strong,nonatomic)NEVideoOperationView *operationView;
 @property(assign,nonatomic)BOOL showMyBigView;
 
+
 @end
 
 @implementation NECallViewController
@@ -41,11 +42,11 @@
 }
 #pragma mark - SDK
 - (void)setupSDK {
-    [[NERtcVideoCall shared] addDelegate:self];
-    [NERtcVideoCall shared].timeOutSeconds = 30;
-    if (self.status == NECallStatusCall) {
-        [[NERtcVideoCall shared] call:self.remoteUser completion:^(NSError * _Nullable error) {
-            [[NERtcVideoCall shared] setupLocalView:self.bigVideoView.videoView];
+    [[NERtcCallKit sharedInstance] addDelegate:self];
+    [NERtcCallKit sharedInstance].timeOutSeconds = 30;
+    if (self.status == NERtcCallStatusCalling) {
+        [[NERtcCallKit sharedInstance] call:self.remoteUser.imAccid type:NERtcCallTypeVideo completion:^(NSError * _Nullable error) {
+            [[NERtcCallKit sharedInstance] setupLocalView:self.bigVideoView.videoView];
             self.bigVideoView.userID = self.localUser.imAccid;
             if (error) {
                 /// 对方离线时 通过APNS推送 UI不弹框提示
@@ -125,9 +126,9 @@
         make.bottom.mas_equalTo(-50);
     }];
 }
-- (void)updateUIonStatus:(NECallStatus)status {
+- (void)updateUIonStatus:(NERtcCallStatus)status {
     switch (status) {
-        case NECallStatusCall:
+        case NERtcCallStatusCalling:
         {
             self.titleLabel.text = [NSString stringWithFormat:@"正在呼叫 %@",self.remoteUser.mobile];
             self.subTitleLabel.text = @"等待对方接听……";
@@ -141,7 +142,7 @@
             self.operationView.hidden = YES;
         }
             break;
-        case NECallStatusCalled:
+        case NERtcCallStatusCalled:
         {
             self.titleLabel.text = [NSString stringWithFormat:@"%@",self.remoteUser.mobile];
             self.remoteAvatorView.hidden = NO;
@@ -155,7 +156,7 @@
             self.operationView.hidden = YES;
         }
             break;
-        case NECallStatusCalling:
+        case NERtcCallStatusInCall:
         {
             self.smallVideoView.hidden = NO;
             self.titleLabel.hidden = YES;
@@ -174,10 +175,12 @@
 }
 #pragma mark - event
 - (void)closeEvent:(NECustomButton *)button {
-    [[NERtcVideoCall shared] hangup];
+    [[NERtcCallKit sharedInstance] hangup:^(NSError * _Nullable error) {
+        
+    }];
 }
 - (void)cancelEvent:(NECustomButton *)button {
-    [[NERtcVideoCall shared] cancel:^(NSError * _Nullable error) {
+    [[NERtcCallKit sharedInstance] cancel:^(NSError * _Nullable error) {
         if (error.code == 10410) {
             // 邀请已接受 取消失败 不销毁VC
         }else {
@@ -187,7 +190,7 @@
 }
 - (void)rejectEvent:(NECustomButton *)button {
     self.acceptBtn.userInteractionEnabled = NO;
-    [[NERtcVideoCall shared] reject:^(NSError * _Nullable error) {
+    [[NERtcCallKit sharedInstance] reject:^(NSError * _Nullable error) {
         self.acceptBtn.userInteractionEnabled = YES;
         [self destroy];
     }];
@@ -195,89 +198,88 @@
 - (void)acceptEvent:(NECustomButton *)button {
     self.rejectBtn.userInteractionEnabled = NO;
     self.acceptBtn.userInteractionEnabled = NO;
-    [[NERtcVideoCall shared] accept:^(NSError * _Nullable error) {
+    [[NERtcCallKit sharedInstance] accept:^(NSError * _Nullable error) {
         self.rejectBtn.userInteractionEnabled = YES;
         self.acceptBtn.userInteractionEnabled = YES;
         if (error) {
             [self.view makeToast:@"接听失败"];
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                [self destroy];
+            [self destroy];
             });
         }else {
-            [[NERtcVideoCall shared] setupLocalView:self.smallVideoView.videoView];
+            [[NERtcCallKit sharedInstance] setupLocalView:self.smallVideoView.videoView];
             self.smallVideoView.userID = self.localUser.imAccid;
-            [[NERtcVideoCall shared] setupRemoteView:self.bigVideoView.videoView userID:[self.remoteUser.imAccid longLongValue]];
+            [[NERtcCallKit sharedInstance] setupRemoteView:self.bigVideoView.videoView forUser:self.remoteUser.imAccid];
             self.bigVideoView.userID = self.remoteUser.imAccid;
-            [self updateUIonStatus:NECallStatusCalling];
+            [self updateUIonStatus:NERtcCallStatusInCall];
         }
     }];
 }
 - (void)switchCameraBtn:(UIButton *)button {
-    [[NERtcVideoCall shared] switchCamera];
+    [[NERtcCallKit sharedInstance] switchCamera];
 }
 - (void)microPhoneClick:(UIButton *)button {
     button.selected = !button.selected;
-    [[NERtcVideoCall shared] setMicMute:button.selected];
+    [[NERtcCallKit sharedInstance] muteLocalAudio:button.selected];
 }
 - (void)cameraBtnClick:(UIButton *)button {
     button.selected = !button.selected;
-    [[NERtcVideoCall shared] enableCamera:!button.selected];
+    [[NERtcCallKit sharedInstance] enableLocalVideo:!button.selected];
     [self cameraAvailble:!button.selected userId:self.localUser.imAccid];
 }
 - (void)hangupBtnClick:(UIButton *)button {
-    [[NERtcVideoCall shared] hangup];
+    [[NERtcCallKit sharedInstance] hangup:^(NSError * _Nullable error) {
+    }];
     [self destroy];
 }
 - (void)switchVideoView:(UITapGestureRecognizer *)tap {
     self.showMyBigView = !self.showMyBigView;
     if (self.showMyBigView) {
-        [[NERtcVideoCall shared] setupLocalView:self.bigVideoView.videoView];
-        [[NERtcVideoCall shared] setupRemoteView:self.smallVideoView.videoView userID:[self.remoteUser.imAccid longLongValue]];
+        [[NERtcCallKit sharedInstance] setupLocalView:self.bigVideoView.videoView];
+        [[NERtcCallKit sharedInstance] setupRemoteView:self.smallVideoView.videoView forUser:self.remoteUser.imAccid];
         self.bigVideoView.userID = self.localUser.imAccid;
         self.smallVideoView.userID = self.remoteUser.imAccid;
     }else {
-        [[NERtcVideoCall shared] setupLocalView:self.smallVideoView.videoView];
-        [[NERtcVideoCall shared] setupRemoteView:self.bigVideoView.videoView userID:[self.remoteUser.imAccid longLongValue]];
+        [[NERtcCallKit sharedInstance] setupLocalView:self.smallVideoView.videoView];
+        [[NERtcCallKit sharedInstance] setupRemoteView:self.bigVideoView.videoView forUser:self.remoteUser.imAccid];
         self.bigVideoView.userID = self.remoteUser.imAccid;
         self.smallVideoView.userID = self.localUser.imAccid;
     }
 }
 #pragma mark - NERtcVideoCallDelegate
-- (void)onUserEnter:(NEUser *)user {
-    [[NERtcVideoCall shared] setupLocalView:self.smallVideoView.videoView];
+- (void)onUserEnter:(NSString *)userID {
+    [[NERtcCallKit sharedInstance] setupLocalView:self.smallVideoView.videoView];
     self.smallVideoView.userID = self.localUser.imAccid;
-    [[NERtcVideoCall shared] setupRemoteView:self.bigVideoView.videoView userID:[user.imAccid longLongValue]];
-    self.bigVideoView.userID = user.imAccid;
-    [self updateUIonStatus:NECallStatusCalling];
+    [[NERtcCallKit sharedInstance] setupRemoteView:self.bigVideoView.videoView forUser:userID];
+    self.bigVideoView.userID = userID;
+    [self updateUIonStatus:NERtcCallStatusInCall];
 }
-- (void)onCancelByUserId:(NSString *)userId {
-    [[NERtcVideoCall shared] hangup];
+- (void)onUserCancel:(NSString *)userID {
+    [[NERtcCallKit sharedInstance] hangup:^(NSError * _Nullable error) {
+    }];
     [self destroy];
 }
-
-- (void)onCameraAvailable:(BOOL)available userId:(NSString *)userId {
-    [self cameraAvailble:available userId:userId];
+- (void)onCameraAvailable:(BOOL)available userID:(NSString *)userID {
+    [self cameraAvailble:available userId:userID];
 }
-
-- (void)timeOut {
+- (void)onCallingTimeOut {
     [self.view makeToast:@"对方无响应"];
-    [[NERtcVideoCall shared] cancel:^(NSError * _Nullable error) {
+    [[NERtcCallKit sharedInstance] cancel:^(NSError * _Nullable error) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self destroy];
         });
     }];
 }
-
-- (void)onUserBusy:(NSString *)userId {
+- (void)onUserBusy:(NSString *)userID {
     [self.view makeToast:@"对方正在通话中"];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self destroy];
     });
 }
-- (void)onUserHangup:(NSString *)userId {
+- (void)onCallEnd {
     [self destroy];
 }
-- (void)onRejectByUserId:(NSString *)userId {
+- (void)onUserReject:(NSString *)userID {
     [self.view makeToast:@"对方拒绝了您的邀请"];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self destroy];
@@ -289,10 +291,12 @@
     NSString *tips = [self.localUser.imAccid isEqualToString:userId]?@"你关闭了摄像头":@"对方关闭了摄像头";
     if ([self.bigVideoView.userID isEqualToString:userId]) {
         self.bigVideoView.titleLabel.hidden = available;
+        self.bigVideoView.maskView.hidden = available;
         self.bigVideoView.titleLabel.text = tips;
     }
     if ([self.smallVideoView.userID isEqualToString:userId]) {
         self.smallVideoView.titleLabel.hidden = available;
+        self.smallVideoView.maskView.hidden = available;
         self.smallVideoView.titleLabel.text = tips;
     }
 }
@@ -301,7 +305,7 @@
     if (self && [self respondsToSelector:@selector(dismissViewControllerAnimated:completion:)]) {
         [self dismissViewControllerAnimated:YES completion:nil];
     }
-    [[NERtcVideoCall shared] removeDelegate:self];
+    [[NERtcCallKit sharedInstance] removeDelegate:self];
 }
 #pragma mark - property
 - (NEVideoView *)bigVideoView {

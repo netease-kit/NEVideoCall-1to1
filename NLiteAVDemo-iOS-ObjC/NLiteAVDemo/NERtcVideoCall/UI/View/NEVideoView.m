@@ -17,6 +17,10 @@
         [self.videoView mas_makeConstraints:^(MASConstraintMaker *make) {
             make.edges.mas_equalTo(UIEdgeInsetsZero);
         }];
+        [self addSubview:self.maskView];
+        [self.maskView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.edges.mas_equalTo(UIEdgeInsetsZero);
+        }];
         [self addSubview:self.titleLabel];
         [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
             make.edges.mas_equalTo(UIEdgeInsetsMake(10, 10, 10, 10));
@@ -29,6 +33,14 @@
         _videoView = [[UIView alloc] init];
     }
     return _videoView;
+}
+- (UIView *)maskView {
+    if (!_maskView) {
+        _maskView = [[UIView alloc] init];
+        _maskView.backgroundColor = [UIColor darkGrayColor];
+        _maskView.hidden = YES;
+    }
+    return _maskView;
 }
 
 - (UILabel *)titleLabel {

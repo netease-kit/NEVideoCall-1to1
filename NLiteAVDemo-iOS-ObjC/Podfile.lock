@@ -1,34 +1,42 @@
 PODS:
   - Masonry (1.1.0)
-  - NERtcSDK (3.6.2)
-  - NIMSDK_LITE (7.9.1)
+  - NERtcCallKit (1.2.0):
+    - NERtcSDK (= 4.0.3)
+    - NIMSDK_LITE (= 8.3.1)
+    - YXAlog_iOS (= 1.0.0)
+  - NERtcSDK (4.0.3)
+  - NIMSDK_LITE (8.3.1)
   - SDWebImage (5.7.4):
     - SDWebImage/Core (= 5.7.4)
   - SDWebImage/Core (5.7.4)
   - Toast (4.0.0)
+  - YXAlog_iOS (1.0.0)
 
 DEPENDENCIES:
   - Masonry
-  - NERtcSDK (~> 3.6.1)
-  - NIMSDK_LITE (~> 7.9.1)
+  - NERtcCallKit (~> 1.2.0)
   - SDWebImage (~> 5.7.1)
   - Toast
 
 SPEC REPOS:
   trunk:
     - Masonry
+    - NERtcCallKit
     - NERtcSDK
     - NIMSDK_LITE
     - SDWebImage
     - Toast
+    - YXAlog_iOS
 
 SPEC CHECKSUMS:
   Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
-  NERtcSDK: 01855b97554cf0c856d009db7b296de4f71300c2
-  NIMSDK_LITE: a81b6f4960a905db302d791996520bd119450f53
+  NERtcCallKit: 4a13c01cd286365d342c1fa8115e3130a7452e77
+  NERtcSDK: 3e756ff8bf1221104b5dc6812aad2f4e8496900d
+  NIMSDK_LITE: 70dea2d2b6ef91ed19042d12eb4c5b001b858174
   SDWebImage: 48b88379b798fd1e4298f95bb25d2cdabbf4deb3
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
+  YXAlog_iOS: ff2a7e6897b6355885991799f514f687592de0e8
 
-PODFILE CHECKSUM: 183e7e34a71bb378901b45e2361c3eab1be1a9b0
+PODFILE CHECKSUM: 279dd404f6a432c6e4c4f9ed53c2d4a927241797
 
-COCOAPODS: 1.9.3
+COCOAPODS: 1.10.1

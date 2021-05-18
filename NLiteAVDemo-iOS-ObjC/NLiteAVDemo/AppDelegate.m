@@ -8,12 +8,12 @@
 
 #import "AppDelegate.h"
 #import "NEMenuViewController.h"
-#import "NERtcVideoCall.h"
+//#import "NERtcVideoCall.h"
 #import "NECallViewController.h"
 #import <UserNotifications/UserNotifications.h>
 #import "NENavigator.h"
 
-@interface AppDelegate ()<NERtcVideoCallDelegate,UNUserNotificationCenterDelegate>
+@interface AppDelegate ()<NERtcCallKitDelegate,UNUserNotificationCenterDelegate>
 @end
 
 @implementation AppDelegate
@@ -35,7 +35,9 @@
 }
 
 - (void)setupSDK {
-    [[NERtcVideoCall shared] setupAppKey:kAppKey APNSCerName:kAPNSCerName VoIPCerName:nil];
+    NERtcCallOptions *option = [NERtcCallOptions new];
+    option.APNSCerName = kAPNSCerName;
+    [[NERtcCallKit sharedInstance] setupAppKey:kAppKey options:option];
 }
 
 - (void)registerAPNS
@@ -61,11 +63,14 @@
 
 // 3.APNS注册回调
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-    [[NERtcVideoCall shared] updateApnsToken:deviceToken];
+    [[NERtcCallKit sharedInstance] updateApnsToken:deviceToken];
     [[NSUserDefaults standardUserDefaults] setObject:deviceToken forKey:deviceTokenKey];
+//    [self.window makeToast:@"注册devicetoken成功"];
 }
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
- }
+    [self.window makeToast:[NSString stringWithFormat:@"注册devicetoken失败，Error%@",error]];
+}
+
 
 // 4.接收通知
 // iOS 10.0 在前台收到通知

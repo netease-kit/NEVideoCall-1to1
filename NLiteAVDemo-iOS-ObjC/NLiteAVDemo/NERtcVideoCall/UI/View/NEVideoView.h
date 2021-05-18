@@ -14,6 +14,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(strong,nonatomic)NSString *userID;
 @property(strong,nonatomic)UIView *videoView;
 @property(strong,nonatomic)UILabel *titleLabel;
+@property(strong,nonatomic)UIView *maskView;
+
 @end
 
 NS_ASSUME_NONNULL_END

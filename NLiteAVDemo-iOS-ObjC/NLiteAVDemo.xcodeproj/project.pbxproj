@@ -26,7 +26,6 @@
 		C7664EC82511AE1E005E26A2 /* NESearchTask.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E7D2511AE1D005E26A2 /* NESearchTask.m */; };
 		C7664EC92511AE1E005E26A2 /* NERtcVideoCallModel.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E832511AE1D005E26A2 /* NERtcVideoCallModel.m */; };
 		C7664ECA2511AE1E005E26A2 /* NEUser.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E842511AE1D005E26A2 /* NEUser.m */; };
-		C7664ECB2511AE1E005E26A2 /* NERtcVideoCall.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E852511AE1D005E26A2 /* NERtcVideoCall.m */; };
 		C7664ECC2511AE1E005E26A2 /* NESendSmsCodeTask.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E8A2511AE1D005E26A2 /* NESendSmsCodeTask.m */; };
 		C7664ECD2511AE1E005E26A2 /* NEAccountTask.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E8B2511AE1D005E26A2 /* NEAccountTask.m */; };
 		C7664ECE2511AE1E005E26A2 /* NEAccountTask.m in Sources */ = {isa = PBXBuildFile; fileRef = C7664E8E2511AE1D005E26A2 /* NEAccountTask.m */; };
@@ -99,11 +98,8 @@
 		C7664E7D2511AE1D005E26A2 /* NESearchTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NESearchTask.m; sourceTree = "<group>"; };
 		C7664E7F2511AE1D005E26A2 /* NERtcVideoCallModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NERtcVideoCallModel.h; sourceTree = "<group>"; };
 		C7664E802511AE1D005E26A2 /* NEUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NEUser.h; sourceTree = "<group>"; };
-		C7664E812511AE1D005E26A2 /* NERtcVideoCall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NERtcVideoCall.h; sourceTree = "<group>"; };
-		C7664E822511AE1D005E26A2 /* NERtcVideoCallDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NERtcVideoCallDelegate.h; sourceTree = "<group>"; };
 		C7664E832511AE1D005E26A2 /* NERtcVideoCallModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NERtcVideoCallModel.m; sourceTree = "<group>"; };
 		C7664E842511AE1D005E26A2 /* NEUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NEUser.m; sourceTree = "<group>"; };
-		C7664E852511AE1D005E26A2 /* NERtcVideoCall.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NERtcVideoCall.m; sourceTree = "<group>"; };
 		C7664E882511AE1D005E26A2 /* NEAccountTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NEAccountTask.h; sourceTree = "<group>"; };
 		C7664E892511AE1D005E26A2 /* NESendSmsCodeTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NESendSmsCodeTask.h; sourceTree = "<group>"; };
 		C7664E8A2511AE1D005E26A2 /* NESendSmsCodeTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NESendSmsCodeTask.m; sourceTree = "<group>"; };
@@ -277,9 +273,6 @@
 		C7664E7E2511AE1D005E26A2 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				C7664E812511AE1D005E26A2 /* NERtcVideoCall.h */,
-				C7664E852511AE1D005E26A2 /* NERtcVideoCall.m */,
-				C7664E822511AE1D005E26A2 /* NERtcVideoCallDelegate.h */,
 				C7664E7F2511AE1D005E26A2 /* NERtcVideoCallModel.h */,
 				C7664E832511AE1D005E26A2 /* NERtcVideoCallModel.m */,
 				C7664E802511AE1D005E26A2 /* NEUser.h */,
@@ -580,7 +573,6 @@
 				C7664ED02511AE1E005E26A2 /* NELoginOptions.m in Sources */,
 				C7664ED82511AE1E005E26A2 /* NEService.m in Sources */,
 				C7664EDE2511AE1E005E26A2 /* NSMacro.m in Sources */,
-				C7664ECB2511AE1E005E26A2 /* NERtcVideoCall.m in Sources */,
 				C7664ED42511AE1E005E26A2 /* NEMenuCell.m in Sources */,
 				C7664EE02511AE1E005E26A2 /* NEAccount.m in Sources */,
 				C7664ED62511AE1E005E26A2 /* NENavCustomView.m in Sources */,
@@ -733,10 +725,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = NLiteAVDemo/NLiteAVDemo.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 569GNZ5392;
+				EXCLUDED_ARCHS = armv7;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/NLiteAVDemo/PrefixHeader.pch";
 				INFOPLIST_FILE = NLiteAVDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
@@ -744,9 +737,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.netease.NELiteAVDemo;
 				PRODUCT_NAME = "云信视频通话";
-				PROVISIONING_PROFILE_SPECIFIER = NELiteAVDemo_Profile_Dev;
+				PROVISIONING_PROFILE_SPECIFIER = NELiteAVDemo_Profile_InHouse;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -759,8 +753,9 @@
 				CODE_SIGN_ENTITLEMENTS = NLiteAVDemo/NLiteAVDemo.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = J669Y64Z9Y;
+				EXCLUDED_ARCHS = armv7;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/NLiteAVDemo/PrefixHeader.pch";
 				INFOPLIST_FILE = NLiteAVDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
@@ -768,7 +763,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.netease.NELiteAVDemo;
+				MARKETING_VERSION = 1.1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.netease.NEAVDemo;
 				PRODUCT_NAME = "云信视频通话";
 				PROVISIONING_PROFILE_SPECIFIER = NEAVDemo_AppStore;
 				TARGETED_DEVICE_FAMILY = "1,2";
