@@ -10,15 +10,13 @@
 #import "NENavCustomView.h"
 #import "NEMenuCell.h"
 #import "NERtcContactsViewController.h"
-#import "NERtcVideoCall.h"
-
 #import "NEUser.h"
 #import "NECallViewController.h"
 
 #import "NENavigator.h"
 #import "NEAccount.h"
 
-@interface NEMenuViewController ()<UITableViewDelegate,UITableViewDataSource,NERtcVideoCallDelegate>
+@interface NEMenuViewController ()<UITableViewDelegate,UITableViewDataSource,NERtcCallKitDelegate>
 @property(strong,nonatomic)UITableView *tableView;
 @property(strong,nonatomic)UIImageView *bgImageView;
 @end
@@ -65,8 +63,9 @@ static NSString *cellID = @"menuCellID";
     versionLabel.font = [UIFont systemFontOfSize:14];
     NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
     NSString *appVersion = [infoDictionary objectForKey:@"CFBundleShortVersionString"];
-    NSString *appBuild = [infoDictionary objectForKey:@"CFBundleVersion"];
-    versionLabel.text = [NSString stringWithFormat:@"NIMSDK_LITE:v7.8.4 \n NERtcSDK:v3.5.1 \n Demo:v%@ build:%@",appVersion,appBuild];
+    NSString *rtcVersion = [NSBundle bundleForClass:[NERtcEngine class]].infoDictionary[@"CFBundleShortVersionString"];
+    NSString *IMVersion = [[NIMSDK sharedSDK] sdkVersion];
+    versionLabel.text = [NSString stringWithFormat:@"NIMSDK_LITE:%@ \n NERtcSDK:%@ \nNERtcCallKit:%@ \n VideoCall:%@",IMVersion,rtcVersion,[NERtcCallKit versionCode],appVersion];
     versionLabel.numberOfLines = 0;
     versionLabel.textAlignment = NSTextAlignmentCenter;
     [self.view addSubview:versionLabel];
@@ -74,32 +73,60 @@ static NSString *cellID = @"menuCellID";
     [versionLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.mas_offset(0);
         make.bottom.mas_equalTo(-40);
-        make.height.mas_equalTo(60);
+        make.height.mas_equalTo(80);
     }];
 }
 
 - (void)addObserver {
-    [[NERtcVideoCall shared] addDelegate:self];
+    [[NERtcCallKit sharedInstance] addDelegate:self];
+    
     [NEAccount addObserverForObject:self actionBlock:^(NEAccountAction action) {
+        
         if (action == NEAccountActionLogin) {
             //IM登录
             NEUser *user = [NEAccount shared].userModel;
-            [[NERtcVideoCall shared] login:user success:^{
-                // 首次登录成功之后上传deviceToken
-                NSData *deviceToken = [[NSUserDefaults standardUserDefaults] objectForKey:deviceTokenKey];
-                [[NERtcVideoCall shared] updateApnsToken:deviceToken];
-            } failed:^(NSError * _Nonnull error) {
-                [self.view makeToast:[NSString stringWithFormat:@"IM登录失败%@",error.localizedDescription]];
+            [[NERtcCallKit sharedInstance] login:user.imAccid token:user.imToken completion:^(NSError * _Nullable error) {
+                if (error) {
+                    [self.view makeToast:[NSString stringWithFormat:@"IM登录失败%@",error.localizedDescription]];
+                }else{
+                    // 首次登录成功之后上传deviceToken
+                    NSData *deviceToken = [[NSUserDefaults standardUserDefaults] objectForKey:deviceTokenKey];
+                    [[NERtcCallKit sharedInstance] updateApnsToken:deviceToken];
+                    [self updateUserInfo:[NEAccount shared].userModel];
+                }
             }];
+//            [[NERtcCallKit sharedInstance] login:user success:^{
+//                // 首次登录成功之后上传deviceToken
+//                NSData *deviceToken = [[NSUserDefaults standardUserDefaults] objectForKey:deviceTokenKey];
+//                [[NERtcCallKit sharedInstance] updateApnsToken:deviceToken];
+//            } failed:^(NSError * _Nonnull error) {
+//                [self.view makeToast:[NSString stringWithFormat:@"IM登录失败%@",error.localizedDescription]];
+//            }];
         }else {
             //IM退出
-            [[NERtcVideoCall shared] logout];
+            [[NERtcCallKit sharedInstance] logout:^(NSError * _Nullable error) {
+            }];
+//            [[NERtcCallKit sharedInstance] logout];
         }
     }];
 }
-
+- (void)updateUserInfo:(NEUser *)user {
+    NSMutableDictionary *ext = [NSMutableDictionary dictionary];
+    if (user.mobile) {
+        [ext setObject:user.mobile forKey:@(NIMUserInfoUpdateTagMobile)];
+    }
+    if (user.avatar) {
+        [ext setObject:user.avatar forKey:@(NIMUserInfoUpdateTagAvatar)];
+    }
+    [NIMSDK.sharedSDK.userManager updateMyUserInfo:ext.copy completion:^(NSError * _Nullable error) {
+        if (error) {
+            NSLog(@"updateUserInfo error:%@",error);
+            return;
+        }
+    }];
+}
 - (void)removeObserver {
-    [[NERtcVideoCall shared] removeDelegate:self];
+    [[NERtcCallKit sharedInstance] removeDelegate:self];
     [NEAccount removeObserverForObject:self];
 }
 - (void)autoLogin {
@@ -109,15 +136,19 @@ static NSString *cellID = @"menuCellID";
                 NSString *msg = data[@"msg"] ?: @"请求错误";
                 [self.view makeToast:msg];
             }else {
-                [[NERtcVideoCall shared] login:[NEAccount shared].userModel success:^{
-                    [self.view makeToast:@"IM登录成功"];
-                } failed:^(NSError * _Nonnull error) {
-                    [self.view makeToast:error.localizedDescription];
+                [[NERtcCallKit sharedInstance] login:[NEAccount shared].userModel.imAccid token:[NEAccount shared].userModel.imToken completion:^(NSError * _Nullable error) {
+                    if (error) {
+                        [self.view makeToast:error.localizedDescription];
+                    }else {
+                        [self.view makeToast:@"IM登录成功"];
+                        [self updateUserInfo:[NEAccount shared].userModel];
+                    }
                 }];
             }
         }];
     }
 }
+
 - (void)userButtonClick:(UIButton *)button {
     if ([NEAccount shared].hasLogin) {
         UIAlertController *alerVC = [UIAlertController alertControllerWithTitle:@"" message:[NSString stringWithFormat:@"确认退出登录%@",[NEAccount shared].userModel.mobile] preferredStyle:UIAlertControllerStyleAlert];
@@ -129,10 +160,10 @@ static NSString *cellID = @"menuCellID";
                 if (error) {
                     [self.view makeToast:error.localizedDescription];
                 }else {
-                    [[NERtcVideoCall shared] logout];
+                    [[NERtcCallKit sharedInstance] logout:^(NSError * _Nullable error) {
+                    }];
                 }
             }];
-
         }];
         [alerVC addAction:cancelAction];
         [alerVC addAction:okAction];
@@ -142,18 +173,33 @@ static NSString *cellID = @"menuCellID";
     }
 }
 #pragma mark - NERtcVideoCallDelegate
-- (void)onInvitedByUser:(NEUser *)user {
-    if (!self.presentedViewController)
-    {
-        NECallViewController *callVC = [[NECallViewController alloc] init];
-        callVC.localUser = [NEAccount shared].userModel;
-        callVC.remoteUser = user;
-        callVC.status = NECallStatusCalled;
-        callVC.modalPresentationStyle = UIModalPresentationFullScreen;
-        [self.navigationController presentViewController:callVC animated:YES completion:nil];
-    }
+- (void)onInvited:(NSString *)invitor userIDs:(NSArray<NSString *> *)userIDs isFromGroup:(BOOL)isFromGroup groupID:(NSString *)groupID type:(NERtcCallType)type {
+    [NIMSDK.sharedSDK.userManager fetchUserInfos:@[invitor] completion:^(NSArray<NIMUser *> * _Nullable users, NSError * _Nullable error) {
+        if (error) {
+            [self.view makeToast:error.description];
+            return;
+        }else {
+            NIMUser *imUser = users.firstObject;
+            NSString *ext = imUser.ext;
+            NEUser *remoteUser = [[NEUser alloc] init];
+            remoteUser.imAccid = imUser.userId;
+            remoteUser.mobile = imUser.userInfo.mobile;
+            remoteUser.avatar = imUser.userInfo.avatarUrl;
+            
+            NECallViewController *callVC = [[NECallViewController alloc] init];
+            callVC.localUser = [NEAccount shared].userModel;
+            callVC.remoteUser = remoteUser;
+            callVC.status = NERtcCallStatusCalled;
+            callVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
+            if (self.presentedViewController) {
+                [self.presentedViewController presentViewController:callVC animated:YES completion:nil];
+            }else {
+                [self.navigationController presentViewController:callVC animated:YES completion:nil];
+            }
+        }
+    }];
+    
 }
-
 #pragma mark - UITableViewDelegate
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return 1;

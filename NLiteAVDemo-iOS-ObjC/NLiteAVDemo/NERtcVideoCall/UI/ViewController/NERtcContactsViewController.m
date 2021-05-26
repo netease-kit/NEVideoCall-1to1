@@ -210,8 +210,8 @@ static NSString *fileName = @"searchHistory";
     NECallViewController *callVC = [[NECallViewController alloc] init];
     callVC.localUser = [NEAccount shared].userModel;
     callVC.remoteUser = user;
-    callVC.status = NECallStatusCall;
-    callVC.modalPresentationStyle = UIModalPresentationFullScreen;
+    callVC.status = NERtcCallStatusCalling;
+    callVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
     [self.navigationController presentViewController:callVC animated:YES completion:nil];
 }
 
