@@ -2,6 +2,8 @@ package com.netease.yunxin.nertc.baselib;
 
 import android.text.TextUtils;
 
+import com.netease.videocall.demo.baselib.BuildConfig;
+
 import java.io.IOException;
 
 import okhttp3.Interceptor;
@@ -16,7 +18,7 @@ public class BaseService {
 
     public static final int ERROR_CODE_UNKNOWN = -1;
 
-    private static final String BASE_URL = NativeConfig.getBaseURL();
+    private static final String BASE_URL = BuildConfig.BASE_URL;
 
     public static BaseService getInstance() {
         return RetrofitHolder.retrofit;

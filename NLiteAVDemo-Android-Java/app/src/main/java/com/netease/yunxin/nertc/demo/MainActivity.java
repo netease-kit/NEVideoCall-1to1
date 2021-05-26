@@ -1,5 +1,6 @@
 package com.netease.yunxin.nertc.demo;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -8,6 +9,7 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -18,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.netease.lava.nertc.sdk.NERtc;
+import com.netease.lava.nertc.sdk.NERtcEx;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.RequestCallback;
@@ -26,6 +29,7 @@ import com.netease.nimlib.sdk.auth.AuthServiceObserver;
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.nimlib.sdk.avsignalling.constant.ChannelType;
 import com.netease.videocall.demo.R;
+import com.netease.videocall.demo.baselib.BuildConfig;
 import com.netease.yunxin.nertc.baselib.BaseService;
 import com.netease.yunxin.nertc.baselib.NativeConfig;
 import com.netease.yunxin.nertc.login.model.LoginServiceManager;
@@ -49,6 +53,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -67,6 +72,18 @@ public class MainActivity extends AppCompatActivity {
         initView();
         checkLogin();
         initG2();
+        dumpTest();
+    }
+
+    private void dumpTest() {
+        findViewById(R.id.btn).setOnClickListener(v -> {
+            ToastUtils.showLong("开始dump音频");
+            NERtcEx.getInstance().startAudioDump();
+        });
+        findViewById(R.id.btn2).setOnClickListener(v -> {
+            ToastUtils.showLong("dump已结束，请到/sdcard/Android/data/com.netease.videocall.demo/files/dump目录查看dump文件");
+            NERtcEx.getInstance().stopAudioDump();
+        });
     }
 
     @Override
@@ -88,42 +105,46 @@ public class MainActivity extends AppCompatActivity {
 
                     try {
 
-                        String appKey = NativeConfig.getAppKey();
+                        String appKey = BuildConfig.APP_KEY;
                         UserModel userModel = ProfileManager.getInstance().getUserModel();
                         String imAccount = userModel.imAccid;
                         String imToken = userModel.imToken;
 
-                        NERTCVideoCall.sharedInstance().setupAppKey(getApplicationContext(), appKey, new VideoCallOptions(null, new UIService() {
-                            @Override
-                            public Class getOneToOneAudioChat() {
-                                return NERTCVideoCallActivity.class;
-                            }
-
-                            @Override
-                            public Class getOneToOneVideoChat() {
-                                return NERTCVideoCallActivity.class;
-                            }
-
-                            @Override
-                            public Class getGroupVideoChat() {
-                                return null;
-                            }
-
-                            @Override
-                            public int getNotificationIcon() {
-                                return R.drawable.video_call_icon;
-                            }
-
-                            @Override
-                            public int getNotificationSmallIcon() {
-                                return R.drawable.video_call_icon;
-                            }
-                        }, ProfileManager.getInstance()));
 
                         NERTCVideoCall.sharedInstance().login(imAccount, imToken, new RequestCallback<LoginInfo>() {
                             @Override
                             public void onSuccess(LoginInfo param) {
+                                NERTCVideoCall.sharedInstance().setupAppKey(getApplicationContext(), appKey, new VideoCallOptions(null, new UIService() {
+                                    @Override
+                                    public Class getOneToOneAudioChat() {
+                                        return NERTCVideoCallActivity.class;
+                                    }
 
+                                    @Override
+                                    public Class getOneToOneVideoChat() {
+                                        return NERTCVideoCallActivity.class;
+                                    }
+
+                                    @Override
+                                    public Class getGroupVideoChat() {
+                                        return null;
+                                    }
+
+                                    @Override
+                                    public int getNotificationIcon() {
+                                        return R.drawable.video_call_icon;
+                                    }
+
+                                    @Override
+                                    public int getNotificationSmallIcon() {
+                                        return R.drawable.video_call_icon;
+                                    }
+
+                                    @Override
+                                    public void startContactSelector(Context context, String teamId, List<String> excludeUserList, int requestCode) {
+
+                                    }
+                                }, ProfileManager.getInstance()));
                             }
 
                             @Override
@@ -274,21 +295,6 @@ public class MainActivity extends AppCompatActivity {
             public void onEvent(StatusCode statusCode) {
                 if (statusCode == StatusCode.LOGINED) {
                     ProfileManager.getInstance().setLogin(true);
-                } else if (statusCode == StatusCode.UNLOGIN) {
-                    ProfileManager.getInstance().setLogin(false);
-                    //NIM 初始化的时候如果有用户信息会自动登录，此处无需根据token再手动登录
-//                    LoginServiceManager.getInstance().loginWithToken(new BaseService.ResponseCallBack<Void>() {
-//                        @Override
-//                        public void onSuccess(Void response) {
-//                            ProfileManager.getInstance().setLogin(true);
-//                            ToastUtils.showLong("登录成功");
-//                        }
-//
-//                        @Override
-//                        public void onFail(int code) {
-//                            ToastUtils.showLong("登录失败");
-//                        }
-//                    });
                 }
             }
         }, true);

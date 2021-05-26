@@ -19,6 +19,7 @@ import com.netease.nimlib.sdk.StatusBarNotificationConfig;
 import com.netease.nimlib.sdk.auth.LoginInfo;
 
 import com.netease.nimlib.sdk.util.NIMUtil;
+import com.netease.videocall.demo.baselib.BuildConfig;
 import com.netease.yunxin.nertc.baselib.NativeConfig;
 import com.netease.yunxin.nertc.login.model.ProfileManager;
 import com.netease.yunxin.nertc.login.model.UserModel;
@@ -40,7 +41,7 @@ public class DemoApplication extends Application {
     private SDKOptions options() {
         SDKOptions options = new SDKOptions();
         //此处仅设置appkey，其他设置请自行参看信令文档设置 ：https://dev.yunxin.163.com/docs/product/信令/SDK开发集成/Android开发集成/初始化
-        options.appKey = NativeConfig.getAppKey();
+        options.appKey = BuildConfig.APP_KEY;
         return options;
     }
 

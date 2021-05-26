@@ -3,5 +3,5 @@
     <color name="colorActivityBackground">#ffffff</color>
     <color name="colorWhite">#ffffff</color>
     <color name="login_color_btn_enable">#FF0062E3</color>
-    <color name="login_color_btn_disable">#FF092650</color>
+    <color name="login_color_btn_disable">#F2F2F2</color>
 </resources>
