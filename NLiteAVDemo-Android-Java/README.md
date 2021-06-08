@@ -39,7 +39,7 @@ Demo跑通之后，可以修改nertcvideocalldemo/ui文件夹下的Activity，�
 
 #### 基于NERtcVideoCall实现自定义UI：
 
-仅需拷贝nertcvideocall文件夹到自己的工程，创建自定义UI界面，即可实现视频通话功能。具体步骤如下：
+参考nertcvideocalldemo module，创建自定义UI界面，即可实现视频通话功能。具体步骤如下：
 
 ##### 步骤1:集成SDK
 
@@ -61,7 +61,10 @@ Demo跑通之后，可以修改nertcvideocalldemo/ui文件夹下的Activity，�
 3. 集成SDK：
 
    ```
-   api 'com.netease.yunxin:nertc:3.8.1'
+   // rtc组件
+   implementation 'com.netease.yunxin:nertc:3.8.1'
+   // 呼叫组件
+   implementation 'com.netease.yunxin.kit:call:1.2.0'
    ```
 
 4. 防止代码混淆，在 proguard-rules.pro 文件中，为 nertc sdk 添加 -keep 类的配置，这样可以防止混淆 nertc sdk 公共类名称:
