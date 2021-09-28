@@ -3,4 +3,9 @@
     <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
+    <color name="colorActivityBackground">#ffffff</color>
+    <color name="colorWhite">#ffffff</color>
+    <color name="login_color_btn_enable">#FF0062E3</color>
+    <color name="login_color_btn_disable">#F2F2F2</color>
+    <color name="red">#FF5D54</color>
 </resources>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/video_call_bg"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="15dp">
+
+        <TextView
+            android:id="@+id/tv_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorWhite"
+            android:textSize="16sp"
+            android:text="@string/cancel" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorWhite"
+            android:textSize="17sp"
+            android:text="@string/start_call"
+            android:layout_centerHorizontal="true" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/et_search_bg"
+        android:layout_margin="20dp"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/edt_phone_number"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/please_input_the_number_have_register"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="10dp"
+            android:textColorHint="#80FFFFFF"
+            android:inputType="number"
+            android:textSize="16sp"
+            android:maxLength="11"
+            android:background="@null"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/iv_clear"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_gravity="center_vertical"
+            android:visibility="gone"
+            android:src="@drawable/nim_icon_edit_delete" />
+
+        <Button
+            android:id="@+id/btn_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btn_search_bg"
+            android:layout_margin="7dp"
+            android:textColor="@color/colorWhite"
+            android:textSize="12sp"
+            android:text="@string/search" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_self_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:alpha="0.5"
+        android:textSize="16sp"
+        android:layout_marginStart="20dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="20dp"
+        android:textColor="@color/colorWhite"
+        android:textSize="14sp"
+        android:text="@string/search_result" />
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp">
+
+        <TextView
+            android:id="@+id/tv_empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#CCCCCC"
+            android:layout_marginStart="12dp"
+            android:alpha="0.5"
+            android:text="@string/empty" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_search_result"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tv_recently_search"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="20dp"
+        android:textColor="@color/colorWhite"
+        android:textSize="14sp"
+        android:visibility="gone"
+        android:text="@string/recently_search" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_recent_user"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp" />
+
+    <TextView
+        android:id="@+id/tv_call_order"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="20dp"
+        android:textColor="@color/colorWhite"
+        android:textSize="14sp"
+        android:visibility="gone"
+        android:text="@string/call_record" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_call_order"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp" />
+
+</LinearLayout>

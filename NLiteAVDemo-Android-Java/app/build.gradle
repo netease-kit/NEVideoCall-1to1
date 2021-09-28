@@ -5,7 +5,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        applicationId "com.netease.videocall.demo"
+        applicationId "com.netease.yunxin.app.videocall"
 
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
@@ -35,14 +35,31 @@ android {
         pickFirst 'lib/arm64-v8a/libc++_shared.so'
         pickFirst 'lib/armeabi-v7a/libc++_shared.so'
     }
+
+    // app key for code
+    defaultConfig {
+        buildConfigField "String", "APP_KEY", "your self app key!!!"
+    }
+    // base server url
+    defaultConfig {
+        buildConfigField "String", "BASE_URL", "https://yiyong.netease.im/"
+    }
+
+    configurations.all {
+        // check for updates every build
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    }
 }
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation project(':nertcvideocalldemo')
-    implementation project(':login')
-    implementation project(':baselib')
-    implementation 'com.netease.yunxin.kit:call:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+
+    api 'com.squareup.okhttp3:okhttp:3.11.0'
+    api 'com.squareup.retrofit2:retrofit:2.2.0'
+    api 'com.squareup.retrofit2:converter-gson:2.2.0'
+
+    api 'com.netease.yunxin.kit:call-ui:1.4.0'
 }

@@ -1,9 +1,0 @@
-<resources>
-    <string name="app_name">NERTCScenesDemo</string>
-    <string name="nertc_cant_find_this_user">未找到此用户</string>
-    <string name="nertc_no_network">网络未连接</string>
-    <string name="nertc_other_cancel">对方已取消</string>
-    <string name="nertc_other_refused">对方已拒绝</string>
-    <string name="nertc_other_line_busy">对方占线</string>
-    <string name="nertc_call_is_answer_on_other_device">通话已在其它设备接听</string>
-</resources>

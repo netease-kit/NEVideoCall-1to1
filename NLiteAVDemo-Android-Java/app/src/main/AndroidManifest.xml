@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.netease.videocall.demo">
+    package="com.netease.yunxin.app.videocall">
 
     <!-- 访问网络状态-->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -39,8 +39,10 @@
 
     <uses-permission android:name="com.netease.yunxin.nertc.demo.permission.RECEIVE_MSG" />
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
     <application
-        android:name="com.netease.yunxin.nertc.demo.DemoApplication"
+        android:name="com.netease.yunxin.app.videocall.DemoApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -50,7 +52,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name="com.netease.yunxin.nertc.demo.SplashActivity"
+            android:name="com.netease.yunxin.app.videocall.SplashActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:screenOrientation="portrait"
             android:launchMode="singleTop">
@@ -62,7 +64,7 @@
         </activity>
 
         <activity
-            android:name="com.netease.yunxin.nertc.demo.MainActivity"
+            android:name="com.netease.yunxin.app.videocall.MainActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:screenOrientation="portrait"
             android:launchMode="singleTask">
@@ -73,6 +75,24 @@
             </intent-filter>
 
         </activity>
+
+        <activity
+            android:name="com.netease.yunxin.app.videocall.login.ui.LoginActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"/>
+
+        <activity
+            android:name="com.netease.yunxin.app.videocall.login.ui.VerifyCodeActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"/>
+
+        <activity
+            android:name="com.netease.yunxin.app.videocall.nertc.ui.NERTCSelectCallUserActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
 
         <!-- 云信后台服务，请使用独立进程。 -->
         <service

@@ -1,5 +1,2 @@
-include ':baselib'
-include ':nertcvideocalldemo'
-include ':login'
 include ':app'
 rootProject.name = "NERTCScenesDemo"
