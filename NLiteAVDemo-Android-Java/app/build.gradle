@@ -36,13 +36,15 @@ android {
         pickFirst 'lib/armeabi-v7a/libc++_shared.so'
     }
 
+    def appKey = "Here, please fill your appKey!!!"
+
     // app key for code
     defaultConfig {
-        buildConfigField "String", "APP_KEY", "your self app key!!!"
+        buildConfigField "String", "APP_KEY", "\"${appKey}\""
     }
     // base server url
     defaultConfig {
-        buildConfigField "String", "BASE_URL", "https://yiyong.netease.im/"
+        buildConfigField "String", "BASE_URL", "\"https://yiyong.netease.im/\""
     }
 
     configurations.all {
