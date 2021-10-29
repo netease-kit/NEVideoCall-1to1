@@ -9,7 +9,6 @@
 #import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
-static NSString *deviceTokenKey = @"deviceToken";
 @interface NEMenuViewController : UIViewController
 
 @end

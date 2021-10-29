@@ -23,6 +23,8 @@ static NSString *baseURL = kApiHost;
 + (instancetype)taskWithURLString:(NSString *)urlString;
 - (void)postWithCompletion:(NERequestHandler)completion;
 
+- (NSString *)getURL;
+
 @end
 
 NS_ASSUME_NONNULL_END

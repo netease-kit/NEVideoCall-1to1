@@ -8,7 +8,6 @@
 
 #import "NEMenuCell.h"
 
-
 @implementation NEMenuCell
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
     self = [super initWithStyle:style

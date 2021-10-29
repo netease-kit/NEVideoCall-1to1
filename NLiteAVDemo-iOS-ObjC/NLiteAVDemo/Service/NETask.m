@@ -31,23 +31,31 @@
     return task;
 };
 
+- (NSString *)getURL {
+    return self.URLString;
+}
+
 - (NSURLRequest *)taskRequest
 {
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:self.URLString]
                                                                 cachePolicy:NSURLRequestUseProtocolCachePolicy
                                                             timeoutInterval:10];
-    [request addValue:@"" forHTTPHeaderField:@"accessToken"];
-    [request setHTTPMethod:@"Post"];
+    
+    [request setHTTPMethod:@"POST"];
     [request addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     [request addValue:@"application/json" forHTTPHeaderField:@"Accept"];
     [request setValue:[NEAccount shared].accessToken forHTTPHeaderField:@"accessToken"];
+    [request setValue:kAppKey forHTTPHeaderField:@"appkey"];
+    
     NSDictionary *parameterDic = [self getProperties];
-    NSError *error;
-    NSData *data = [NSJSONSerialization dataWithJSONObject:parameterDic options:NSJSONWritingPrettyPrinted error:&error];
-    if (error) {
-        return nil;
+    if (parameterDic.count > 0) {
+        NSError *error;
+        NSData *data = [NSJSONSerialization dataWithJSONObject:parameterDic options:NSJSONWritingPrettyPrinted error:&error];
+        if (error) {
+            return nil;
+        }
+        [request setHTTPBody:data];
     }
-    [request setHTTPBody:data];
     return request;
 }
 

@@ -5,11 +5,12 @@
       "scale" : "1x"
     },
     {
-      "filename" : "call_camera_off@2x.png",
+      "filename" : "yx-tv-video-off-white@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "yx-tv-video-off-white@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

@@ -14,6 +14,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property(strong,nonatomic)UIButton *microPhone;
 @property(strong,nonatomic)UIButton *cameraBtn;
 @property(strong,nonatomic)UIButton *hangupBtn;
+@property(strong,nonatomic)UIButton *speakerBtn;
+@property(strong,nonatomic)UIButton *mediaBtn;
+
+- (void)changeAudioStyle;
+- (void)changeVideoStyle;
 
 @end
 
