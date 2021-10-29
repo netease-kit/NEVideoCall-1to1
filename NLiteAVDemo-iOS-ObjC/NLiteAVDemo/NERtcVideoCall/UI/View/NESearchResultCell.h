@@ -7,12 +7,23 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "NEExpandButton.h"
+#import "NEUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+@protocol SearchCellDelegate <NSObject>
+
+- (void)didSelectSearchUser:(NEUser *)user;
+
+@end
+
 @interface NESearchResultCell : UITableViewCell
-@property(strong,nonatomic)UIImageView *iconView;
-@property(strong,nonatomic)UILabel *titleLabel;
+
+@property(nonatomic, weak) id<SearchCellDelegate> delegate;
+
+- (void)configureUI:(NEUser *)user;
+
 @end
 
 NS_ASSUME_NONNULL_END

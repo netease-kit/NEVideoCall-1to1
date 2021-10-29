@@ -1,42 +1,70 @@
 PODS:
+  - AFNetworking (4.0.1):
+    - AFNetworking/NSURLSession (= 4.0.1)
+    - AFNetworking/Reachability (= 4.0.1)
+    - AFNetworking/Security (= 4.0.1)
+    - AFNetworking/Serialization (= 4.0.1)
+    - AFNetworking/UIKit (= 4.0.1)
+  - AFNetworking/NSURLSession (4.0.1):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/Reachability (4.0.1)
+  - AFNetworking/Security (4.0.1)
+  - AFNetworking/Serialization (4.0.1)
+  - AFNetworking/UIKit (4.0.1):
+    - AFNetworking/NSURLSession
+  - GCDWebServer (3.5.4):
+    - GCDWebServer/Core (= 3.5.4)
+  - GCDWebServer/Core (3.5.4)
   - Masonry (1.1.0)
-  - NERtcCallKit (1.2.0):
-    - NERtcSDK (= 4.0.3)
-    - NIMSDK_LITE (= 8.3.1)
-    - YXAlog_iOS (= 1.0.0)
-  - NERtcSDK (4.0.3)
-  - NIMSDK_LITE (8.3.1)
+  - NERtcCallKit (1.4.0):
+    - NERtcSDK (= 4.2.112)
+    - NIMSDK_LITE (= 8.5.5)
+    - YXAlog_iOS (= 1.0.6)
+  - NERtcSDK (4.2.112)
+  - NIMSDK_LITE (8.5.5)
+  - ReactiveObjC (3.1.1)
   - SDWebImage (5.7.4):
     - SDWebImage/Core (= 5.7.4)
   - SDWebImage/Core (5.7.4)
   - Toast (4.0.0)
-  - YXAlog_iOS (1.0.0)
+  - YXAlog_iOS (1.0.6)
 
 DEPENDENCIES:
+  - AFNetworking (~> 4.0)
+  - GCDWebServer (~> 3.5.4)
   - Masonry
-  - NERtcCallKit (~> 1.2.0)
+  - NERtcCallKit (= 1.4.0)
+  - ReactiveObjC
   - SDWebImage (~> 5.7.1)
   - Toast
 
 SPEC REPOS:
   trunk:
+    - AFNetworking
+    - GCDWebServer
     - Masonry
     - NERtcCallKit
     - NERtcSDK
     - NIMSDK_LITE
+    - ReactiveObjC
     - SDWebImage
     - Toast
     - YXAlog_iOS
 
 SPEC CHECKSUMS:
+  AFNetworking: 7864c38297c79aaca1500c33288e429c3451fdce
+  GCDWebServer: 2c156a56c8226e2d5c0c3f208a3621ccffbe3ce4
   Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
-  NERtcCallKit: 4a13c01cd286365d342c1fa8115e3130a7452e77
-  NERtcSDK: 3e756ff8bf1221104b5dc6812aad2f4e8496900d
-  NIMSDK_LITE: 70dea2d2b6ef91ed19042d12eb4c5b001b858174
+  NERtcCallKit: c1d2fdf44f85917892f1cd96fb0bcf5d93746584
+  NERtcSDK: c39498a3d4fab1440a449cfcee46d8122d3e9366
+  NIMSDK_LITE: f963ef0ea206a57f8b2efc0844f0f67a55e71d4a
+  ReactiveObjC: 011caa393aa0383245f2dcf9bf02e86b80b36040
   SDWebImage: 48b88379b798fd1e4298f95bb25d2cdabbf4deb3
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
-  YXAlog_iOS: ff2a7e6897b6355885991799f514f687592de0e8
+  YXAlog_iOS: 3948d6f7c0173c9dc0117a9445fc9411f97b314e
 
-PODFILE CHECKSUM: 279dd404f6a432c6e4c4f9ed53c2d4a927241797
+PODFILE CHECKSUM: ef2516310ae75442cf1251e52bb13b83442384e9
 
-COCOAPODS: 1.10.1
+COCOAPODS: 1.11.2

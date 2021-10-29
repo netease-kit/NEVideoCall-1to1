@@ -56,9 +56,17 @@
                                             }
                                         }
                                         else {
-                                            error = [NSError errorWithDomain:@"ntes domain"
-                                                                        code:-1
-                                                                    userInfo:@{@"description" : @"connection error"}];
+                                            NSNumber *code = [connectionError.userInfo objectForKey:@"_kCFStreamErrorCodeKey"];
+                                            if (code.integerValue == 50) {
+                                                error = [NSError errorWithDomain:@"ntes domain"
+                                                                            code:-1
+                                                                        userInfo:@{NSLocalizedDescriptionKey : @"网络连接异常，请稍后再试"}];
+                                            }else {
+                                                error = [NSError errorWithDomain:@"ntes domain"
+                                                                            code:-1
+                                                                        userInfo:@{@"description" : @"connection error"}];
+                                            }
+                                            
                                         }
                                         ntes_main_sync_safe(^{
                                             if (completion) {

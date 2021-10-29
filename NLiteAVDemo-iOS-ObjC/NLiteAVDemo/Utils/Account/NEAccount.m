@@ -140,8 +140,7 @@
 
 @implementation NEAccount (Login)
 
-+ (void)logoutWithCompletion:(_Nullable NEAccountComplete)completion;
-{
++ (void)logoutWithCompletion:(_Nullable NEAccountComplete)completion{
     NELogoutTask *task = [NELogoutTask taskWithSubURL:@"/auth/logout"];
     [[NEService shared] runTask:task completion:^(NSDictionary * _Nullable data, NSError * _Nullable error) {
         if (error == nil) {
