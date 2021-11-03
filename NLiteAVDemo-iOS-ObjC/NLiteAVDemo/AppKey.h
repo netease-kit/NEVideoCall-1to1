@@ -8,7 +8,6 @@
 
 #ifndef AppKey_h
 #define AppKey_h
-static NSString * const kApiHost = @"https://yiyong.netease.im";
 static NSString * const kAppKey = @"<#请输入网易云信控制台获取的App Key#>";
 ///p12文件,推送证书导出方式需同时包含私钥和公钥
 static NSString * const kAPNSCerName = @"<#请输入远程推送证书名字#>";
