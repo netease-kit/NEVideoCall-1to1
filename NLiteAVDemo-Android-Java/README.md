@@ -19,10 +19,7 @@
 3. 下载[场景Demo](https://github.com/netease-im/NEVideoCall-1to1/tree/develop/NLiteAVDemo-Android-Java)，app module 下 build.gradle 的如下内容替换自己的appkey，并将 key 同步给对应的 so 人员在后台添加应用体验权限；
 
    ```groovy
-    // app key for code
-   defaultConfig {
-       buildConfigField "String", "APP_KEY", "your self app key!!!"
-   }
+   def appKey = "Here, please fill your appKey!!!"
    ```
 
    
