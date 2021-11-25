@@ -11,6 +11,16 @@
 #import <Masonry/Masonry.h>
 #import <SDWebImage/SDWebImage.h>
 #import <Toast/Toast.h>
+#import <ReactiveObjC/ReactiveObjC.h>
 
+static NSString * const NERECORDADD = @"ne_record_add";
+
+static NSString * const NERECORDCHANGE = @"ne_record_change";
+
+static NSString *historyFileName = @"history";
+
+static NSString *recordFileName = @"record";
+
+static NSString *deviceTokenKey = @"deviceToken";
 
 #endif /* PrefixHeader_pch */

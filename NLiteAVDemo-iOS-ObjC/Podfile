@@ -1,12 +1,16 @@
 # Uncomment the next line to define a global platform for your project
 # platform :ios, '9.0'
 
+#workspace 'NLiteAVDemo.xcworkspace'
+
 target 'NLiteAVDemo' do
-  use_frameworks!
-  
-pod 'NERtcCallKit', '~> 1.2.0'
-pod 'Masonry'
-pod 'SDWebImage', '~> 5.7.1'
-pod 'Toast'
+  pod 'ReactiveObjC'
+  pod 'Masonry'
+  pod 'SDWebImage', '~> 5.7.1'
+  pod 'Toast'
+  pod 'AFNetworking', '~> 4.0'
+  pod 'GCDWebServer', '~> 3.5.4'
+  pod 'NERtcCallKit', '1.4.0'
 
 end
+

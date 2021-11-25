@@ -7,45 +7,99 @@
 //
 
 #import "NERtcContactsViewController.h"
-#import "NEHistoryView.h"
-#import "NESearchResultView.h"
 #import "NECallViewController.h"
 #import "NESearchTask.h"
 #import "NEAccount.h"
+#import "NESearchResultCell.h"
+#import "NECallStatusRecordCell.h"
+#import "NESectionHeaderView.h"
+#import "NSArray+NTES.h"
+#import "NSMacro.h"
+#import "NetManager.h"
 
-static NSString *fileName = @"searchHistory";
+@interface NERtcContactsViewController ()<UITextFieldDelegate, NIMChatManagerDelegate, UITableViewDelegate, UITableViewDataSource, SearchCellDelegate, NECallViewDelegate>
+@property(nonatomic, strong) UIView *searchBarView;
+@property(nonatomic, strong) UITextField *textField;
 
-@interface NERtcContactsViewController ()<UITextFieldDelegate,NEUserListViewDelegate>
-@property(strong,nonatomic)UIView *searchBarView;
-@property(strong,nonatomic)UITextField *textField;
-@property(strong,nonatomic)NSArray *historyArray;
-@property(strong,nonatomic)NEHistoryView *historyView;
-@property(strong,nonatomic)NESearchResultView *resultView;
+@property(nonatomic, strong) UIView *searchResutlTitleView;
+
+@property(nonatomic, strong) UIView *searchHistroyTitleView;
+
+@property(nonatomic, strong) UIView *recordTitleView;
+
+@property(nonatomic, strong) UILabel *currentUserPhone;
+
+@property(nonatomic, strong) UITableView *contentTable;
+/// 搜索结果
+@property(nonatomic, strong) NSMutableArray *searchResultData;
+/// 最近搜索
+@property(nonatomic, strong) NSMutableArray *searchHistoryData;
+/// 通话记录
+@property(nonatomic, strong) NSMutableArray *recordData;
+
+@property(nonatomic, strong) NESectionHeaderView *resultHeader;
+
+@property(nonatomic, strong) NESectionHeaderView *historyHeader;
+
+@property(nonatomic, strong) NESectionHeaderView *recordHeader;
+
 @end
 
 @implementation NERtcContactsViewController
 
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        self.searchResultData = [[NSMutableArray alloc] init];
+        self.searchHistoryData = [[NSMutableArray alloc] init];
+        self.recordData = [[NSMutableArray alloc] init];
+        [self loadHistoryData];
+        [self loadRecordData];
+    }
+    return self;
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.navigationController.navigationBar.hidden = NO;
     self.title = @"发起呼叫";
-    UIColor *color = [UIColor colorWithRed:36/255.0 green:36/255.0 blue:45/255.0 alpha:1.0];
-    [self.navigationController.navigationBar setBarTintColor:color];
-    self.view.backgroundColor = color;
-    [self setupSearchBar];
-    [self setupHistoryView];
-    [self setupSearchResultView];
-    [self loadHistoryData];
+    [self setupContent];
+    [self addObserver];
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NERECORDCHANGE object:nil];
 }
 
 #pragma mark - UI
-- (void)setupSearchBar {
-    [self.view addSubview:self.searchBarView];
+
+- (void)setupContent {
+    [self.view addSubview:self.contentTable];
     CGFloat statusHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
+    [self.contentTable mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.right.bottom.equalTo(self.view);
+        make.top.mas_equalTo(statusHeight + 44);
+    }];
+    self.contentTable.tableHeaderView = [self getHeaderView];
+    self.contentTable.delegate = self;
+    self.contentTable.dataSource = self;
+    self.contentTable.backgroundColor = [UIColor clearColor];
+    self.contentTable.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
+    [self.contentTable registerClass:[NESearchResultCell class] forCellReuseIdentifier:@"NESearchResultCell"];
+    [self.contentTable registerClass:[NECallStatusRecordCell class] forCellReuseIdentifier:@"NECallStatusRecordCell"];
+}
+
+- (UIView *)getHeaderView {
+    
+    // 搜索框与手机号
+    UIView *back = [[UIView alloc] init];
+    back.backgroundColor = UIColor.clearColor;
+    back.frame = CGRectMake(0, 0, self.view.frame.size.width, 40 + 8 + 40);
+    
+    [back addSubview:self.searchBarView];
     [self.searchBarView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(20);
         make.right.mas_equalTo(-20);
-        make.top.mas_equalTo(statusHeight + 44 + 8);
+        make.top.mas_equalTo(8);
         make.height.mas_equalTo(40);
     }];
     [self.searchBarView addSubview:self.textField];
@@ -57,7 +111,7 @@ static NSString *fileName = @"searchHistory";
     UIButton *searchBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     [searchBtn setTitle:@"搜索" forState:UIControlStateNormal];
     searchBtn.titleLabel.font = [UIFont systemFontOfSize:12];
-    searchBtn.layer.cornerRadius = 8;
+    searchBtn.layer.cornerRadius = 4.0;
     searchBtn.clipsToBounds = YES;
     searchBtn.backgroundColor = [UIColor colorWithRed:57/255.0 green:130/255.0 blue:252/255.0 alpha:1.0];
     [searchBtn addTarget:self action:@selector(searchBtn:) forControlEvents:UIControlEventTouchUpInside];
@@ -66,64 +120,62 @@ static NSString *fileName = @"searchHistory";
         make.left.mas_equalTo(self.textField.mas_right).offset(10);
         make.right.mas_equalTo(-6);
         make.top.mas_equalTo(6);
-        make.bottom.mas_equalTo(- 6);
+        make.bottom.mas_equalTo(-6);
         make.width.mas_equalTo(48);
     }];
-}
-
-- (void)setupHistoryView {
-    [self.view addSubview:self.historyView];
-    [self.historyView.titleLabel mas_updateConstraints:^(MASConstraintMaker *make) {
-        make.height.mas_equalTo(0);
-    }];
-    [self.historyView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(self.searchBarView.mas_bottom).offset(24);
-        make.left.mas_equalTo(20);
-        make.right.mas_equalTo(-20);
-        make.height.mas_equalTo(0);
+    
+    UILabel *currentPhoneLabel = [[UILabel alloc] init];
+    currentPhoneLabel.textAlignment = NSTextAlignmentLeft;
+    currentPhoneLabel.textColor = HEXCOLORA(0xFFFFFF, 0.5);
+    currentPhoneLabel.font = [UIFont systemFontOfSize:14.0];
+    currentPhoneLabel.text = [NSString stringWithFormat:@"您的手机号：%@",[NEAccount shared].userModel.mobile];
+    [back addSubview:currentPhoneLabel];
+    [currentPhoneLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(self.searchBarView);
+        make.top.equalTo(self.searchBarView.mas_bottom).offset(20);
     }];
     
-}
-
-- (void)setupSearchResultView {
-    [self.view addSubview:self.resultView];
-    CGFloat top = self.historyArray.count > 0 ? 24 : 0;
-    [self.resultView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(self.historyView.mas_bottom).offset(top);
-        make.left.mas_equalTo(20);
-        make.right.mas_equalTo(-20);
-        make.bottom.mas_equalTo(0);
-    }];
+    return back;
 }
 
 #pragma mark - data
 - (void)loadHistoryData {
-    self.historyArray = [self readFileName:fileName];
-    [self.historyView updateTitle:@"最近搜索" dataArray:self.historyArray];
+    [self.searchHistoryData removeAllObjects];
+    NSArray *records = [self readFileName:historyFileName];
+    [self.searchHistoryData addObjectsFromArray:records];
 }
+
+- (void)loadRecordData {
+    [self.recordData removeAllObjects];
+    NSArray *array = [self readFileName:recordFileName];
+    [self.recordData addObjectsFromArray:array];
+}
+
 - (void)searchMobile:(NSString *)mobile {
+    __weak typeof(self) weakSelf = self;
+    
     NESearchTask *task =  [NESearchTask task];
     task.req_mobile = mobile;
     [task postWithCompletion:^(NSDictionary * _Nullable data, NSError * _Nullable error) {
         if (error) {
-            [self.view makeToast:error.localizedDescription];
+            [weakSelf.view makeToast:error.localizedDescription];
         }else {
             NSDictionary *userDic = [data objectForKey:@"data"];
-            NSMutableArray *array = [NSMutableArray array];
+//            NSMutableArray *array = [NSMutableArray array];
             if (userDic) {
                 if (userDic) {
                     NEUser *user = [[NEUser alloc] init];
                     user.mobile = [userDic objectForKey:@"mobile"];
                     user.imAccid = [userDic objectForKey:@"imAccid"];
                     user.avatar = [userDic objectForKey:@"avatar"];
-                    [array addObject:user];
-                    [self saveUser:user];
+//                    [array addObject:user];
+                    [weakSelf saveUser:user];
                 }
-                [self.resultView updateTitle:@"搜索结果" dataArray:array];
             }else {
-                [self.view makeToast:@"暂无搜索结果"];
-                [self.resultView updateTitle:@"" dataArray:array];
+                [weakSelf.searchResultData removeAllObjects];
+                [weakSelf.view makeToast:@"未找到此用户"];
             }
+            [weakSelf.contentTable reloadData];
         }
     }];
 }
@@ -135,6 +187,11 @@ static NSString *fileName = @"searchHistory";
     }
     //发送请求
     [self searchMobile:account];
+}
+
+- (void)updateRecord{
+    [self loadRecordData];
+    [self.contentTable reloadData];
 }
 
 #pragma mark - event
@@ -152,13 +209,15 @@ static NSString *fileName = @"searchHistory";
     return YES;
 }
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField {
-    NSArray *historys = [self readFileName:fileName];
-    if ([self.historyArray.firstObject isEqual:historys.firstObject]) {
-        return YES;
-    }
-    self.historyArray = historys;
-    [self.historyView updateTitle:@"最近搜索" dataArray:self.historyArray];
     return YES;
+}
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string{
+    NSString * str = [textField.text stringByReplacingCharactersInRange:range withString:string];
+    if (str.length > 11) {
+        return NO;
+    }
+    NSCharacterSet *invalidCharacters = [NSCharacterSet characterSetWithCharactersInString:@"0123456789"].invertedSet;
+    return ([str rangeOfCharacterFromSet:invalidCharacters].location == NSNotFound);
 }
 - (UITextField *)textField {
     if (!_textField) {
@@ -177,6 +236,199 @@ static NSString *fileName = @"searchHistory";
     return _textField;
 }
 
+#pragma mark - SearchCellDelegate
+- (void)didSelectSearchUser:(NEUser *)user {
+    
+//    if ([user.imAccid isEqualToString:[NEAccount shared].userModel.imAccid]) {
+//        [self.view makeToast:@"呼叫用户不可以是自己哦"];
+//        return;
+//    }
+//    [self didCallWithUser:user withType:NERtcCallTypeVideo];
+}
+
+- (void)didCallWithUser:(NEUser *)user withType:(NERtcCallType)callType {
+    
+    if ([user.imAccid isEqualToString:[NEAccount shared].userModel.imAccid]) {
+        [self.view makeToast:@"呼叫用户不可以是自己哦"];
+        return;
+    }
+    
+    if ([[NetManager shareInstance] isClose] == YES) {
+        [self.view makeToast:@"网络连接异常，请稍后再试"];
+        return;
+    }
+    NECallViewController *callVC = [[NECallViewController alloc] init];
+    callVC.localUser = [NEAccount shared].userModel;
+    callVC.remoteUser = user;
+    callVC.callType = callType;
+    callVC.status = NERtcCallStatusCalling;
+    callVC.isCaller = YES;
+    callVC.delegate = self;
+    callVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
+    [self.navigationController presentViewController:callVC animated:YES completion:nil];
+}
+
+#pragma mark - file read & write
+- (void)saveUser:(NEUser *)user {
+    NSArray *array = [self readFileName:historyFileName];
+    [self.searchResultData removeAllObjects];
+    [self.searchResultData addObject:user];
+    NSMutableArray *mutArray = [NSMutableArray array];
+    [mutArray addObject:user];
+    [mutArray addObjectsFromArray:array];
+    for (NEUser *saveUser in array) {
+        if ([saveUser.mobile isEqualToString:user.mobile]) {
+            [mutArray removeObject:saveUser];
+        }
+    }
+    while (mutArray.count > 3 ) {
+        [mutArray removeLastObject];
+    }
+    [self writeToFile:historyFileName array:mutArray];
+}
+
+- (void)saveRecord:(NECallStatusRecordModel *)record {
+    NSArray *array = [self readFileName:recordFileName];
+    [self.recordData removeAllObjects];
+    [self.recordData addObject:record];
+    if (array.count <= 2) {
+        [self.recordData addObjectsFromArray:array];
+    }else {
+        [self.recordData addObjectsFromArray:[array subarrayWithRange:NSMakeRange(0, 2)]];
+    }
+    [self writeToFile:recordFileName array:self.recordData];
+}
+
+- (NSArray *)readFileName:(NSString *)fileName {
+    NEUser *user = [NEAccount shared].userModel;
+    fileName = [NSString stringWithFormat:@"%@_%@",fileName, user.imAccid];
+    NSArray *array = [NSArray readArchiveFile:fileName];
+    return array;
+}
+
+- (void)writeToFile:(NSString *)fileName array:(NSArray *)array {
+    NEUser *user = [NEAccount shared].userModel;
+    fileName = [NSString stringWithFormat:@"%@_%@",fileName, user.imAccid];
+    [array writeToFile:fileName];
+}
+
+#pragma mark - Observer
+
+- (void)addObserver {
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateRecord) name:NERECORDCHANGE object:nil];
+}
+
+#pragma mark - ui table view delegate
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 3;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    if (section == 0) {
+        return self.searchResultData.count;
+    }else if(section == 1){
+        return self.searchHistoryData.count;
+    }else if(section == 2){
+        return self.recordData.count;
+    }
+    return 0;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    if (indexPath.section == 0 || indexPath.section == 1) {
+        NEUser *user;
+        if (indexPath.section == 0) {
+            user = self.searchResultData[indexPath.row];
+        } else if(indexPath.section == 1) {
+            user = self.searchHistoryData[indexPath.row];
+        }
+        NESearchResultCell *cell = (NESearchResultCell *)[tableView dequeueReusableCellWithIdentifier:@"NESearchResultCell" forIndexPath:indexPath];
+        [cell configureUI:user];
+        cell.delegate = self;
+        return cell;
+    }
+    NECallStatusRecordCell *cell = (NECallStatusRecordCell *)[tableView dequeueReusableCellWithIdentifier:@"NECallStatusRecordCell" forIndexPath:indexPath];
+    NECallStatusRecordModel *model = self.recordData[indexPath.row];
+    [cell configure:model];
+    return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    NEUser *user;
+    if (indexPath.section == 0 || indexPath.section == 1){
+        if (indexPath.section == 0) {
+            user = self.searchResultData[indexPath.row];
+        } else if(indexPath.section == 1) {
+            user = self.searchHistoryData[indexPath.row];
+        }
+    } else if (indexPath.section == 2) {
+        NECallStatusRecordModel *model = self.recordData[indexPath.row];
+        user = [[NEUser alloc] init];
+        user.imAccid = model.imAccid;
+        user.mobile = model.mobile;
+        user.avatar = model.avatar;
+    }
+    [self didCallWithUser:user withType:NERtcCallTypeVideo];
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    
+    if (section == 0) {
+        if (self.searchResultData.count > 0) {
+            return NESectionHeaderView.height;
+        }else {
+            return NESectionHeaderView.hasContentHeight;
+        }
+    }
+    
+    if (section == 1) {
+        if (self.searchHistoryData.count > 0) {
+            return NESectionHeaderView.height;
+        }
+    }
+    
+    if (section == 2) {
+        if (self.recordData.count > 0){
+            return NESectionHeaderView.height;
+        }
+    }
+    
+    return 0;
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    if (section == 0) {
+        if (self.searchResultData.count > 0) {
+            self.resultHeader.frame = CGRectMake(0, 0, self.view.frame.size.width, NESectionHeaderView.height );
+            [self.resultHeader.contentLabel setHidden:YES];
+        }else {
+            self.resultHeader.frame = CGRectMake(0, 0, self.view.frame.size.width, NESectionHeaderView.hasContentHeight);
+            [self.resultHeader.contentLabel setHidden:NO];
+        }
+        return self.resultHeader;
+    }else if(section == 1){
+        if (self.searchHistoryData.count > 0) {
+            [self.historyHeader.dividerLine setHidden:NO];
+            return self.historyHeader;
+        }
+    }else if(section == 2){
+        if (self.recordData.count > 0) {
+            [self.recordHeader.dividerLine setHidden:NO];
+            return self.recordHeader;
+        }
+    }
+    return nil;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 44.0;
+}
+
+#pragma mark - lazy init
+
 - (UIView *)searchBarView {
     if (!_searchBarView) {
         _searchBarView = [[UIView alloc] init];
@@ -186,63 +438,48 @@ static NSString *fileName = @"searchHistory";
     return _searchBarView;
 }
 
-- (NEHistoryView *)historyView {
-    if (!_historyView) {
-        _historyView = [[NEHistoryView alloc] init];
-        _historyView.delegate = self;
+- (UITableView *)contentTable {
+    if (nil == _contentTable) {
+        _contentTable = [[UITableView alloc] init];
+        _contentTable.delegate = self;
+        _contentTable.dataSource = self;
+        _contentTable.separatorColor = [UIColor clearColor];
+        
     }
-    return _historyView;
+    return _contentTable;
 }
 
-- (NESearchResultView *)resultView {
-    if (!_resultView) {
-        _resultView = [[NESearchResultView alloc] init];
-        _resultView.delegate = self;
+- (NESectionHeaderView *)resultHeader {
+    if (nil == _resultHeader) {
+        _resultHeader = [[NESectionHeaderView alloc] init];
+        _resultHeader.frame = CGRectMake(0, 0, self.view.frame.size.width, NESectionHeaderView.height);
+        _resultHeader.contentLabel.text = @"无";
+        _resultHeader.titleLabel.text = @"搜索结果";
     }
-    return _resultView;
-}
-#pragma mark - NEUserListViewDelegate
-- (void)didSelectUser:(NEUser *)user {
-    if ([user.imAccid isEqualToString:[NEAccount shared].userModel.imAccid]) {
-        [self.view makeToast:@"呼叫用户不可以是自己哦"];
-        return;
-    }
-    NECallViewController *callVC = [[NECallViewController alloc] init];
-    callVC.localUser = [NEAccount shared].userModel;
-    callVC.remoteUser = user;
-    callVC.status = NERtcCallStatusCalling;
-    callVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
-    [self.navigationController presentViewController:callVC animated:YES completion:nil];
+    return _resultHeader;
 }
 
-#pragma mark - file read & write
-- (void)saveUser:(NEUser *)user {
-    NSArray *array = [self readFileName:fileName];
-    for (NEUser *saveUser in array) {
-        if ([saveUser.mobile isEqualToString:user.mobile]) {
-            return;
-        }
+- (NESectionHeaderView *)historyHeader {
+    if (nil == _historyHeader) {
+        _historyHeader = [[NESectionHeaderView alloc] init];
+        _historyHeader.frame = CGRectMake(0, 0, self.view.frame.size.width, NESectionHeaderView.height);
+        _historyHeader.titleLabel.text = @"最近搜索";
     }
-    NSMutableArray *mutArray = [NSMutableArray array];
-    [mutArray addObjectsFromArray:array];
-    
-    if (mutArray.count >= 10) {
-        [mutArray removeLastObject];
-    }
-    [mutArray insertObject:user atIndex:0];
-    [self writeToFile:fileName array:mutArray];
+    return _historyHeader;
 }
 
-- (NSArray *)readFileName:(NSString *)fileName {
-    NSString *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask,YES).firstObject;
-    NSString *filePath = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.plist",fileName]];
-    NSArray *array = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
-    return array;
+- (NESectionHeaderView *)recordHeader {
+    if (nil == _recordHeader) {
+        _recordHeader = [[NESectionHeaderView alloc] init];
+        _recordHeader.frame = CGRectMake(0, 0, self.view.frame.size.width, NESectionHeaderView.height);
+        _recordHeader.titleLabel.text = @"通话记录";
+    }
+    return _recordHeader;
 }
 
-- (void)writeToFile:(NSString *)fileName array:(NSArray *)array {
-    NSString *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask,YES).firstObject;
-    NSString *filePath = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.plist",fileName]];
-    [NSKeyedArchiver archiveRootObject:array toFile:filePath];
+#pragma mark - call view status delegate
+
+- (void)didEndCallWithStatusModel:(NECallStatusRecordModel *)model {
+    [[NSNotificationCenter defaultCenter] postNotificationName:NERECORDADD object:model];
 }
 @end

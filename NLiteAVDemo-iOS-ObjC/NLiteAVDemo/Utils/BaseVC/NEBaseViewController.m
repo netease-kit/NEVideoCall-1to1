@@ -16,22 +16,25 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+    [self setNavUI];
+}
+
+- (void)setNavUI {
     self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:38/255.0 green:38/255.0 blue:47/255.0 alpha:1.0];
     self.navigationController.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName:[UIColor whiteColor]};
-
-    UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
-    [btn setImage:[UIImage imageNamed:@"menu_arrow_left"] forState:UIControlStateNormal];
-    btn.frame = CGRectMake(0, 0, 30, 30);
-    btn.contentEdgeInsets = UIEdgeInsetsMake(0, -15, 0, 0);
-    [btn addTarget:self action:@selector(backAction:) forControlEvents:UIControlEventTouchUpInside];
-    btn.userInteractionEnabled = YES;
-    UIBarButtonItem *backItem = [[UIBarButtonItem alloc] initWithCustomView:btn];
+    self.navigationController.navigationBar.hidden = NO;
+    UIColor *color = [UIColor colorWithRed:36/255.0 green:36/255.0 blue:45/255.0 alpha:1.0];
+    [self.navigationController.navigationBar setBarTintColor:color];
+    self.view.backgroundColor = color;
+    UIBarButtonItem *backItem = [[UIBarButtonItem alloc] initWithTitle:@"取消" style:UIBarButtonItemStylePlain target:self action:@selector(backAction:)];
+    [backItem setTintColor:[UIColor whiteColor]];
     self.navigationItem.leftBarButtonItem = backItem;
 }
+
 - (void)backAction:(UIButton *)backButton {
     [self.navigationController popViewControllerAnimated:YES];
 }
+
 /*
 #pragma mark - Navigation
 

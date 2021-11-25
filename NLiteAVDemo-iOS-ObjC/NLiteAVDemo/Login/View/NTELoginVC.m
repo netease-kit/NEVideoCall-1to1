@@ -113,6 +113,7 @@
             } else {
                 NTFInputSmsVC *vc = [[NTFInputSmsVC alloc] initWithMobile:self.phoneNumField.text
                                                                   options:self.options];
+                vc.modalPresentationStyle = UIModalPresentationOverFullScreen;
                 [[NENavigator shared].loginNavigationController pushViewController:vc animated:YES];
             }
         });

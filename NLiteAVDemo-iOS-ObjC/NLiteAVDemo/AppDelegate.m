@@ -12,6 +12,8 @@
 #import "NECallViewController.h"
 #import <UserNotifications/UserNotifications.h>
 #import "NENavigator.h"
+#import "NETokenTask.h"
+#import "LocalServerManager.h"
 
 @interface AppDelegate ()<NERtcCallKitDelegate,UNUserNotificationCenterDelegate>
 @end
@@ -21,6 +23,10 @@
     [self initWindow];
     [self setupSDK];
     [self registerAPNS];
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [weakSelf commonInit];
+    });
     return YES;
 }
 
@@ -37,7 +43,24 @@
 - (void)setupSDK {
     NERtcCallOptions *option = [NERtcCallOptions new];
     option.APNSCerName = kAPNSCerName;
-    [[NERtcCallKit sharedInstance] setupAppKey:kAppKey options:option];
+    option.supportAutoJoinWhenCalled = YES;
+    NERtcCallKit *callkit = [NERtcCallKit sharedInstance];
+    [callkit setupAppKey:kAppKey options:option];
+    callkit.tokenHandler = ^(uint64_t uid, void (^complete)(NSString *token, NSError *error)) {
+        NETokenTask *task = [NETokenTask taskWithUid:[NSString stringWithFormat:@"%llu",uid] withAppkey:kAppKey];
+        [task postWithCompletion:^(NSDictionary * _Nullable data, NSError * _Nullable error) {
+            if (error == nil && data && [data isKindOfClass:[NSDictionary class]]) {
+                NSNumber *code = data[@"code"];
+                NSString *checksum = data[@"checksum"];
+                if (code.intValue == 200 && checksum) {
+                    complete(checksum,nil);
+                    return;
+                }
+            }
+            complete(nil,error);
+
+        }];
+    };
 }
 
 - (void)registerAPNS
@@ -47,7 +70,10 @@
         [UNUserNotificationCenter currentNotificationCenter].delegate = self;
         [[UNUserNotificationCenter currentNotificationCenter] requestAuthorizationWithOptions:UNAuthorizationOptionBadge | UNAuthorizationOptionSound | UNAuthorizationOptionAlert completionHandler:^(BOOL granted, NSError * _Nullable error) {
             if (!granted) {
-                [self.window makeToast:@"请到设置中开启推送功能"];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [UIApplication.sharedApplication.keyWindow makeToast:@"请到设置中开启推送功能"];
+                });
+                //[UIApplication.sharedApplication.keyWindow makeToast:@"请到设置中开启推送功能"];
             }
         }];
     } else {
@@ -69,6 +95,10 @@
 }
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
     [self.window makeToast:[NSString stringWithFormat:@"注册devicetoken失败，Error%@",error]];
+}
+
+- (void)commonInit {
+    [[LocalServerManager shareInstance] startServer];
 }
 
 
