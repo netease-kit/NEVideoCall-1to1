@@ -205,8 +205,8 @@ public class VerifyCodeView extends LinearLayout implements TextWatcher, View.On
     /**
      * 获取EditText 的 LayoutParams
      */
-    public LinearLayout.LayoutParams getETLayoutParams(int i) {
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(mEtWidth, mEtWidth);
+    public LayoutParams getETLayoutParams(int i) {
+        LayoutParams layoutParams = new LayoutParams(mEtWidth, mEtWidth);
         if (!isBisect) {
             //平分Margin，把第一个EditText跟最后一个EditText的间距同设为平分
             mEtBisectSpacing = (mViewWidth - mEtNumber * mEtWidth) / (mEtNumber + 1);

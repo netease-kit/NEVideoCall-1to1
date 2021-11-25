@@ -12,6 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.netease.yunxin.app.videocall.R;
 import com.netease.yunxin.app.videocall.login.model.LoginServiceManager;
@@ -67,6 +68,10 @@ public class VerifyCodeActivity extends AppCompatActivity {
         phoneNumber = getIntent().getStringExtra(PHONE_NUMBER);
         tvMsmComment.setText(getString(R.string.login_sms_code_has_been_sent) + phoneNumber + getString(R.string.login_please_input_sms_code));
         btnNext.setOnClickListener(v -> {
+            if (!NetworkUtils.isConnected()){
+                ToastUtils.showShort(R.string.network_connect_error_please_try_again);
+                return;
+            }
             String smsCode = verifyCodeView.getResult();
             if (!TextUtils.isEmpty(smsCode)&&smsCode.length()==SMS_CODE_LENGTH) {
                 login(smsCode);
@@ -104,6 +109,10 @@ public class VerifyCodeActivity extends AppCompatActivity {
     }
 
     private void reSendMsm() {
+        if (!NetworkUtils.isConnected()){
+            ToastUtils.showShort(R.string.network_connect_error_please_try_again);
+            return;
+        }
         if (!TextUtils.isEmpty(phoneNumber)) {
             LoginServiceManager.getInstance().sendMessage(phoneNumber, new BaseService.ResponseCallBack<Void>() {
 

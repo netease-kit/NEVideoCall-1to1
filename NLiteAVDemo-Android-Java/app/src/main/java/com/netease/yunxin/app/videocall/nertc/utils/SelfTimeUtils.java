@@ -1,6 +1,6 @@
 package com.netease.yunxin.app.videocall.nertc.utils;
 
-public class TimeUtils {
+public class SelfTimeUtils {
     public static String unitFormat(int i) {
         String retStr = null;
         if (i >= 0 && i < 10)

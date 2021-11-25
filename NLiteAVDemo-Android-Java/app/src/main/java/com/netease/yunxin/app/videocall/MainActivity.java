@@ -20,14 +20,11 @@ import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.StatusCode;
 import com.netease.nimlib.sdk.auth.AuthServiceObserver;
-import com.netease.yunxin.app.videocall.base.BaseService;
-import com.netease.yunxin.app.videocall.login.model.LoginServiceManager;
 import com.netease.yunxin.app.videocall.login.model.ProfileManager;
 import com.netease.yunxin.app.videocall.login.ui.LoginActivity;
 import com.netease.yunxin.app.videocall.nertc.biz.CallOrderManager;
 import com.netease.yunxin.app.videocall.nertc.ui.NERTCSelectCallUserActivity;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.nertc.ui.CallKitNotificationConfig;
 import com.netease.yunxin.nertc.ui.CallKitUI;
 import com.netease.yunxin.nertc.ui.CallKitUIOptions;
 
@@ -102,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                             // 当系统版本为 Android Q及以上时，若应用在后台系统限制不直接展示页面
                             // 而是展示 notification，通过点击 notification 跳转呼叫页面
                             // 此处为 notification 相关配置，如图标，提示语等。
-                            .notificationConfigFetcher(invitedInfo -> new CallKitNotificationConfig(R.mipmap.ic_launcher))
+                            .notificationConfigFetcher(new SelfNotificationConfigFetcher())
                             // 收到被叫时若 app 在后台，在恢复到前台时是否自动唤起被叫页面，默认为 true
                             .resumeBGInvitation(true)
                             // 请求 rtc token 服务，若非安全模式则不需设置
@@ -222,8 +219,10 @@ public class MainActivity extends AppCompatActivity {
         tvVersion = findViewById(R.id.tv_version);
 
         ivAccountIcon.setOnClickListener(view -> {
-            if (ProfileManager.getInstance().isLogin() && ProfileManager.getInstance().getUserModel() != null) {
+            if (ProfileManager.getInstance().isLogin()) {
                 showLogoutDialog();
+            } else {
+                LoginActivity.startLogin(this);
             }
         });
 
@@ -251,17 +250,8 @@ public class MainActivity extends AppCompatActivity {
         confirmDialog.setMessage("确认注销当前登录账号？");
         confirmDialog.setPositiveButton("是",
                 (dialog, which) -> {
-                    LoginServiceManager.getInstance().logout(new BaseService.ResponseCallBack<Void>() {
-                        @Override
-                        public void onSuccess(Void response) {
-                            ToastUtils.showLong("已经退出登录");
-                        }
-
-                        @Override
-                        public void onFail(int code) {
-
-                        }
-                    });
+                    ProfileManager.getInstance().logout();
+                    ToastUtils.showLong("已经退出登录");
                 });
         confirmDialog.setNegativeButton("否",
                 (dialog, which) -> {

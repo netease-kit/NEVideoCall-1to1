@@ -23,6 +23,9 @@ import com.netease.yunxin.app.videocall.login.model.UserModel;
 import com.netease.yunxin.nertc.ui.CallKitUI;
 import com.netease.yunxin.nertc.ui.base.CallParam;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,8 +88,18 @@ public class RecentUserAdapter extends RecyclerView.Adapter<RecentUserAdapter.Vi
                     return;
                 }
                 if (NetworkUtils.isConnected()) {
+                    // 自定义透传字段，被叫用户在收到呼叫邀请时通过参数进行解析
+                    JSONObject extraInfo = new JSONObject();
+
+                    try {
+                        extraInfo.putOpt("key", "call");
+                        extraInfo.putOpt("value", "testValue");
+                        extraInfo.putOpt("userName", currentUser.mobile);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     CallKitUI.startSingleCall(mContext,
-                            CallParam.createSingleCallParam(ChannelType.VIDEO.getValue(), currentUser.imAccid, searchedUser.imAccid));
+                            CallParam.createSingleCallParam(ChannelType.VIDEO.getValue(), currentUser.imAccid, searchedUser.imAccid, extraInfo.toString()));
                 } else {
                     ToastUtils.showShort(R.string.network_connect_error_please_try_again);
                 }
