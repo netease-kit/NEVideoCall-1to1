@@ -10,7 +10,7 @@ target 'NLiteAVDemo' do
   pod 'Toast'
   pod 'AFNetworking', '~> 4.0'
   pod 'GCDWebServer', '~> 3.5.4'
-  pod 'NERtcCallKit', '1.4.0'
-
+  pod 'NERtcCallKit', '1.4.2'
+  pod 'NERtcSDK', '4.2.115'
 end
 
