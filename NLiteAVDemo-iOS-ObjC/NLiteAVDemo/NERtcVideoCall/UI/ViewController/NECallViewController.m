@@ -459,9 +459,11 @@
 //    }
     
     [[NERtcCallKit sharedInstance] muteLocalAudio:NO];
+    [[NERtcCallKit sharedInstance] muteLocalVideo:NO];
     self.operationView.microPhone.selected = NO;
     self.bigVideoView.videoView.hidden = NO;
     self.smallVideoView.videoView.hidden = NO;
+    self.smallVideoView.maskView.hidden = YES;
     self.callType = NERtcCallTypeVideo;
     self.operationView.cameraBtn.selected = NO;
     if (self.status != NERtcCallStatusCalled) {
@@ -565,7 +567,7 @@
 }
 - (void)cameraBtnClick:(UIButton *)button {
     button.selected = !button.selected;
-    [[NERtcCallKit sharedInstance] enableLocalVideo:!button.selected];
+    [[NERtcCallKit sharedInstance] muteLocalVideo:button.selected];
     [self cameraAvailble:!button.selected userId:self.localUser.imAccid];
 }
 - (void)hangupBtnClick:(UIButton *)button {
@@ -666,6 +668,9 @@
 }
 - (void)onCameraAvailable:(BOOL)available userID:(NSString *)userID {
     [self cameraAvailble:available userId:userID];
+}
+- (void)onVideoMuted:(BOOL)muted userID:(NSString *)userID {
+    [self cameraAvailble:!muted userId:userID];
 }
 - (void)onUserLeave:(NSString *)userID {
     NSLog(@"onUserLeave");
