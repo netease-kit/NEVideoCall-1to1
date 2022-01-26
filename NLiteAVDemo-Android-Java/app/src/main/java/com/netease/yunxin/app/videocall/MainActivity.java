@@ -1,8 +1,6 @@
 package com.netease.yunxin.app.videocall;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -24,7 +22,7 @@ import com.netease.yunxin.app.videocall.login.model.ProfileManager;
 import com.netease.yunxin.app.videocall.login.ui.LoginActivity;
 import com.netease.yunxin.app.videocall.nertc.biz.CallOrderManager;
 import com.netease.yunxin.app.videocall.nertc.ui.NERTCSelectCallUserActivity;
-import com.netease.yunxin.kit.alog.ALog;
+import com.netease.yunxin.nertc.nertcvideocall.model.TokenService;
 import com.netease.yunxin.nertc.ui.CallKitUI;
 import com.netease.yunxin.nertc.ui.CallKitUIOptions;
 
@@ -32,8 +30,6 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -102,8 +98,20 @@ public class MainActivity extends AppCompatActivity {
                             .notificationConfigFetcher(new SelfNotificationConfigFetcher())
                             // 收到被叫时若 app 在后台，在恢复到前台时是否自动唤起被叫页面，默认为 true
                             .resumeBGInvitation(true)
-                            // 请求 rtc token 服务，若非安全模式则不需设置
-                            .rtcTokenService((uid, callback) -> requestRtcToken(BuildConfig.APP_KEY, uid, callback))
+                            // 请求 rtc token 服务，若非安全模式不需设置，安全模式按照官网实现 token 服务通过如下接口设置回组件
+//                            .rtcTokenService(new TokenService() {
+//                                @Override
+//                                public void getToken(long uid, RequestCallback<String> callback) {
+//                                    Result result = network.requestToken(uid);
+//                                    if (result.success) {
+//                                        callback.onSuccess(result.token);
+//                                    } else if (result.exception != null) {
+//                                        callback.onException(result.exception);
+//                                    } else {
+//                                        callback.onFailed(result.code);
+//                                    }
+//                                }
+//                            })
                             // 设置初始化 rtc sdk 相关配置，按照所需进行配置
                             .rtcSdkOption(new NERtcOption())
                             // 设置用户信息
@@ -114,59 +122,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }, true);
-    }
-
-    /**
-     * 请求 rtc token 服务
-     *
-     * @param appKey   rtc 对应的 AppKey
-     * @param uid      用户加入 rtc 时的 id
-     * @param callback 请求回调通知
-     */
-    private void requestRtcToken(String appKey, long uid, RequestCallback<String> callback) {
-        //注册获取token的服务
-        //在线上环境中，token的获取需要放到您的应用服务端完成，然后由服务器通过安全通道把token传递给客户端
-        //Demo中使用的URL仅仅是demoserver，不要在您的应用中使用
-        //详细请参考: http://dev.netease.im/docs?doc=server
-        String demoServer = "https://nrtc.netease.im/demo/getChecksum.action";
-        new Thread(() -> {
-            try {
-                String queryString = demoServer + "?uid=" +
-                        uid + "&appkey=" + appKey;
-                URL requestedUrl = new URL(queryString);
-                HttpURLConnection connection = (HttpURLConnection) requestedUrl.openConnection();
-                connection.setRequestMethod("POST");
-                connection.setConnectTimeout(6000);
-                connection.setReadTimeout(6000);
-                if (connection.getResponseCode() != 200) {
-                    callback.onFailed(connection.getResponseCode());
-                    return;
-                }
-                String result = readFully(connection.getInputStream());
-                ALog.d("Demo", result);
-                if (TextUtils.isEmpty(result)) {
-                    callback.onFailed(-1);
-                    return;
-                }
-                org.json.JSONObject object = new org.json.JSONObject(result);
-                int code = object.getInt("code");
-                if (code != 200) {
-                    callback.onFailed(code);
-                }
-                String token = object.getString("checksum");
-                if (TextUtils.isEmpty(token)) {
-                    callback.onFailed(-1);
-                    return;
-                }
-                new Handler(getMainLooper()).post(() -> {
-                    callback.onSuccess(token);
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-                callback.onException(e);
-            }
-
-        }).start();
     }
 
     private String readFully(InputStream inputStream) throws IOException {
