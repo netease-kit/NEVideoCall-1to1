@@ -10,6 +10,7 @@ import android.widget.EditText;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.netease.yunxin.app.videocall.R;
 import com.netease.yunxin.app.videocall.login.model.LoginServiceManager;
@@ -69,6 +70,10 @@ public class LoginActivity extends AppCompatActivity {
         if (!TextUtils.isEmpty(phoneNumber)) {
             if (phoneNumber.length() < PHONE_NUMBER_MAX_LENGTH) {
                 ToastUtils.showShort(R.string.login_phone_number_cant_less_than_eleven);
+                return;
+            }
+            if (!NetworkUtils.isConnected()){
+                ToastUtils.showShort(R.string.network_connect_error_please_try_again);
                 return;
             }
             LoginServiceManager.getInstance().sendMessage(phoneNumber, new BaseService.ResponseCallBack<Void>() {

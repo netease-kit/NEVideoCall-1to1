@@ -4,7 +4,6 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.SPUtils;
-import com.blankj.utilcode.util.TimeUtils;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.msg.MsgServiceObserve;
@@ -15,9 +14,9 @@ import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.uinfo.UserService;
 import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
 import com.netease.yunxin.app.videocall.login.model.ProfileManager;
-import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.app.videocall.login.model.UserModel;
 import com.netease.yunxin.app.videocall.nertc.model.CallOrder;
+import com.netease.yunxin.kit.alog.ALog;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -32,8 +31,6 @@ public class CallOrderManager {
     }
 
     public static final int MAX_ORDER = 3;
-
-    public static final String TIME_FORMAT = "HH:mm:ss";
 
     private static final String RECENTLY_CALL_ORDERS = "recently_call_orders";
 
@@ -67,18 +64,23 @@ public class CallOrderManager {
     private void loadOrders() {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.submit(() -> {
-            readWriteLock.writeLock().lock();
-            UserModel currentUser = ProfileManager.getInstance().getUserModel();
-            ALog.i("GeorgeTest", "loadOrders currentUser mobile:" + currentUser.mobile);
-            String orderStr = SPUtils.getInstance(RECENTLY_CALL_ORDERS + currentUser.mobile).getString(ORDER_LIST);
-            Type type = GsonUtils.getListType(CallOrder.class);
-            List<CallOrder> orderList = GsonUtils.fromJson(orderStr, type);
-            if (orderList != null && !orderList.isEmpty()) {
-                int len = orderList.size() - orders.size();
-                orders.addAll(orderList.subList(0, len));
-                ordersLiveData.postValue(orders);
+            try {
+                readWriteLock.writeLock().lock();
+                UserModel currentUser = ProfileManager.getInstance().getUserModel();
+                ALog.i("GeorgeTest", "loadOrders currentUser mobile:" + currentUser.mobile);
+                String orderStr = SPUtils.getInstance(RECENTLY_CALL_ORDERS + currentUser.mobile).getString(ORDER_LIST);
+                Type type = GsonUtils.getListType(CallOrder.class);
+                List<CallOrder> orderList = GsonUtils.fromJson(orderStr, type);
+                if (orderList != null && !orderList.isEmpty()) {
+                    int len = orderList.size() - orders.size();
+                    orders.addAll(orderList.subList(0, len));
+                    ordersLiveData.postValue(orders);
+                }
+            } catch (Exception exception) {
+                ALog.e("CallOrderManager", "loadOrders", exception);
+            } finally {
+                readWriteLock.writeLock().unlock();
             }
-            readWriteLock.writeLock().unlock();
         });
     }
 
@@ -94,7 +96,7 @@ public class CallOrderManager {
                     if (attachment instanceof NetCallAttachment) {
                         NimUserInfo user = NIMClient.getService(UserService.class).getUserInfo(msg.getSessionId());
                         if (user != null) {
-                            CallOrder callOrder = new CallOrder(msg.getSessionId(), TimeUtils.millis2String(msg.getTime(), TIME_FORMAT), msg.getDirect(), (NetCallAttachment) attachment, user.getMobile());
+                            CallOrder callOrder = new CallOrder(msg.getSessionId(), msg.getTime(), msg.getDirect(), (NetCallAttachment) attachment, user.getMobile());
                             addOrder(callOrder);
                         }
                     }
@@ -107,20 +109,25 @@ public class CallOrderManager {
                     MsgAttachment attachment = message.getAttachment();
                     if (attachment instanceof NetCallAttachment) {
                         NimUserInfo user = NIMClient.getService(UserService.class).getUserInfo(message.getSessionId());
-                        CallOrder order = new CallOrder(message.getSessionId(), TimeUtils.millis2String(message.getTime(), TIME_FORMAT), message.getDirect(), (NetCallAttachment) attachment, user.getMobile());
+                        CallOrder order = new CallOrder(message.getSessionId(), message.getTime(), message.getDirect(), (NetCallAttachment) attachment, user.getMobile());
                         addOrder(order);
                     }
                 }
             };
 
     private void addOrder(CallOrder order) {
-        readWriteLock.writeLock().lock();
-        if (orders.size() >= MAX_ORDER) {
-            orders.remove(0);
+        try{
+            readWriteLock.writeLock().lock();
+            if (orders.size() >= MAX_ORDER) {
+                orders.remove(0);
+            }
+            orders.add(order);
+            ordersLiveData.postValue(orders);
+        }catch (Exception exception){
+            ALog.e("CallOrderManager", "addOrder", exception);
+        }finally {
+            readWriteLock.writeLock().unlock();
         }
-        orders.add(order);
-        ordersLiveData.postValue(orders);
-        readWriteLock.writeLock().unlock();
         uploadOrder();
     }
 

@@ -128,7 +128,14 @@ public final class ProfileManager implements UserInfoInitCallBack {
     }
 
     public void logout() {
+        if (!isLogin) {
+            return;
+        }
+        isLogin = false;
+        userModel = null;
+        token = null;
         NIMClient.getService(AuthService.class).logout();
+        SPUtils.getInstance(CommonDataManager.PER_DATA).put(PER_USER_MODEL, "");
     }
 
     @Override

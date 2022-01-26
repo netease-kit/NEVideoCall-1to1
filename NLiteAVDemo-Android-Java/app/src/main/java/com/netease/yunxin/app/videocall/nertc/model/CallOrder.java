@@ -6,7 +6,7 @@ import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import java.io.Serializable;
 
 public class CallOrder implements Serializable {
-    public String receivedTime;//收到时间
+    public long receivedTime;//收到时间
 
     public String nickname;//昵称
 
@@ -16,7 +16,7 @@ public class CallOrder implements Serializable {
 
     public NetCallAttachment attachment;
 
-    public CallOrder(String sessionId, String receivedTime, MsgDirectionEnum direction, NetCallAttachment attachment, String nickname) {
+    public CallOrder(String sessionId, long receivedTime, MsgDirectionEnum direction, NetCallAttachment attachment, String nickname) {
         this.sessionId = sessionId;
         this.receivedTime = receivedTime;
         this.direction = direction;

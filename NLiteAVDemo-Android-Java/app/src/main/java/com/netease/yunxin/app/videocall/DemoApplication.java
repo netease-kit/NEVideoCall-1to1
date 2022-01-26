@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.SDKOptions;
 import com.netease.nimlib.sdk.auth.LoginInfo;
-import com.netease.nimlib.sdk.util.NIMUtil;
 import com.netease.yunxin.app.videocall.login.model.ProfileManager;
 import com.netease.yunxin.app.videocall.login.model.UserModel;
 
@@ -16,11 +15,6 @@ public class DemoApplication extends Application {
     public void onCreate() {
         super.onCreate();
         NIMClient.init(this, loginInfo(), options());
-
-        if (NIMUtil.isMainProcess(this)) {
-            // 注意：操作必须在主进程中进行
-
-        }
     }
 
     // 如果返回值为 null，则全部使用默认参数。

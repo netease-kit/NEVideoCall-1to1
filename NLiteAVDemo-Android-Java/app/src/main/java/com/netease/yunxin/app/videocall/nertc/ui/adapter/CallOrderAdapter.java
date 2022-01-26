@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.NetworkUtils;
+import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.bumptech.glide.Glide;
 import com.netease.nimlib.sdk.avsignalling.constant.ChannelType;
@@ -21,10 +22,13 @@ import com.netease.yunxin.app.videocall.R;
 import com.netease.yunxin.app.videocall.login.model.ProfileManager;
 import com.netease.yunxin.app.videocall.login.model.UserModel;
 import com.netease.yunxin.app.videocall.nertc.model.CallOrder;
-import com.netease.yunxin.app.videocall.nertc.utils.TimeUtils;
+import com.netease.yunxin.app.videocall.nertc.utils.SelfTimeUtils;
 import com.netease.yunxin.nertc.nertcvideocall.utils.NrtcCallStatus;
 import com.netease.yunxin.nertc.ui.CallKitUI;
 import com.netease.yunxin.nertc.ui.base.CallParam;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +37,8 @@ import java.util.List;
  * 话单adapter
  */
 public class CallOrderAdapter extends RecyclerView.Adapter<CallOrderAdapter.ViewHolder> {
+
+    public static final String TIME_FORMAT = "HH:mm:ss";
 
     private final List<CallOrder> orders;
 
@@ -70,17 +76,17 @@ public class CallOrderAdapter extends RecyclerView.Adapter<CallOrderAdapter.View
         CallOrder order = orders.get(position);
         UserModel currentUser = ProfileManager.getInstance().getUserModel();
         if (order != null) {
-            holder.tvTime.setText(order.receivedTime);
             holder.tvNickname.setText(order.nickname);
             NetCallAttachment attachment = order.attachment;
             if (attachment.getStatus() == NrtcCallStatus.NrtcCallStatusComplete) {
-                String textString = "";
+
+                int durationSeconds = Integer.MAX_VALUE;
                 for (NetCallAttachment.Duration duration : attachment.getDurations()) {
-                    if (TextUtils.equals(duration.getAccid(), currentUser.imAccid)) {
-                        textString = TimeUtils.secToTime(duration.getDuration());
-                    }
+                    durationSeconds = Math.min(durationSeconds, duration.getDuration());
                 }
+                String textString = SelfTimeUtils.secToTime(durationSeconds);
                 holder.tvDuration.setText("\t" + textString);
+                holder.tvTime.setText(TimeUtils.millis2String(order.receivedTime - durationSeconds * 1000L, TIME_FORMAT));
                 holder.tvNickname.setTextColor(mContext.getResources().getColor(R.color.white));
                 holder.tvTime.setTextColor(mContext.getResources().getColor(R.color.white));
                 holder.tvDuration.setTextColor(mContext.getResources().getColor(R.color.white));
@@ -98,6 +104,7 @@ public class CallOrderAdapter extends RecyclerView.Adapter<CallOrderAdapter.View
                     }
                 }
             } else {
+                holder.tvTime.setText(TimeUtils.millis2String(order.receivedTime, TIME_FORMAT));
                 holder.tvNickname.setTextColor(mContext.getResources().getColor(R.color.red));
                 holder.tvTime.setTextColor(mContext.getResources().getColor(R.color.red));
                 holder.tvDuration.setText("");
@@ -121,10 +128,20 @@ public class CallOrderAdapter extends RecyclerView.Adapter<CallOrderAdapter.View
                     Toast.makeText(mContext, "当前用户登录存在问题，请注销后重新登录", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                // 自定义透传字段，被叫用户在收到呼叫邀请时通过参数进行解析
+                JSONObject extraInfo = new JSONObject();
+
+                try {
+                    extraInfo.putOpt("key", "call");
+                    extraInfo.putOpt("value", "testValue");
+                    extraInfo.putOpt("userName", currentUser.mobile);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
                 if (NetworkUtils.isConnected()) {
                     CallKitUI.startSingleCall(mContext,
-                            CallParam.createSingleCallParam(ChannelType.VIDEO.getValue(), currentUser.imAccid, order.sessionId));
+                            CallParam.createSingleCallParam(ChannelType.VIDEO.getValue(), currentUser.imAccid, order.sessionId, extraInfo.toString()));
                 } else {
                     ToastUtils.showShort(R.string.network_connect_error_please_try_again);
                 }
