@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		26947F7B26F045B6005038AE /* NETokenTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 26947F7A26F045B6005038AE /* NETokenTask.m */; };
 		26A00C8F271812A4007849FA /* NECallStatusRecordCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 26A00C80271812A4007849FA /* NECallStatusRecordCell.m */; };
 		26A00C90271812A4007849FA /* NESearchResultCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 26A00C87271812A4007849FA /* NESearchResultCell.m */; };
 		26A00C95271812A5007849FA /* NEVideoView.m in Sources */ = {isa = PBXBuildFile; fileRef = 26A00C8C271812A4007849FA /* NEVideoView.m */; };
@@ -56,8 +55,6 @@
 
 /* Begin PBXFileReference section */
 		2670D82026EB878300DF2A29 /* NERtcCallKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = NERtcCallKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		26947F7926F045B6005038AE /* NETokenTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NETokenTask.h; sourceTree = "<group>"; };
-		26947F7A26F045B6005038AE /* NETokenTask.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NETokenTask.m; sourceTree = "<group>"; };
 		26A00C7F271812A4007849FA /* NESearchResultCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NESearchResultCell.h; sourceTree = "<group>"; };
 		26A00C80271812A4007849FA /* NECallStatusRecordCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NECallStatusRecordCell.m; sourceTree = "<group>"; };
 		26A00C81271812A4007849FA /* NEVideoView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NEVideoView.h; sourceTree = "<group>"; };
@@ -282,8 +279,6 @@
 			children = (
 				C7664E7C2511AE1D005E26A2 /* NESearchTask.h */,
 				C7664E7D2511AE1D005E26A2 /* NESearchTask.m */,
-				26947F7926F045B6005038AE /* NETokenTask.h */,
-				26947F7A26F045B6005038AE /* NETokenTask.m */,
 			);
 			path = Task;
 			sourceTree = "<group>";
@@ -577,7 +572,6 @@
 				26A00C97271812A5007849FA /* NEVideoOperationView.m in Sources */,
 				C7664ECC2511AE1E005E26A2 /* NESendSmsCodeTask.m in Sources */,
 				C758CCDA24EB7F5A003C406A /* AppDelegate.m in Sources */,
-				26947F7B26F045B6005038AE /* NETokenTask.m in Sources */,
 				C7664ECA2511AE1E005E26A2 /* NEUser.m in Sources */,
 				C7664ED52511AE1E005E26A2 /* NEMenuViewController.m in Sources */,
 				C7664ED22511AE1E005E26A2 /* NECountDownButton.m in Sources */,

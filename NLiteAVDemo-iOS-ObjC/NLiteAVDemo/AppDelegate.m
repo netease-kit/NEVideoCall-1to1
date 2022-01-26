@@ -12,7 +12,7 @@
 #import "NECallViewController.h"
 #import <UserNotifications/UserNotifications.h>
 #import "NENavigator.h"
-#import "NETokenTask.h"
+//#import "NETokenTask.h"
 #import "LocalServerManager.h"
 
 @interface AppDelegate ()<NERtcCallKitDelegate,UNUserNotificationCenterDelegate>
@@ -46,21 +46,14 @@
     option.supportAutoJoinWhenCalled = YES;
     NERtcCallKit *callkit = [NERtcCallKit sharedInstance];
     [callkit setupAppKey:kAppKey options:option];
+    
+    /*
     callkit.tokenHandler = ^(uint64_t uid, void (^complete)(NSString *token, NSError *error)) {
-        NETokenTask *task = [NETokenTask taskWithUid:[NSString stringWithFormat:@"%llu",uid] withAppkey:kAppKey];
-        [task postWithCompletion:^(NSDictionary * _Nullable data, NSError * _Nullable error) {
-            if (error == nil && data && [data isKindOfClass:[NSDictionary class]]) {
-                NSNumber *code = data[@"code"];
-                NSString *checksum = data[@"checksum"];
-                if (code.intValue == 200 && checksum) {
-                    complete(checksum,nil);
-                    return;
-                }
-            }
-            complete(nil,error);
-
-        }];
-    };
+        
+        // 获取自己的安全token 传给SDK，体验情况没有自己业务服务器，无法获取token，请在管理后台关闭安全模式
+        // complete("your token",nil);
+        
+    }; */
 }
 
 - (void)registerAPNS
