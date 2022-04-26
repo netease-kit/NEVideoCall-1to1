@@ -2,8 +2,8 @@
 buildscript {
     repositories {
         google()
-        jcenter()
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+        jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.0.1'
@@ -16,11 +16,11 @@ buildscript {
 allprojects {
     repositories {
         google()
-        jcenter()
         mavenCentral()
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
         maven { url 'http://developer.huawei.com/repo/' }
         maven { url "https://jitpack.io" }
+        jcenter()
     }
 }
 

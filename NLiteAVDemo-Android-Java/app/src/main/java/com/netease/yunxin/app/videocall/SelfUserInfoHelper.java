@@ -29,6 +29,10 @@ class SelfUserInfoHelper implements UserInfoHelper {
             NIMClient.getService(UserService.class).fetchUserInfo(Collections.singletonList(accId)).setCallback(new RequestCallbackWrapper<List<NimUserInfo>>() {
                 @Override
                 public void onResult(int code, List<NimUserInfo> result, Throwable exception) {
+                    if (result == null || result.isEmpty()) {
+                        function1.invoke(accId);
+                        return;
+                    }
                     function1.invoke(result.get(0).getMobile() + "");
                 }
             });

@@ -15,29 +15,18 @@ import com.netease.lava.nertc.sdk.NERtcEx;
 import com.netease.lava.nertc.sdk.NERtcOption;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
-import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.StatusCode;
 import com.netease.nimlib.sdk.auth.AuthServiceObserver;
 import com.netease.yunxin.app.videocall.login.model.ProfileManager;
 import com.netease.yunxin.app.videocall.login.ui.LoginActivity;
 import com.netease.yunxin.app.videocall.nertc.biz.CallOrderManager;
 import com.netease.yunxin.app.videocall.nertc.ui.NERTCSelectCallUserActivity;
-import com.netease.yunxin.nertc.nertcvideocall.model.TokenService;
 import com.netease.yunxin.nertc.ui.CallKitUI;
 import com.netease.yunxin.nertc.ui.CallKitUIOptions;
-
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-
-    private ImageView ivAccountIcon;
-
-    private RelativeLayout rlyVideoCall;
 
     private TextView tvVersion;
 
@@ -124,44 +113,15 @@ public class MainActivity extends AppCompatActivity {
         }, true);
     }
 
-    private String readFully(InputStream inputStream) throws IOException {
-
-        if (inputStream == null) {
-            return "";
-        }
-
-        ByteArrayOutputStream byteArrayOutputStream;
-
-        BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
-        try {
-            byteArrayOutputStream = new ByteArrayOutputStream();
-
-            final byte[] buffer = new byte[1024];
-            int available;
-
-            while ((available = bufferedInputStream.read(buffer)) >= 0) {
-                byteArrayOutputStream.write(buffer, 0, available);
-            }
-
-            return byteArrayOutputStream.toString();
-
-        } finally {
-            bufferedInputStream.close();
-        }
-    }
-
     private void checkLogin() {
         if (ProfileManager.getInstance().isLogin()) {
             return;
         }
         //此处注册之后会立刻回调一次
-        NIMClient.getService(AuthServiceObserver.class).observeOnlineStatus(new Observer<StatusCode>() {
-            @Override
-            public void onEvent(StatusCode statusCode) {
-                if (statusCode == StatusCode.LOGINED) {
-                    ProfileManager.getInstance().setLogin(true);
-                    CallOrderManager.getInstance().init();
-                }
+        NIMClient.getService(AuthServiceObserver.class).observeOnlineStatus((Observer<StatusCode>) statusCode -> {
+            if (statusCode == StatusCode.LOGINED) {
+                ProfileManager.getInstance().setLogin(true);
+                CallOrderManager.getInstance().init();
             }
         }, true);
 
@@ -169,8 +129,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        ivAccountIcon = findViewById(R.id.iv_account);
-        rlyVideoCall = findViewById(R.id.rly_video_call);
+        ImageView ivAccountIcon = findViewById(R.id.iv_account);
+        RelativeLayout rlyVideoCall = findViewById(R.id.rly_video_call);
         tvVersion = findViewById(R.id.tv_version);
 
         ivAccountIcon.setOnClickListener(view -> {

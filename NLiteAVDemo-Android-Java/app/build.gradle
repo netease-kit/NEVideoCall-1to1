@@ -63,5 +63,5 @@ dependencies {
     api 'com.squareup.retrofit2:retrofit:2.2.0'
     api 'com.squareup.retrofit2:converter-gson:2.2.0'
 
-    api 'com.netease.yunxin.kit:call-ui:1.5.0'
+    api 'com.netease.yunxin.kit:call-ui:1.5.3'
 }

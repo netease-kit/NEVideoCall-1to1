@@ -11,13 +11,13 @@ import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 
 import com.netease.yunxin.app.videocall.R;
 
@@ -188,7 +188,7 @@ public class VerifyCodeView extends LinearLayout implements TextWatcher, View.On
         editText.setCursorVisible(false);
         editText.setMaxEms(1);
         editText.setTextColor(mEtTextColor);
-        editText.setTextSize(mEtTextSize);
+        editText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mEtTextSize);
         editText.setCursorVisible(cursorVisible);
         editText.setMaxLines(1);
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(1)});
