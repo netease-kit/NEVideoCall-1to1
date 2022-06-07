@@ -72,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onEvent(StatusCode statusCode) {
                 if (statusCode == StatusCode.LOGINED) {
-                    NIMClient.getService(AuthServiceObserver.class).observeOnlineStatus(this, false);
 
                     CallKitUIOptions options = new CallKitUIOptions.Builder()
                             // 音视频通话 sdk appKey，用于通话中使用
