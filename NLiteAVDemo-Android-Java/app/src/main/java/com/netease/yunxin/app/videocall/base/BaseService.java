@@ -1,6 +1,7 @@
 package com.netease.yunxin.app.videocall.base;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 
 import com.netease.yunxin.app.videocall.BuildConfig;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -30,7 +32,10 @@ public class BaseService {
     }
 
     private BaseService() {
+        HttpLoggingInterceptor interceptor =  new HttpLoggingInterceptor(message -> Log.d("======>>>", message));
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                .addInterceptor(interceptor)
                 .addInterceptor(new Interceptor() {
                     @Override
                     public okhttp3.Response intercept(Chain chain) throws IOException {
