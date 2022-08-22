@@ -63,6 +63,7 @@ dependencies {
     api 'com.squareup.okhttp3:logging-interceptor:3.11.0'
     api 'com.squareup.retrofit2:retrofit:2.2.0'
     api 'com.squareup.retrofit2:converter-gson:2.2.0'
+    implementation 'com.blankj:utilcodex:1.30.5'
 
-    api 'com.netease.yunxin.kit:call-ui:1.5.5'
+    api 'com.netease.yunxin.kit:call-ui:1.6.1'
 }
