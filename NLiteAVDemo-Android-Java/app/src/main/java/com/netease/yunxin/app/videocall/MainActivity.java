@@ -86,20 +86,6 @@ public class MainActivity extends AppCompatActivity {
                             .notificationConfigFetcher(new SelfNotificationConfigFetcher())
                             // 收到被叫时若 app 在后台，在恢复到前台时是否自动唤起被叫页面，默认为 true
                             .resumeBGInvitation(true)
-                            // 请求 rtc token 服务，若非安全模式不需设置，安全模式按照官网实现 token 服务通过如下接口设置回组件
-//                            .rtcTokenService(new TokenService() {
-//                                @Override
-//                                public void getToken(long uid, RequestCallback<String> callback) {
-//                                    Result result = network.requestToken(uid);
-//                                    if (result.success) {
-//                                        callback.onSuccess(result.token);
-//                                    } else if (result.exception != null) {
-//                                        callback.onException(result.exception);
-//                                    } else {
-//                                        callback.onFailed(result.code);
-//                                    }
-//                                }
-//                            })
                             // 设置初始化 rtc sdk 相关配置，按照所需进行配置
                             .rtcSdkOption(new NERtcOption())
                             // 设置用户信息
