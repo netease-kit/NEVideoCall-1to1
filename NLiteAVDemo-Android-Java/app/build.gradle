@@ -66,5 +66,5 @@ dependencies {
     implementation 'com.blankj:utilcodex:1.30.5'
 
     implementation 'com.github.bumptech.glide:glide:4.13.1'
-    api 'com.netease.yunxin.kit.call:call-ui:1.8.0'
+    api 'com.netease.yunxin.kit.call:call-ui:1.8.1'
 }
