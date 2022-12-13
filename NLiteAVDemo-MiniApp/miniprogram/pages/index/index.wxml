@@ -1,0 +1,19 @@
+<view class="container-box">
+  <view class='title' style='padding-top:{{(headerHeight + statusBarHeight)/2 - 12}}px'>
+    <view>呼叫</view>
+  </view>
+  <view class="input-wrapper">
+    <input type="number" value="{{mobile}}" data-key="userId" bindinput="changeHandler" placeholder="输入对方用户im账号" />
+  </view>
+  <view class="sub-title">
+    <radio-group class="radio-group-no-box" bindchange="changeCallType">
+      <label wx:for="{{callTypeArr}}" wx:key="index" class="radio-item {{ callType == item.value ? 'selected': ''}}">
+        <radio value="{{item.value}}" checked="{{item.checked}}" />
+        {{item.title}}
+      </label>
+    </radio-group>
+  </view>
+  <view class='bottom-btn'>
+    <button class="btn" bindtap="startCall" hover-class="none">发起呼叫</button>
+  </view>
+</view>

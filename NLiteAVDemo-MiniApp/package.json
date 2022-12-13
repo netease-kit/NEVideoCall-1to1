@@ -1,0 +1,17 @@
+{
+  "name": "miniprogram-necall",
+  "version": "1.0.0",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@xkit-yx/call-kit": "^1.8.2",
+    "@xkit-yx/call-kit-wx-ui": "^0.0.2"
+  },
+  "devDependencies": {
+    "miniprogram-api-typings": "^2.8.3-1"
+  },
+  "main": ".eslintrc.js",
+  "description": ""
+}

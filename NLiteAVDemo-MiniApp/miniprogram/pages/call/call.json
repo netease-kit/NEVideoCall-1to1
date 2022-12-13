@@ -1,0 +1,5 @@
+{
+  "usingComponents": {
+    "call-view": "/components/call-kit-wx-ui/call-view"
+  }
+}
