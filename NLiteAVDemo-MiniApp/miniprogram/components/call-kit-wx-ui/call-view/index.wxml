@@ -1,0 +1,54 @@
+<view class="necall-container">
+  <view wx:if="{{callStatus === 1}}" class="necall-invite-container">
+    <view class="necall-callee-info">
+      <view>
+        <view class="necall-callee-nickname">正在呼叫 {{userInfo.nick || userInfo.tel}}</view>
+        <view class="necall-callee-tips">等待对方接听...</view>
+      </view>
+      <image class="necall-callee-avatar" src="{{userInfo.avatar}}" />
+    </view>
+    <view class="necall-calling-btn-group">
+      <view class="necall-btn" bindtap="onHangup">
+        <image class="necall-img" src="{{hangupImg}}" />
+        <span>取消</span>
+      </view>
+    </view>
+  </view>
+  <view wx:if="{{callStatus === 2}}" class="necall-be-invited-container">
+    <view class="necall-caller-info">
+      <image class="necall-caller-avatar" src="{{userInfo.avatar}}" alt="" />
+      <view class="necall-caller-nickname">{{userInfo.nick || userInfo.tel}}</view>
+      <view class="necall-caller-tips">{{callType === '1' ? '邀请你进行语音通话...' : '邀请你进行视频通话...'}}</view>
+    </view>
+    <view class="necall-called-btn-group">
+      <view class="necall-btn" bindtap="onHangup">
+        <image class="necall-img" src="{{hangupImg}}" />
+        <span>拒绝</span>
+      </view>
+      <view class="necall-btn" bindtap="onAccept">
+        <image class="necall-img" src="{{callType === '1' ? acceptImg.audio : acceptImg.video}}" />
+        <span>接收</span>
+      </view>
+    </view>
+  </view>
+  <view wx:if="{{callStatus === 3}}" class="necall-in-call-container">
+    <view hidden="{{callType === '1'}}">
+      <view class="necall-in-call-duration">{{durationText}}</view>
+      <view class="necall-in-call-video-mute-tips" hidden="{{!player.videoMute}}">对方关闭了摄像头</view>
+      <image class="necall-camera-revert-btn" src="{{cameraRevertImg}}" bindtap="handleCameraRevert" />
+      <live-player class="necall-remote-view" wx:if="{{player.url}}" hidden="{{player.videoMute}}" src="{{player.url}}" object-fit="{{player.objectFit}}" mode="{{player.mode}}" autoplay="{{player.autoplay}}" picture-in-picture-mode="{{player.pictureInPictureMode}}" />
+      <live-pusher class="necall-local-view" wx:if="{{pusher.url}}" hidden="{{!pusher.enableCamera}}" url="{{pusher.url}}" mode="{{pusher.mode}}" waiting-image="{{pusher.waitingImage}}" autopush="{{pusher.autopush}}" enable-camera="{{pusher.enableCamera}}" enable-mic="{{pusher.enableMic}}" muted="{{!pusher.enableMic}}" picture-in-picture-mode="{{pusher.pictureInPictureMode}}" />
+    </view>
+    <view class="necall-in-call-audio" wx:if="{{callType === '1'}}">
+      <image class="necall-in-call-avatar" src="{{userInfo.avatar}}" alt="" />
+      <view class="necall-in-call-title">通话中</view>
+      <view class="necall-in-call-tips">{{durationText}}</view>
+    </view>
+    <view class="necall-in-call-btn-group">
+      <image class="necall-microphone-btn" src="{{pusher.enableMic ? microphoneImg.open : microphoneImg.close}}" bindtap="handleEnableLocalAudio" />
+      <image wx:if="{{callType === '2'}}" class="necall-video-btn" src="{{pusher.enableCamera ? videoImg.open : videoImg.close}}" bindtap="handleEnableLocalVideo" />
+      <image class="necall-switch-btn" src="{{callType === '1' ? switchImg.video : switchImg.audio}}" bindtap="handleSwitchCallType" />
+      <image class="necall-hangup-btn" src="{{hangupImg}}" bindtap="onHangup" />
+    </view>
+  </view>
+</view>

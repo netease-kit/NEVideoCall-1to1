@@ -23,6 +23,8 @@ rvm.env
 
 Pods/
 
+node_modules/
+
 # NIMGitVersion.h
 # NIMAVChatGitVersion.h
 # NIMScript/mac

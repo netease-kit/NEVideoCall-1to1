@@ -1,0 +1,93 @@
+.container-box {
+  background-image: url(https://yx-web-nosdn.netease.im/quickhtml%2Fassets%2Fyunxin%2Fdefault%2Fgroupcall%2Fbg.png);
+  background-color: #333;
+  background-repeat:no-repeat;
+  background-size: cover;
+  background-color: #1a1a23;
+  height: 100vh;
+  padding: 0 40rpx;
+  box-sizing: border-box;
+  color: #fff;
+}
+
+.switch-item {
+  margin: 10px 0;
+}
+
+.title {
+  color: #FFFFFF;
+  padding-top: 65rpx;
+  line-height: 60rpx;
+  text-align: center;
+}
+
+.user-info {
+  display: flex;
+  margin-top: 20rpx;
+}
+
+.sub-title {
+  margin-bottom: 36rpx;
+}
+
+.sub-title .radio-group-no-box .radio-item {
+  font-size: 32rpx;
+  padding: 4px 8px;
+}
+
+.input-wrapper {
+  border-radius: 8rpx;
+  background-color: #292935;
+  margin: 40rpx 0;
+  padding: 18rpx 16rpx;
+  font-size: 32rpx;
+}
+
+.radio-group-no-box {
+  display: inline-block;
+  color: #006eff;
+  background-color: #ffffff;
+  border: 1px solid #006eff;
+  border-radius: 4px;
+  /* margin-left: 180rpx; */
+}
+
+.radio-group-no-box .radio-item {
+  padding: 3px 8px;
+  text-align: center;
+  border-right: 1px solid #006eff;
+  display: inline-block;
+}
+
+.radio-group-no-box .radio-item:last-child {
+  border-right: none;
+}
+
+.radio-group-no-box .radio-item.selected {
+  color: #ffffff;
+  background-color: #006eff;
+}
+
+.radio-group-no-box radio {
+  display: none;
+}
+
+.bottom-btn {
+  position: fixed;
+  width: 100vw;
+  bottom: 5vh;
+}
+
+.bottom-btn .btn {
+  width: 90%;
+  line-height: 60rpx;
+  background-color: #467ff6;
+  border-radius: 50px;
+  font-size: 32rpx;
+  color: #ffffff;
+  margin: 0;
+}
+
+
+
+

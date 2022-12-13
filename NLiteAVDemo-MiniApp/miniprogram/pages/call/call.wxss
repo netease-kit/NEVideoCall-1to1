@@ -1,0 +1,11 @@
+.container-box {
+  background-image: url(https://yx-web-nosdn.netease.im/quickhtml%2Fassets%2Fyunxin%2Fdefault%2Fgroupcall%2Fbg.png);
+  background-color: #333;
+  background-repeat:no-repeat;
+  background-size: cover;
+  background-color: #1a1a23;
+  height: 100vh;
+  padding: 0 40rpx;
+  box-sizing: border-box;
+  color: #fff;
+}
