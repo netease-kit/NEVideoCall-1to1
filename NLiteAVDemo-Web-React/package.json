@@ -9,7 +9,8 @@
     "start": "npm run dev"
   },
   "dependencies": {
-    "@xkit-yx/call-kit-react-ui": "^0.1.6",
+    "@xkit-yx/call-kit": "^2.0.0",
+    "@xkit-yx/call-kit-react-ui": "^0.4.0",
     "@xkit-yx/login-react-ui": "^0.2.6",
     "@xkit-yx/utils": "^0.4.3",
     "antd": "^4.23.0",
