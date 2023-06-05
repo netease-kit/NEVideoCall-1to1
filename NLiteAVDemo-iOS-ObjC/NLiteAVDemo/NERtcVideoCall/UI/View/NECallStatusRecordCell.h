@@ -1,10 +1,6 @@
-//
-//  NECallStatusRecordCell.h
-//  NLiteAVDemo
-//
-//  Created by chenyu on 2021/10/14.
-//  Copyright © 2021 Netease. All rights reserved.
-//
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
 
 #import <UIKit/UIKit.h>
 #import "NECallStatusRecordModel.h"

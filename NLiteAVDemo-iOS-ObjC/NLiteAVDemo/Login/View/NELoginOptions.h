@@ -1,10 +1,6 @@
-//
-//  NELoginOptions.h
-//  NLiteAVDemo
-//
-//  Created by Think on 2020/8/28.
-//  Copyright © 2020 Netease. All rights reserved.
-//
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
 
 #import <Foundation/Foundation.h>
 
@@ -14,9 +10,9 @@ typedef void (^NELoginBlock)(void);
 
 @interface NELoginOptions : NSObject
 
-@property (nonatomic, copy) NELoginBlock successBlock;  // 登录成功闭包
-@property (nonatomic, copy) NELoginBlock failedBlock;   // 登录失败闭包
-@property (nonatomic, copy) NELoginBlock cancelBlock;   // 取消登录闭包
+@property(nonatomic, copy) NELoginBlock successBlock;  // 登录成功闭包
+@property(nonatomic, copy) NELoginBlock failedBlock;   // 登录失败闭包
+@property(nonatomic, copy) NELoginBlock cancelBlock;   // 取消登录闭包
 
 @end
 

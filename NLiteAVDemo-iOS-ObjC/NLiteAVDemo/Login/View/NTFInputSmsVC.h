@@ -1,10 +1,6 @@
-//
-//  NTFInputSmsVC.h
-//  NIMAudioChatroom
-//
-//  Created by Think on 2020/8/18.
-//  Copyright © 2020 netease. All rights reserved.
-//
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
 
 /**
  输入验证码VC
@@ -23,8 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param mobile  - 登录手机号
  @param options - 登录配置项
  */
-- (instancetype)initWithMobile:(NSString *)mobile
-                       options:(NELoginOptions * _Nullable)options;
+- (instancetype)initWithMobile:(NSString *)mobile options:(NELoginOptions *_Nullable)options;
 
 @end
 

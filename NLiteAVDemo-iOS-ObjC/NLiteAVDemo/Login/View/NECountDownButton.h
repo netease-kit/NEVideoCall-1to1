@@ -1,10 +1,6 @@
-//
-//  NECountDownButton.h
-//  NLiteAVDemo
-//
-//  Created by Think on 2020/8/28.
-//  Copyright © 2020 Netease. All rights reserved.
-//
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
 
 /**
  倒计时按钮
@@ -37,10 +33,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NECountDownButton : UIButton
 
-@property (nonatomic, weak) id<NECountDownButtonDelegate> delegate;
+@property(nonatomic, weak) id<NECountDownButtonDelegate> delegate;
 
-@property (nonatomic, assign, readonly) BOOL    counting;
-@property (nonatomic, assign, readonly) int32_t restCountNum;
+@property(nonatomic, assign, readonly) BOOL counting;
+@property(nonatomic, assign, readonly) int32_t restCountNum;
 
 - (instancetype)initWithAttributeTitle:(NSAttributedString *)attributeTitle;
 
