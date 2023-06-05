@@ -1,10 +1,6 @@
-//
-//  UIColor+NTES.h
-//  NIMAudioChatroom
-//
-//  Created by Think on 2020/8/18.
-//  Copyright © 2020 netease. All rights reserved.
-//
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
 
 #import <UIKit/UIKit.h>
 

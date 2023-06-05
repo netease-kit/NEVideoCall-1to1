@@ -1,10 +1,6 @@
-//
-//  NEAccount.h
-//  NLiteAVDemo
-//
-//  Created by Think on 2020/8/26.
-//  Copyright © 2020 Netease. All rights reserved.
-//
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
 
 #import <Foundation/Foundation.h>
 #import "NEUser.h"
@@ -13,19 +9,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 // 登录操作
 typedef enum NSUIntger {
-    NEAccountActionLogin = 1,       // 登录
-    NEAccountActionLogout = 1 << 1, // 注销
-    NEAccountActionAll = NEAccountActionLogin | NEAccountActionLogout
+  NEAccountActionLogin = 1,        // 登录
+  NEAccountActionLogout = 1 << 1,  // 注销
+  NEAccountActionAll = NEAccountActionLogin | NEAccountActionLogout
 } NEAccountAction;
 
-typedef void(^NEAccountComplete)(NSDictionary * _Nullable data, NSError * _Nullable error);
-typedef void(^NEAccountActionBlock)(NEAccountAction action);
+typedef void (^NEAccountComplete)(NSDictionary *_Nullable data, NSError *_Nullable error);
+typedef void (^NEAccountActionBlock)(NEAccountAction action);
 
 @interface NEAccount : NSObject
 
-@property (nonatomic, readonly, assign)   BOOL        hasLogin;
-@property (nonatomic, readonly, strong, nullable)   NEUser *userModel;
-@property (nonatomic, readonly, copy, nullable)     NSString    *accessToken;
+@property(nonatomic, readonly, assign) BOOL hasLogin;
+@property(nonatomic, readonly, strong, nullable) NEUser *userModel;
+@property(nonatomic, readonly, copy, nullable) NSString *accessToken;
 /**
  获取账号实例
  */
@@ -64,7 +60,6 @@ typedef void(^NEAccountActionBlock)(NEAccountAction action);
 + (void)removeObserverForObject:(_Nonnull id)object;
 
 @end
-
 
 /**
  账号登录/登出

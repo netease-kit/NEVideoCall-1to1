@@ -1,17 +1,26 @@
-//
-//  PrefixHeader.pch
-//  NLiteAVDemo
-//
-//  Created by I am Groot on 2020/8/20.
-//  Copyright © 2020 Netease. All rights reserved.
-//
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
 
 #ifndef PrefixHeader_pch
 #define PrefixHeader_pch
+#import <NERtcSDK/NERtcSDK.h>
 #import <Masonry/Masonry.h>
 #import <SDWebImage/SDWebImage.h>
 #import <Toast/Toast.h>
 #import <ReactiveObjC/ReactiveObjC.h>
+#import <NERtcCallUIKit/SettingManager.h>
+#import <NECallKitPstn/NECallKitPstn.h>
+#import <NERtcCallKit/NERtcCallKit.h>
+#import "NEUser.h"
+#import "UICollectionViewLeftAlignedLayout.h"
+#import "DataManager.h"
+#import <Foundation/NSBundle.h>
+#import <NERtcCallUIKit/NERtcCallUIKit.h>
+typedef enum : NSUInteger {
+    CALLKIT,
+    PSTN,
+} CallKitType;
 
 static NSString * const NERECORDADD = @"ne_record_add";
 
@@ -22,5 +31,27 @@ static NSString *historyFileName = @"history";
 static NSString *recordFileName = @"record";
 
 static NSString *deviceTokenKey = @"deviceToken";
+
+static NSInteger RecordCountLimit = 15;
+
+static NSInteger GroupCallUserLimit = 16;
+
+static NSString *kWaittingCalledUser = @"待呼叫用户";
+
+//#if DEBUG
+//static NSInteger RecordCountLimit = 16;
+//#else
+//static NSInteger RecordCountLimit = 3;
+//#endif
+
+//#define NSLocalizedString(key, comment) \
+//        [[NSBundle mainBundle] localizedStringForKey:(key) value:@"" table:nil]
+//#define NSLocalizedStringFromTable(key, tbl, comment) \
+//        [[NSBundle mainBundle] localizedStringForKey:(key) value:@"" table:(tbl)]
+//#define NSLocalizedStringFromTableInBundle(key, tbl, bundle, comment) \
+//        [bundle localizedStringForKey:(key) value:@"" table:(tbl)]
+//#define NSLocalizedStringWithDefaultValue(key, tbl, bundle, val, comment) \
+//        [bundle localizedStringForKey:(key) value:(val) table:(tbl)]
+
 
 #endif /* PrefixHeader_pch */
