@@ -39,8 +39,6 @@ public class LoginServiceManager {
 
     private Call<BaseService.ResponseEntity<Void>> sendMessageCall;
     private Call<BaseService.ResponseEntity<UserModel>> msmLoginCall;
-    private Call<BaseService.ResponseEntity<UserModel>> tokenLoginCall;
-    private Call<BaseService.ResponseEntity<Void>> logoutCall;
 
     public static LoginServiceManager getInstance() {
         return mOurInstance;
@@ -62,23 +60,11 @@ public class LoginServiceManager {
         @POST("/auth/loginBySmsCode")
         @Headers("Content-Type: application/json")
         Call<BaseService.ResponseEntity<UserModel>> loginBySmsCode(@Body RequestBody body);
-
-        @POST("/auth/loginByToken")
-        @Headers("Content-Type: application/json")
-        Call<BaseService.ResponseEntity<UserModel>> loginByToken();
-
-        @POST("/auth/logout")
-        @Headers("Content-Type: application/json")
-        Call<BaseService.ResponseEntity<Void>> logout();
-
     }
 
 
     /**
      * 发送验证码短信
-     *
-     * @param phoneNumber
-     * @param callBack
      */
     public void sendMessage(String phoneNumber, BaseService.ResponseCallBack<Void> callBack) {
         if (sendMessageCall != null && sendMessageCall.isExecuted()) {
@@ -120,10 +106,6 @@ public class LoginServiceManager {
 
     /**
      * 短信验证码登录
-     *
-     * @param phoneNumber
-     * @param smsCode
-     * @param callBack
      */
     public void loginWithSms(String phoneNumber, String smsCode, BaseService.ResponseCallBack<Void> callBack) {
         if (msmLoginCall != null && msmLoginCall.isExecuted()) {
@@ -163,78 +145,7 @@ public class LoginServiceManager {
     }
 
     /**
-     * 业务token登录接口，IM在初始化的时候设置已有userInfo 可以自动登录
-     *
-     * @param callBack
-     */
-    public void loginWithToken(BaseService.ResponseCallBack<Void> callBack) {
-        if (tokenLoginCall != null && tokenLoginCall.isExecuted()) {
-            tokenLoginCall.cancel();
-        }
-        tokenLoginCall = mApi.loginByToken();
-        tokenLoginCall.enqueue(new Callback<BaseService.ResponseEntity<UserModel>>() {
-            @Override
-            public void onResponse(Call<BaseService.ResponseEntity<UserModel>> call, Response<BaseService.ResponseEntity<UserModel>> response) {
-                if (callBack != null) {
-                    BaseService.ResponseEntity<UserModel> responseEntity = response.body();
-                    if (responseEntity.code == 200) {
-                        saveUserModel(responseEntity.data);
-                        UserModel userModel = responseEntity.data;
-                        loginNim(userModel, callBack);
-                    } else {
-                        callBack.onFail(responseEntity.code);
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<BaseService.ResponseEntity<UserModel>> call, Throwable t) {
-                if (callBack != null) {
-                    callBack.onFail(ERROR_CODE_UNKNOWN);
-                }
-            }
-        });
-    }
-
-    /**
-     * 退出登录
-     *
-     * @param callBack
-     */
-    public void logout(BaseService.ResponseCallBack<Void> callBack) {
-        if (logoutCall != null && logoutCall.isExecuted()) {
-            logoutCall.cancel();
-        }
-        logoutCall = mApi.logout();
-        logoutCall.enqueue(new Callback<BaseService.ResponseEntity<Void>>() {
-            @Override
-            public void onResponse(Call<BaseService.ResponseEntity<Void>> call, Response<BaseService.ResponseEntity<Void>> response) {
-                if (callBack != null) {
-                    BaseService.ResponseEntity<Void> responseEntity = response.body();
-                    if (responseEntity.code == 200) {
-                        clearLoginInfo();
-                        ProfileManager.getInstance().logout();
-                        callBack.onSuccess(null);
-                    } else {
-                        callBack.onFail(responseEntity.code);
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<BaseService.ResponseEntity<Void>> call, Throwable t) {
-                if (callBack != null) {
-                    callBack.onFail(ERROR_CODE_UNKNOWN);
-                }
-            }
-        });
-    }
-
-    /**
      * 登录IM
-     *
-     * @param userModel
-     * @param callBack
      */
     private void loginNim(UserModel userModel, BaseService.ResponseCallBack<Void> callBack) {
         LoginInfo loginInfo = new LoginInfo(String.valueOf(userModel.imAccid), userModel.imToken);
@@ -272,12 +183,4 @@ public class LoginServiceManager {
             }
         }
     }
-
-    private void clearLoginInfo() {
-        ProfileManager.getInstance().setLogin(false);
-        ProfileManager.getInstance().setUserModel(null);
-        ProfileManager.getInstance().setAccessToken(null);
-        CommonDataManager.getInstance().setIMToken(null);
-    }
-
 }

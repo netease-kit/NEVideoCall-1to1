@@ -9,17 +9,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.blankj.utilcode.util.NetworkUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
-import com.netease.nimlib.sdk.avsignalling.constant.ChannelType;
 import com.netease.yunxin.app.videocall.R;
 import com.netease.yunxin.app.videocall.login.model.ProfileManager;
 import com.netease.yunxin.app.videocall.login.model.UserModel;
+import com.netease.yunxin.kit.call.p2p.model.NECallType;
+import com.netease.yunxin.nertc.nertcvideocall.utils.NetworkUtils;
 import com.netease.yunxin.nertc.ui.CallKitUI;
 import com.netease.yunxin.nertc.ui.base.CallParam;
 
@@ -98,10 +98,14 @@ public class RecentUserAdapter extends RecyclerView.Adapter<RecentUserAdapter.Vi
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    CallKitUI.startSingleCall(mContext,
-                            CallParam.createSingleCallParam(ChannelType.VIDEO.getValue(), currentUser.imAccid, searchedUser.imAccid, extraInfo.toString()));
+                    CallParam param = new CallParam.Builder()
+                        .callType(NECallType.VIDEO)
+                        .calledAccId(searchedUser.imAccid)
+                        .callExtraInfo(extraInfo.toString())
+                        .build();
+                    CallKitUI.startSingleCall(mContext,param);
                 } else {
-                    ToastUtils.showShort(R.string.network_connect_error_please_try_again);
+                    Toast.makeText(mContext, R.string.network_connect_error_please_try_again, Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -112,6 +116,7 @@ public class RecentUserAdapter extends RecyclerView.Adapter<RecentUserAdapter.Vi
         return mUsers.size();
     }
 
+    @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.user_item_layout, parent, false);

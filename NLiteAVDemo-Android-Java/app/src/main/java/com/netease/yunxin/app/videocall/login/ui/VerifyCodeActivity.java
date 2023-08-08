@@ -1,3 +1,7 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 package com.netease.yunxin.app.videocall.login.ui;
 
 import android.content.Context;
@@ -8,22 +12,20 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
+import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.blankj.utilcode.util.NetworkUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.netease.yunxin.app.videocall.R;
+import com.netease.yunxin.app.videocall.base.BaseService;
 import com.netease.yunxin.app.videocall.login.model.LoginServiceManager;
 import com.netease.yunxin.app.videocall.login.ui.view.VerifyCodeView;
-import com.netease.yunxin.app.videocall.base.BaseService;
+import com.netease.yunxin.nertc.nertcvideocall.utils.NetworkUtils;
 
 public class VerifyCodeActivity extends AppCompatActivity {
 
     public static final String PHONE_NUMBER = "phone_number";
 
-    private VerifyCodeView verifyCodeView;//验证码输入框
+    private VerifyCodeView verifyCodeView; //验证码输入框
 
     private TextView tvMsmComment;
 
@@ -37,9 +39,9 @@ public class VerifyCodeActivity extends AppCompatActivity {
 
     private TextView tvResendMsm;
 
-    private static final int SMS_CODE_LENGTH=4;
-    private static final int THOUSAND_MS=1000;
-    private static final int SIXTY_THOUSAND_MS=60000;
+    private static final int SMS_CODE_LENGTH = 4;
+    private static final int THOUSAND_MS = 1000;
+    private static final int SIXTY_THOUSAND_MS = 60000;
 
     public static void startVerifyCode(Context context, String phoneNumber) {
         Intent intent = new Intent();
@@ -66,22 +68,35 @@ public class VerifyCodeActivity extends AppCompatActivity {
 
     private void initData() {
         phoneNumber = getIntent().getStringExtra(PHONE_NUMBER);
-        tvMsmComment.setText(getString(R.string.login_sms_code_has_been_sent) + phoneNumber + getString(R.string.login_please_input_sms_code));
-        btnNext.setOnClickListener(v -> {
-            if (!NetworkUtils.isConnected()){
-                ToastUtils.showShort(R.string.network_connect_error_please_try_again);
-                return;
-            }
-            String smsCode = verifyCodeView.getResult();
-            if (!TextUtils.isEmpty(smsCode)&&smsCode.length()==SMS_CODE_LENGTH) {
-                login(smsCode);
-            }else {
-                ToastUtils.showShort(R.string.login_please_input_correct_sms_code);
-            }
-        });
-        tvTimeCountDown.setOnClickListener(v -> {
-            reSendMsm();
-        });
+        tvMsmComment.setText(
+            getString(R.string.login_sms_code_has_been_sent)
+                + phoneNumber
+                + getString(R.string.login_please_input_sms_code));
+        btnNext.setOnClickListener(
+            v -> {
+                if (!NetworkUtils.isConnected()) {
+                    Toast.makeText(
+                            VerifyCodeActivity.this,
+                            R.string.network_connect_error_please_try_again,
+                            Toast.LENGTH_SHORT)
+                        .show();
+                    return;
+                }
+                String smsCode = verifyCodeView.getResult();
+                if (!TextUtils.isEmpty(smsCode) && smsCode.length() == SMS_CODE_LENGTH) {
+                    login(smsCode);
+                } else {
+                    Toast.makeText(
+                            VerifyCodeActivity.this,
+                            R.string.login_please_input_correct_sms_code,
+                            Toast.LENGTH_SHORT)
+                        .show();
+                }
+            });
+        tvTimeCountDown.setOnClickListener(
+            v -> {
+                reSendMsm();
+            });
 
         initCountDown();
     }
@@ -91,59 +106,82 @@ public class VerifyCodeActivity extends AppCompatActivity {
         tvResendMsm.setVisibility(View.VISIBLE);
         tvTimeCountDown.setEnabled(false);
 
-        countDownTimer = new CountDownTimer(SIXTY_THOUSAND_MS, THOUSAND_MS) {
-            @Override
-            public void onTick(long l) {
-                tvTimeCountDown.setText((l / THOUSAND_MS) + getString(R.string.login_second));
-            }
+        countDownTimer =
+            new CountDownTimer(SIXTY_THOUSAND_MS, THOUSAND_MS) {
+                @Override
+                public void onTick(long l) {
+                    tvTimeCountDown.setText((l / THOUSAND_MS) + getString(R.string.login_second));
+                }
 
-            @Override
-            public void onFinish() {
-                tvTimeCountDown.setText(R.string.login_resend);
-                tvTimeCountDown.setEnabled(true);
-                tvResendMsm.setVisibility(View.GONE);
-            }
-        };
+                @Override
+                public void onFinish() {
+                    tvTimeCountDown.setText(R.string.login_resend);
+                    tvTimeCountDown.setEnabled(true);
+                    tvResendMsm.setVisibility(View.GONE);
+                }
+            };
 
         countDownTimer.start();
     }
 
     private void reSendMsm() {
-        if (!NetworkUtils.isConnected()){
-            ToastUtils.showShort(R.string.network_connect_error_please_try_again);
+        if (!NetworkUtils.isConnected()) {
+            Toast.makeText(
+                    VerifyCodeActivity.this,
+                    R.string.network_connect_error_please_try_again,
+                    Toast.LENGTH_SHORT)
+                .show();
             return;
         }
         if (!TextUtils.isEmpty(phoneNumber)) {
-            LoginServiceManager.getInstance().sendMessage(phoneNumber, new BaseService.ResponseCallBack<Void>() {
+            LoginServiceManager.getInstance()
+                .sendMessage(
+                    phoneNumber,
+                    new BaseService.ResponseCallBack<Void>() {
 
-                @Override
-                public void onSuccess(Void response) {
-                    ToastUtils.showLong(R.string.login_sms_code_send_success);
-                    initCountDown();
-                }
+                        @Override
+                        public void onSuccess(Void response) {
+                            Toast.makeText(
+                                    VerifyCodeActivity.this,
+                                    R.string.login_sms_code_send_success,
+                                    Toast.LENGTH_SHORT)
+                                .show();
+                            initCountDown();
+                        }
 
-                @Override
-                public void onFail(int code) {
-                    ToastUtils.showLong(R.string.login_sms_code_send_fail);
-                }
-            });
+                        @Override
+                        public void onFail(int code) {
+                            Toast.makeText(
+                                    VerifyCodeActivity.this,
+                                    R.string.login_sms_code_send_fail,
+                                    Toast.LENGTH_SHORT)
+                                .show();
+                        }
+                    });
         }
     }
 
     private void login(String msmCode) {
         if (!TextUtils.isEmpty(phoneNumber) && !TextUtils.isEmpty(msmCode)) {
-            LoginServiceManager.getInstance().loginWithSms(phoneNumber, msmCode, new BaseService.ResponseCallBack<Void>() {
-                @Override
-                public void onSuccess(Void response) {
-                    ToastUtils.showLong(R.string.login_success);
-                    startMainActivity();
-                }
+            LoginServiceManager.getInstance()
+                .loginWithSms(
+                    phoneNumber,
+                    msmCode,
+                    new BaseService.ResponseCallBack<Void>() {
+                        @Override
+                        public void onSuccess(Void response) {
+                            Toast.makeText(
+                                    VerifyCodeActivity.this, R.string.login_success, Toast.LENGTH_SHORT)
+                                .show();
+                            startMainActivity();
+                        }
 
-                @Override
-                public void onFail(int code) {
-                    ToastUtils.showLong(R.string.login_fail);
-                }
-            });
+                        @Override
+                        public void onFail(int code) {
+                            Toast.makeText(VerifyCodeActivity.this, R.string.login_fail, Toast.LENGTH_SHORT)
+                                .show();
+                        }
+                    });
         }
     }
 
@@ -154,5 +192,4 @@ public class VerifyCodeActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
-
 }

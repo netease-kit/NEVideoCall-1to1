@@ -1,11 +1,9 @@
 package com.netease.yunxin.app.videocall.login.ui.view;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.os.Build;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -21,37 +19,34 @@ import android.widget.TextView;
 
 import com.netease.yunxin.app.videocall.R;
 
-import java.lang.reflect.Field;
 
 public class VerifyCodeView extends LinearLayout implements TextWatcher, View.OnKeyListener, View.OnFocusChangeListener {
 
-    private Context mContext;
-    private OnCodeFinishListener onCodeFinishListener;
-
+    private final Context mContext;
     /**
      * 输入框数量
      */
-    private int mEtNumber;
+    private final int mEtNumber;
 
     /**
      * 输入框的宽度
      */
-    private int mEtWidth;
+    private final int mEtWidth;
 
     /**
      * 文字颜色
      */
-    private int mEtTextColor;
+    private final int mEtTextColor;
 
     /**
      * 文字大小
      */
-    private float mEtTextSize;
+    private final float mEtTextSize;
 
     /**
      * 输入框背景
      */
-    private int mEtTextBg;
+    private final int mEtTextBg;
 
     /**
      * 输入框间距
@@ -59,111 +54,45 @@ public class VerifyCodeView extends LinearLayout implements TextWatcher, View.On
     private int mEtSpacing;
 
     /**
-     * 平分后的间距
-     */
-    private int mEtBisectSpacing;
-
-    /**
      * 判断是否平分
      */
-    private boolean isBisect;
+    private final boolean isBisect;
 
     /**
      * 是否显示光标
      */
-    private boolean cursorVisible;
-
-    /**
-     * 光标样式
-     */
-    private int mCursorDrawable;
+    private final boolean cursorVisible;
 
     /**
      * 输入框宽度
      */
     private int mViewWidth;
 
-    /**
-     * 输入框间距
-     */
-    private int mViewMargin;
-
-    public OnCodeFinishListener getOnCodeFinishListener() {
-        return onCodeFinishListener;
-    }
-
-    public void setOnCodeFinishListener(OnCodeFinishListener onCodeFinishListener) {
-        this.onCodeFinishListener = onCodeFinishListener;
-    }
-
-    public int getmEtNumber() {
-        return mEtNumber;
-    }
-
-    public void setmEtNumber(int mEtNumber) {
-        this.mEtNumber = mEtNumber;
-    }
-
-    public int getmEtWidth() {
-        return mEtWidth;
-    }
-
-    public void setmEtWidth(int mEtWidth) {
-        this.mEtWidth = mEtWidth;
-    }
-
-    public int getmEtTextColor() {
-        return mEtTextColor;
-    }
-
-    public void setmEtTextColor(int mEtTextColor) {
-        this.mEtTextColor = mEtTextColor;
-    }
-
-    public float getmEtTextSize() {
-        return mEtTextSize;
-    }
-
-    public void setmEtTextSize(float mEtTextSize) {
-        this.mEtTextSize = mEtTextSize;
-    }
-
-    public int getmEtTextBg() {
-        return mEtTextBg;
-    }
-
-    public void setmEtTextBg(int mEtTextBg) {
-        this.mEtTextBg = mEtTextBg;
-    }
-
-    public int getmCursorDrawable() {
-        return mCursorDrawable;
-    }
-
-    public void setmCursorDrawable(int mCursorDrawable) {
-        this.mCursorDrawable = mCursorDrawable;
-    }
-
     public VerifyCodeView(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.mContext = context;
-        @SuppressLint({"Recycle", "CustomViewStyleable"})
-        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.vericationCodeView);
-        mEtNumber = typedArray.getInteger(R.styleable.vericationCodeView_vcv_et_number, 4);
-        mEtWidth = typedArray.getDimensionPixelSize(R.styleable.vericationCodeView_vcv_et_width, 120);
-        mEtTextColor = typedArray.getColor(R.styleable.vericationCodeView_vcv_et_text_color, Color.BLACK);
-        mEtTextSize = typedArray.getDimensionPixelSize(R.styleable.vericationCodeView_vcv_et_text_size, 16);
-        mEtTextBg = typedArray.getResourceId(R.styleable.vericationCodeView_vcv_et_bg, R.drawable.et_login_code);
-        mCursorDrawable = typedArray.getResourceId(R.styleable.vericationCodeView_vcv_et_cursor, R.drawable.et_cursor);
-        cursorVisible = typedArray.getBoolean(R.styleable.vericationCodeView_vcv_et_cursor_visible, true);
+        //获取自定义属性的值
+        TypedArray typedArray = null;
+        try {
+             typedArray = context.obtainStyledAttributes(attrs, R.styleable.vericationCodeView);
+            mEtNumber = typedArray.getInteger(R.styleable.vericationCodeView_vcv_et_number, 4);
+            mEtWidth = typedArray.getDimensionPixelSize(R.styleable.vericationCodeView_vcv_et_width, 120);
+            mEtTextColor = typedArray.getColor(R.styleable.vericationCodeView_vcv_et_text_color, Color.BLACK);
+            mEtTextSize = typedArray.getDimensionPixelSize(R.styleable.vericationCodeView_vcv_et_text_size, 16);
+            mEtTextBg = typedArray.getResourceId(R.styleable.vericationCodeView_vcv_et_bg, R.drawable.et_login_code);
+            cursorVisible = typedArray.getBoolean(R.styleable.vericationCodeView_vcv_et_cursor_visible, true);
 
-        isBisect = typedArray.hasValue(R.styleable.vericationCodeView_vcv_et_spacing);
-        if (isBisect) {
-            mEtSpacing = typedArray.getDimensionPixelSize(R.styleable.vericationCodeView_vcv_et_spacing, 0);
+            isBisect = typedArray.hasValue(R.styleable.vericationCodeView_vcv_et_spacing);
+            if (isBisect) {
+                mEtSpacing = typedArray.getDimensionPixelSize(R.styleable.vericationCodeView_vcv_et_spacing, 0);
+            }
+            initView();
+        }finally {
+            //释放资源
+            if (typedArray!=null){
+                typedArray.recycle();
+            }
         }
-        initView();
-        //释放资源
-        typedArray.recycle();
     }
 
     @SuppressLint("ResourceAsColor")
@@ -179,7 +108,6 @@ public class VerifyCodeView extends LinearLayout implements TextWatcher, View.On
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     private void initEditText(EditText editText, int i) {
         editText.setLayoutParams(getETLayoutParams(i));
         editText.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
@@ -196,7 +124,6 @@ public class VerifyCodeView extends LinearLayout implements TextWatcher, View.On
         editText.setPadding(0, 0, 0, 0);
         editText.setOnKeyListener(this);
         editText.setBackgroundResource(mEtTextBg);
-        setEditTextCursorDrawable(editText);
         editText.addTextChangedListener(this);
         editText.setOnKeyListener(this);
         editText.setOnFocusChangeListener(this);
@@ -209,7 +136,7 @@ public class VerifyCodeView extends LinearLayout implements TextWatcher, View.On
         LayoutParams layoutParams = new LayoutParams(mEtWidth, mEtWidth);
         if (!isBisect) {
             //平分Margin，把第一个EditText跟最后一个EditText的间距同设为平分
-            mEtBisectSpacing = (mViewWidth - mEtNumber * mEtWidth) / (mEtNumber + 1);
+            int mEtBisectSpacing = (mViewWidth - mEtNumber * mEtWidth) / (mEtNumber + 1);
             if (i == 0) {
                 layoutParams.leftMargin = mEtBisectSpacing;
                 layoutParams.rightMargin = mEtBisectSpacing / 2;
@@ -227,18 +154,6 @@ public class VerifyCodeView extends LinearLayout implements TextWatcher, View.On
 
         layoutParams.gravity = Gravity.CENTER;
         return layoutParams;
-    }
-
-    public void setEditTextCursorDrawable(EditText editText) {
-        //修改光标的颜色（反射）
-        if (cursorVisible) {
-            try {
-                Field f = TextView.class.getDeclaredField("mCursorDrawableRes");
-                f.setAccessible(true);
-                f.set(editText, mCursorDrawable);
-            } catch (Exception ignored) {
-            }
-        }
     }
 
     @Override
@@ -278,14 +193,6 @@ public class VerifyCodeView extends LinearLayout implements TextWatcher, View.On
         if (s.length() != 0) {
             focus();
         }
-        if (onCodeFinishListener != null) {
-            onCodeFinishListener.onTextChange(this, getResult());
-            //如果最后一个输入框有字符，则返回结果
-            EditText lastEditText = (EditText) getChildAt(mEtNumber - 1);
-            if (lastEditText.getText().length() > 0) {
-                onCodeFinishListener.onComplete(this, getResult());
-            }
-        }
     }
 
     @Override
@@ -315,11 +222,7 @@ public class VerifyCodeView extends LinearLayout implements TextWatcher, View.On
         for (int i = 0; i < count; i++) {
             editText = (EditText) getChildAt(i);
             if (editText.getText().length() < 1) {
-                if (cursorVisible) {
-                    editText.setCursorVisible(true);
-                } else {
-                    editText.setCursorVisible(false);
-                }
+                editText.setCursorVisible(cursorVisible);
                 editText.requestFocus();
                 return;
             } else {
@@ -338,11 +241,7 @@ public class VerifyCodeView extends LinearLayout implements TextWatcher, View.On
             editText = (EditText) getChildAt(i);
             if (editText.getText().length() >= 1) {
                 editText.setText("");
-                if (cursorVisible) {
-                    editText.setCursorVisible(true);
-                } else {
-                    editText.setCursorVisible(false);
-                }
+                editText.setCursorVisible(cursorVisible);
                 editText.requestFocus();
                 return;
             }
@@ -357,36 +256,5 @@ public class VerifyCodeView extends LinearLayout implements TextWatcher, View.On
             stringBuffer.append(editText.getText());
         }
         return stringBuffer.toString();
-    }
-
-    public interface OnCodeFinishListener {
-        /**
-         * 文本改变
-         */
-        void onTextChange(View view, String content);
-
-        /**
-         * 输入完成
-         */
-        void onComplete(View view, String content);
-    }
-
-    /**
-     * 清空验证码输入框
-     */
-    public void setEmpty() {
-        EditText editText;
-        for (int i = mEtNumber - 1; i >= 0; i--) {
-            editText = (EditText) getChildAt(i);
-            editText.setText("");
-            if (i == 0) {
-                if (cursorVisible) {
-                    editText.setCursorVisible(true);
-                } else {
-                    editText.setCursorVisible(false);
-                }
-                editText.requestFocus();
-            }
-        }
     }
 }

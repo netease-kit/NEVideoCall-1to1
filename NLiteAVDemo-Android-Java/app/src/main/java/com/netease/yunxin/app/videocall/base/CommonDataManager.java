@@ -1,6 +1,7 @@
 package com.netease.yunxin.app.videocall.base;
 
-import com.blankj.utilcode.util.SPUtils;
+
+import com.netease.yunxin.app.videocall.nertc.utils.SPUtils;
 
 public class CommonDataManager {
 
@@ -15,8 +16,6 @@ public class CommonDataManager {
     private static final String PER_IM_TOKEN = "per_im_token";
 
     private String token;
-
-    private String imToken;
 
     private CommonDataManager() {
     }
@@ -37,20 +36,7 @@ public class CommonDataManager {
         token = SPUtils.getInstance(PER_DATA).getString(PER_ACCESS_TOKEN, "");
     }
 
-    public String getIMToken() {
-        if (imToken == null) {
-            loadAccessToken();
-        }
-        return imToken;
-    }
-
     public void setIMToken(String imToken) {
-        this.imToken = imToken;
-        SPUtils.getInstance(PER_DATA).put(PER_IM_TOKEN, this.imToken);
+        SPUtils.getInstance(PER_DATA).put(PER_IM_TOKEN, imToken);
     }
-
-    private void loadIMToken() {
-        imToken = SPUtils.getInstance(PER_DATA).getString(PER_IM_TOKEN, "");
-    }
-
 }

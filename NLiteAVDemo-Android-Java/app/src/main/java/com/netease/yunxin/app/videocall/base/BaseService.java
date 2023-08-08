@@ -6,9 +6,6 @@ import android.util.Log;
 
 import com.netease.yunxin.app.videocall.BuildConfig;
 
-import java.io.IOException;
-
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -36,24 +33,17 @@ public class BaseService {
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 .addInterceptor(interceptor)
-                .addInterceptor(new Interceptor() {
-                    @Override
-                    public okhttp3.Response intercept(Chain chain) throws IOException {
-                        Request original = chain.request();
-
-                        // Request customization: add request headers
-
-                        Request.Builder requestBuilder = original.newBuilder();
-                        if (!TextUtils.isEmpty(CommonDataManager.getInstance().getAccessToken())) {
-                            requestBuilder.header("accessToken", CommonDataManager.getInstance().getAccessToken());
-                        }
-
-                        requestBuilder.addHeader("appkey", BuildConfig.APP_KEY);
-
-
-                        Request request = requestBuilder.build();
-                        return chain.proceed(request);
+                .addInterceptor(chain -> {
+                    Request original = chain.request();
+                    // Request customization: add request headers
+                    Request.Builder requestBuilder = original.newBuilder();
+                    if (!TextUtils.isEmpty(CommonDataManager.getInstance().getAccessToken())) {
+                        requestBuilder.header("accessToken", CommonDataManager.getInstance().getAccessToken());
                     }
+
+                    requestBuilder.addHeader("appkey", BuildConfig.APP_KEY);
+                    Request request = requestBuilder.build();
+                    return chain.proceed(request);
                 });
         mRetrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)

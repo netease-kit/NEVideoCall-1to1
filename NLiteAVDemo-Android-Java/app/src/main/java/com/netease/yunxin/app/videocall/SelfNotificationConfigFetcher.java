@@ -4,22 +4,22 @@ import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.uinfo.UserService;
 import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.nertc.nertcvideocall.bean.InvitedInfo;
+import com.netease.yunxin.kit.call.p2p.model.NEInviteInfo;
 import com.netease.yunxin.nertc.ui.CallKitNotificationConfig;
 
 import org.json.JSONObject;
 
 import kotlin.jvm.functions.Function1;
 
-class SelfNotificationConfigFetcher implements Function1<InvitedInfo, CallKitNotificationConfig> {
+class SelfNotificationConfigFetcher implements Function1<NEInviteInfo, CallKitNotificationConfig> {
     @Override
-    public CallKitNotificationConfig invoke(InvitedInfo invitedInfo) {
+    public CallKitNotificationConfig invoke(NEInviteInfo invitedInfo) {
         String name;
-        NimUserInfo userInfo = NIMClient.getService(UserService.class).getUserInfo(invitedInfo.invitor);
+        NimUserInfo userInfo = NIMClient.getService(UserService.class).getUserInfo(invitedInfo.callerAccId);
         if (userInfo != null) {
             name = userInfo.getName();
         } else {
-            String extraInfo = invitedInfo.attachment;
+            String extraInfo = invitedInfo.extraInfo;
             try {
                 JSONObject object = new JSONObject(extraInfo);
                 name = object.optString("userName");

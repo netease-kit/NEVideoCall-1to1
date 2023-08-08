@@ -43,9 +43,6 @@ public class CallServiceManager {
 
     /**
      * 根据手机号码精确搜索用户
-     *
-     * @param phoneNumber
-     * @param callBack
      */
     public void searchUserWithPhoneNumber(String phoneNumber, final BaseService.ResponseCallBack<UserModel> callBack) {
         if (searchUserCall != null && searchUserCall.isExecuted()) {

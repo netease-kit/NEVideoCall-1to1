@@ -1,2 +1,2 @@
-include ':app'
+include ':app', ':call-ui'
 rootProject.name = "NERTCScenesDemo"

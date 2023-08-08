@@ -1,0 +1,65 @@
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<resources>
+    <string name="tip_new_incoming_call">您有新的来电</string>
+    <string name="tip_notification_channel_name">音视频通话邀请通知</string>
+    <string name="tip_notification_channel_description">用于接收音视频通话邀请时提示。</string>
+    <string name="tip_notification_foreground_channel_name">通话中状态通知</string>
+    <string name="tip_notification_foreground_channel_description">用于通话中状态提示。</string>
+    <string name="tip_notification_foreground_content_info">通话进行中....</string>
+    <string name="tip_reject_by_other">对方已经拒绝</string>
+    <string name="tip_hangup_by_other">对方已经挂断</string>
+    <string name="tip_accept_by_other">对方已经接听</string>
+    <string name="tip_join_by_other">对方已经加入</string>
+    <string name="tip_busy_by_other">对方占线</string>
+    <string name="tip_cancel_by_other">对方取消</string>
+    <string name="tip_timeout_by_other">对方超时未响应</string>
+    <string name="tip_join_failed">加入通话失败</string>
+    <string name="tip_invite_was_sending">呼叫未成功发出</string>
+    <string name="tip_permission_request_failed">权限申请失败，暂无法使用！</string>
+    <string name="tip_dialog_finish_call_title">结束通话</string>
+    <string name="tip_dialog_finish_call_content">是否结束通话？</string>
+    <string name="tip_dialog_finish_call_positive">是</string>
+    <string name="tip_dialog_finish_call_negative">否</string>
+    <string name="tip_start_call_failed">呼叫发起失败</string>
+    <string name="tip_accept_failed">接听失败</string>
+    <string name="tip_network_error">网络异常，请稍后重试</string>
+    <string name="tip_switch_call_type_failed">切换失败</string>
+    <string name="tip_switch_to_video">切换到视频通话</string>
+    <string name="tip_switch_to_audio">切换到语音通话</string>
+    <string name="tip_invite_to_audio_call">邀请您语音通话…</string>
+    <string name="tip_invite_to_video_call">邀请您视频通话…</string>
+    <string name="tip_on_the_call">正在通话中…</string>
+    <string name="tip_call_was_finished">通话结束</string>
+    <string name="tip_other_client_other_accept">其他端已经接听</string>
+    <string name="tip_other_client_other_reject">其他端已经拒绝</string>
+
+    <string name="ui_dialog_permission_title">提示</string>
+    <string name="ui_dialog_permission_content">请确保已经授权相机摄像头以及麦克风权限，设置后重试。</string>
+    <string name="ui_dialog_switch_call_type_content_video">对方请求将音频转为视频，需要打开您的摄像头。</string>
+    <string name="ui_dialog_switch_call_type_content_audio">对方请求将视频转为音频，将直接关闭您的摄像头。</string>
+    <string name="ui_dialog_switch_call_type_positive">同意</string>
+    <string name="ui_dialog_switch_call_type_negative">拒绝</string>
+    <string name="ui_dialog_permission_positive">确定</string>
+    <string name="ui_switch_call_type_request_tip">正在等待对方响应…</string>
+    <string name="ui_switch_call_type_reject_tip">对方拒绝了您的请求</string>
+    <string name="ui_switch_to_audio">切换到语音通话</string>
+    <string name="ui_switch_to_video">切换到视频通话</string>
+    <string name="ui_accept">接听</string>
+    <string name="ui_reject">拒接</string>
+    <string name="ui_cancel">取消</string>
+    <string name="ui_microphone">麦克风</string>
+    <string name="ui_speaker">扬声器</string>
+    <string name="ui_tip_close_camera_by_other">对方关闭了摄像头</string>
+    <string name="ui_tip_close_camera_by_self">我方关闭了摄像头</string>
+    <string name="ui_tip_waiting_to_accept_for_audio">正在等待对方接受邀请…</string>
+    <string name="ui_tip_waiting_to_accept_for_video">等待对方接听…</string>
+    <string name="ui_tip_accepting">正在接通中…</string>
+    <string name="ui_group_call_title">视频通话</string>
+    <string name="tip_group_wait_to_accept">待接听</string>
+    <string name="user_join_group_call_with_user_count">还有%d人参与通话</string>
+</resources>
