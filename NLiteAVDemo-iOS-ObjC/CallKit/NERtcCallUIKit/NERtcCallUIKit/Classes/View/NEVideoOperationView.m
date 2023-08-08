@@ -16,7 +16,7 @@
 - (instancetype)initWithFrame:(CGRect)frame {
   self = [super initWithFrame:frame];
   if (self) {
-    self.bundle = [NSBundle bundleForClass:self.class];
+    self.bundle = [NSBundle bundleForClass:NEVideoOperationView.class];
     [self setupUI];
   }
   return self;

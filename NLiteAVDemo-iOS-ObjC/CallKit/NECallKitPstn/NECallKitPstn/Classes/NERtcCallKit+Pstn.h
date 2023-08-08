@@ -2,15 +2,17 @@
 // Use of this source code is governed by a MIT license that can be
 // found in the LICENSE file.
 
-#import <Foundation/Foundation.h>
+#import <NERtcCallKit/NERtcCallKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NetManager : NSObject
+@interface NERtcCallKit (Pstn)
 
-@property(nonatomic, assign) BOOL isClose;
+- (void)changeStatusIdle;
 
-+ (id)shareInstance;
+- (void)changeStatusCalling;
+
+- (void)changeStatusInCall;
 
 @end
 

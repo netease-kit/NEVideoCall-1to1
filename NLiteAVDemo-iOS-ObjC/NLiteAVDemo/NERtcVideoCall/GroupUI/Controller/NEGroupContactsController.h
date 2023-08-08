@@ -3,14 +3,14 @@
 // found in the LICENSE file.
 
 #import <UIKit/UIKit.h>
-#import "NEBaseViewController.h"
+#import "NECallBaseViewController.h"
 #import "NEUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 typedef void (^InviteCompletion)(NSArray<NEUser *> *users);
 
-@interface NEGroupContactsController : NEBaseViewController
+@interface NEGroupContactsController : NECallBaseViewController
 
 @property(nonatomic, assign) BOOL isInvite;
 

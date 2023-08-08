@@ -239,25 +239,6 @@
     self.channelNameField.text = [[SettingManager shareInstance] customChannelName];
   }
 
-  //  UILabel *rtcToken = [self createLabelWithText:@"自定义rtcToken"];
-  //  [self.view addSubview:rtcToken];
-  //  [rtcToken mas_makeConstraints:^(MASConstraintMaker *make) {
-  //    make.top.equalTo(channelName.mas_bottom).offset(space);
-  //    make.left.equalTo(timeoutLabel.mas_left);
-  //  }];
-  //
-  //  self.tokenField = [self createTextField];
-  //  [self.view addSubview:self.tokenField];
-  //  [self.tokenField mas_makeConstraints:^(MASConstraintMaker *make) {
-  //    make.left.equalTo(rtcToken.mas_right).offset(10);
-  //    make.centerY.equalTo(rtcToken);
-  //    make.right.mas_equalTo(-20);
-  //  }];
-
-  //  if ([[SettingManager shareInstance] customToken].length > 0) {
-  //    self.tokenField.text = [[SettingManager shareInstance] customToken];
-  //  }
-
   UILabel *rtcUid = [self createLabelWithText:@"自定义rtcUid"];
   [self.view addSubview:rtcUid];
   [rtcUid mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -401,19 +382,53 @@
     make.bottom.equalTo(self.view.mas_bottom).offset(-20);
     make.height.mas_equalTo(40);
   }];
+
+  UILabel *audioCallLabel = [[UILabel alloc] init];
+  [self.view addSubview:audioCallLabel];
+  [audioCallLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+    make.left.equalTo(self.view).offset(20);
+    make.top.equalTo(self.remotePhotoSettingBtn.mas_bottom).offset(20);
+  }];
+  audioCallLabel.textColor = timeoutLabel.textColor;
+  audioCallLabel.font = timeoutLabel.font;
+  audioCallLabel.text = @"是否为音频呼叫";
+
+  UISwitch *audioCall = [[UISwitch alloc] init];
+  audioCall.on = [self isAudioCall];
+  [self.view addSubview:audioCall];
+  [audioCall addTarget:self
+                action:@selector(audioSwitch:)
+      forControlEvents:UIControlEventValueChanged];
+
+  [audioCall mas_makeConstraints:^(MASConstraintMaker *make) {
+    make.centerY.equalTo(audioCallLabel);
+    make.right.equalTo(self.view).offset(-20);
+  }];
+}
+
+- (void)audioSwitch:(UISwitch *)on {
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+  [defaults setValue:[NSNumber numberWithBool:on.isOn] forKey:@"audio_call"];
+  [defaults synchronize];
+}
+
+- (BOOL)isAudioCall {
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+  NSNumber *number = [defaults objectForKey:@"audio_call"];
+  return number.boolValue;
 }
 
 - (void)saveSetting {
   NSString *time = self.timeoutField.text;
   if (time.length <= 0) {
     [self.timeoutField resignFirstResponder];
-    [self.view makeToast:@"请输入超时时间"];
+    [self.view ne_makeToast:@"请输入超时时间"];
     return;
   }
   NSInteger timeInt = [time integerValue];
   if (timeInt > 120) {
     [self.timeoutField resignFirstResponder];
-    [self.view makeToast:@"超时时间不能超过120秒"];
+    [self.view ne_makeToast:@"超时时间不能超过120秒"];
     return;
   }
   [[SettingManager shareInstance] setTimeoutWithSecond:[time integerValue]];
@@ -448,7 +463,7 @@
   }
 
   [self.navigationController popViewControllerAnimated:YES];
-  [[UIApplication sharedApplication].keyWindow makeToast:@"保存成功"];
+  [[UIApplication sharedApplication].keyWindow ne_makeToast:@"保存成功"];
 }
 
 - (void)hideKeyboard {
@@ -512,10 +527,17 @@
 #pragma mark - value action
 
 - (void)changeInitRtc:(UISwitch *)uiswitch {
-  //[[SettingManager shareInstance] setIsGlobalInit:uiswitch.isOn];
   [[SettingManager shareInstance] setIsGlobalInit:uiswitch.isOn
                                       withApnsCer:kAPNSCerName
                                        withAppkey:kAppKey];
+
+  if (uiswitch.isOn == YES) {
+    [NERtcEngine destroyEngine];
+  } else {
+    NESetupConfig *setupConfig = [[NESetupConfig alloc] initWithAppkey:kAppKey];
+    [[NECallEngine sharedInstance] setup:setupConfig];
+    [[NECallEngine sharedInstance] setTimeout:30];
+  }
 }
 
 - (void)changeJoinRtc:(UISwitch *)uiswitch {
@@ -547,16 +569,16 @@
 
 - (void)uploadRtcLog {
   [[NERtcEngine sharedEngine] uploadSdkInfo];
-  [UIApplication.sharedApplication.keyWindow makeToast:@"Rtc日志已上传"];
+  [UIApplication.sharedApplication.keyWindow ne_makeToast:@"Rtc日志已上传"];
 }
 
 - (void)uploadIMLog {
   [[NIMSDK sharedSDK] uploadLogs:^(NSError *_Nonnull error, NSString *_Nonnull path) {
     if (error == nil) {
-      [UIApplication.sharedApplication.keyWindow makeToast:@"IM日志已上传"];
+      [UIApplication.sharedApplication.keyWindow ne_makeToast:@"IM日志已上传"];
     } else {
       [UIApplication.sharedApplication.keyWindow
-          makeToast:[NSString stringWithFormat:@"日志上传错误:%@", error.localizedDescription]];
+          ne_makeToast:[NSString stringWithFormat:@"日志上传错误:%@", error.localizedDescription]];
     }
   }];
 }
@@ -774,10 +796,10 @@
   UIImage *image = [info valueForKey:UIImagePickerControllerEditedImage];
   if (self.isPickLocalDefautImage == YES) {
     [[SettingManager shareInstance] setMuteDefaultImage:image];
-    [UIApplication.sharedApplication.keyWindow makeToast:@"本地缺省图片已设置"];
+    [UIApplication.sharedApplication.keyWindow ne_makeToast:@"本地缺省图片已设置"];
   } else {
     [[SettingManager shareInstance] setRemoteDefaultImage:image];
-    [UIApplication.sharedApplication.keyWindow makeToast:@"远端缺省图片已设置"];
+    [UIApplication.sharedApplication.keyWindow ne_makeToast:@"远端缺省图片已设置"];
   }
 }
 

@@ -3,7 +3,12 @@
 // found in the LICENSE file.
 
 #import "NEPSTNViewController.h"
+#import <NERtcCallUIKit/NECustomButton.h>
 #import "NERtcCallKit+Demo.h"
+#import <NERtcCallUIKit/NEVideoOperationView.h>
+#import <NERtcCallUIKit/NEVideoView.h>
+#import <NERtcCallUIKit/NetManager.h>
+#import "SettingManager.h"
 
 @interface NEPSTNViewController () <NERtcLinkEngineDelegate, NECallKitPstnDelegate>
 @property(strong, nonatomic) NEVideoView *smallVideoView;
@@ -163,7 +168,7 @@
              } else {
                [weakSelf onCallEnd];
              }
-             [UIApplication.sharedApplication.keyWindow makeToast:error.localizedDescription];
+             [UIApplication.sharedApplication.keyWindow ne_makeToast:error.localizedDescription];
            }
          }];
     /*
@@ -190,7 +195,7 @@
      }else {
      [weakSelf onCallEnd];
      }
-     [UIApplication.sharedApplication.keyWindow makeToast:error.localizedDescription];
+     [UIApplication.sharedApplication.keyWindow ne_makeToast:error.localizedDescription];
      }
      }];*/
   }
@@ -330,10 +335,11 @@
   }];
   [self.speakerBtn setHidden:YES];
 
+  /*
   [[self.mediaSwitchBtn.maskBtn rac_signalForControlEvents:UIControlEventTouchUpInside]
       subscribeNext:^(__kindof UIControl *_Nullable x) {
         if ([[NetManager shareInstance] isClose] == YES) {
-          [weakSelf.view makeToast:@"网络连接异常，请稍后再试"];
+          [weakSelf.view ne_makeToast:@"网络连接异常，请稍后再试"];
           return;
         }
         weakSelf.mediaSwitchBtn.maskBtn.enabled = NO;
@@ -353,19 +359,12 @@
                                [SettingManager.shareInstance isAudioConfirm]) {
                       [weakSelf showBannerView];
                     }
-                    /*
-                     if (weakSelf.mediaSwitchBtn.tag == NERtcCallTypeVideo) {
-                     [weakSelf setSwitchAudioStyle];
-                     [weakSelf.operationView changeVideoStyle];
-                     } else {
-                     [weakSelf setSwitchVideoStyle];
-                     [weakSelf.operationView changeAudioStyle];
-                     } */
                   } else {
-                    [weakSelf.view makeToast:[NSString stringWithFormat:@"切换失败:%@", error]];
+                    [weakSelf.view ne_makeToast:[NSString stringWithFormat:@"切换失败:%@", error]];
                   }
                 }];
       }];
+     */
 
   [self.view addSubview:self.timerLabel];
   [self.timerLabel mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -632,7 +631,7 @@
     [[NECallKitPstn sharedInstance] hangupWithCompletion:^(NSError *_Nullable error) {
       button.enabled = YES;
       if (error) {
-        [UIApplication.sharedApplication.keyWindow makeToast:error.localizedDescription];
+        [UIApplication.sharedApplication.keyWindow ne_makeToast:error.localizedDescription];
       } else {
         weakSelf.statusModel.status = NIMRtcCallStatusCanceled;
         [weakSelf destroy];
@@ -682,7 +681,7 @@
          if (error) {
            //           NSLog(@"accept error : %@", error);
            [UIApplication.sharedApplication.keyWindow
-               makeToast:[NSString stringWithFormat:@"接听失败%@", error.localizedDescription]];
+               ne_makeToast:[NSString stringWithFormat:@"接听失败%@", error.localizedDescription]];
            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)),
                           dispatch_get_main_queue(), ^{
                             weakSelf.statusModel.status = NIMRtcCallStatusTimeout;
@@ -710,9 +709,9 @@
    if (error) {
    NSLog(@"accept error : %@", error);
    if (error.code == 21000 || error.code == 21001) {
-   [UIApplication.sharedApplication.keyWindow makeToast:[NSString
+   [UIApplication.sharedApplication.keyWindow ne_makeToast:[NSString
    stringWithFormat:@"接听失败%@", error.localizedDescription]]; }else {
-   [UIApplication.sharedApplication.keyWindow makeToast:@"接听失败"];
+   [UIApplication.sharedApplication.keyWindow ne_makeToast:@"接听失败"];
    }
    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)),
    dispatch_get_main_queue(), ^{ weakSelf.statusModel.status = NIMRtcCallStatusTimeout; [weakSelf
@@ -779,7 +778,7 @@
     button.selected = self.speakerBtn.imageView.highlighted;
     _operationView.speakerBtn.selected = !self.speakerBtn.imageView.highlighted;
   } else {
-    [self.view makeToast:error.description];
+    [self.view ne_makeToast:error.description];
   }
 }
 - (void)switchVideoView:(UITapGestureRecognizer *)tap {
@@ -809,7 +808,7 @@
 
 - (void)operationSwitchClick:(UIButton *)btn {
   if ([[NetManager shareInstance] isClose] == YES) {
-    [self.view makeToast:@"网络连接异常，请稍后再试"];
+    [self.view ne_makeToast:@"网络连接异常，请稍后再试"];
     return;
   }
   __weak typeof(self) weakSelf = self;
@@ -832,7 +831,7 @@
                 [weakSelf showBannerView];
               }
             } else {
-              [weakSelf.view makeToast:[NSString stringWithFormat:@"切换失败:%@", error]];
+              [weakSelf.view ne_makeToast:[NSString stringWithFormat:@"切换失败:%@", error]];
             }
           }];
 }
@@ -845,7 +844,7 @@
   if (error == nil) {
     btn.selected = !btn.selected;
   } else {
-    [self.view makeToast:error.description];
+    [self.view ne_makeToast:error.description];
   }
 }
 
@@ -853,13 +852,13 @@
 
 - (void)pstnWillStart {
   self.isPstn = YES;
-  [[UIApplication sharedApplication].keyWindow makeToast:@"超时未响应"];
+  [[UIApplication sharedApplication].keyWindow ne_makeToast:@"超时未响应"];
   //    self.cancelBtn.enabled = NO;
 }
 
 - (void)pstnOnError:(NSError *)error {
   NSLog(@"pstnOnError on error : %@", error);
-  [[UIApplication sharedApplication].keyWindow makeToast:error.localizedDescription];
+  [[UIApplication sharedApplication].keyWindow ne_makeToast:error.localizedDescription];
 }
 
 - (void)pstnDidStart {
@@ -886,7 +885,7 @@
                                error:(NSError *)error
                    isCallEstablished:(BOOL)isCallEstablished {
   if (reason == 102) {
-    [[UIApplication sharedApplication].keyWindow makeToast:@"超时未响应"];
+    [[UIApplication sharedApplication].keyWindow ne_makeToast:@"超时未响应"];
   }
 }
 
@@ -930,7 +929,7 @@
   self.statusModel.status = NIMRtcCallStatusCanceled;
   [[NERtcCallKit sharedInstance] hangup:^(NSError *_Nullable error){
   }];
-  [UIApplication.sharedApplication.keyWindow makeToast:@"对方取消"];
+  [UIApplication.sharedApplication.keyWindow ne_makeToast:@"对方取消"];
   [self destroy];
 }
 - (void)onCameraAvailable:(BOOL)available userID:(NSString *)userID {
@@ -956,7 +955,7 @@
     [self destroy];
     return;
   }
-  [UIApplication.sharedApplication.keyWindow makeToast:@"对方超时未响应"];
+  [UIApplication.sharedApplication.keyWindow ne_makeToast:@"对方超时未响应"];
   self.statusModel.status = NIMRtcCallStatusTimeout;
   [self destroy];
   //    [[NERtcCallKit sharedInstance] cancel:^(NSError * _Nullable error) {
@@ -967,7 +966,7 @@
   //    }];
 }
 - (void)onUserBusy:(NSString *)userID {
-  [UIApplication.sharedApplication.keyWindow makeToast:@"对方占线"];
+  [UIApplication.sharedApplication.keyWindow ne_makeToast:@"对方占线"];
   self.statusModel.status = NIMRtcCallStatusBusy;
   [self destroy];
 }
@@ -976,19 +975,19 @@
   [self destroy];
 }
 - (void)onUserReject:(NSString *)userID {
-  [UIApplication.sharedApplication.keyWindow makeToast:@"对方已经拒绝"];
+  [UIApplication.sharedApplication.keyWindow ne_makeToast:@"对方已经拒绝"];
   self.statusModel.status = NIMRtcCallStatusRejected;
   [self destroy];
 }
 
 - (void)onOtherClientAccept {
-  [UIApplication.sharedApplication.keyWindow makeToast:@"已被其他端接受"];
+  [UIApplication.sharedApplication.keyWindow ne_makeToast:@"已被其他端接受"];
   self.statusModel.status = NIMRtcCallStatusComplete;
   [self destroy];
 }
 
 - (void)onOtherClientReject {
-  [UIApplication.sharedApplication.keyWindow makeToast:@"已被其他端拒绝"];
+  [UIApplication.sharedApplication.keyWindow ne_makeToast:@"已被其他端拒绝"];
   self.statusModel.status = NIMRtcCallStatusRejected;
   [self destroy];
 }
@@ -1022,7 +1021,7 @@
                                            completion:^(NSError *_Nullable error) {
                                              if (error) {
                                                [UIApplication.sharedApplication.keyWindow
-                                                   makeToast:error.localizedDescription];
+                                                   ne_makeToast:error.localizedDescription];
                                              }
                                            }];
                                  }];
@@ -1038,7 +1037,7 @@
                                              [weakSelf onCallTypeChange:callType];
                                              if (error) {
                                                [UIApplication.sharedApplication.keyWindow
-                                                   makeToast:error.localizedDescription];
+                                                   ne_makeToast:error.localizedDescription];
                                              }
                                            }];
                                  }];
@@ -1054,7 +1053,7 @@
     break;
     case NERtcSwitchStateReject:
       [self hideBannerView];
-      [UIApplication.sharedApplication.keyWindow makeToast:NSLocalizedString(@"reject_tip", nil)];
+      [UIApplication.sharedApplication.keyWindow ne_makeToast:NSLocalizedString(@"reject_tip", nil)];
       break;
     default:
       break;
@@ -1234,10 +1233,10 @@
     [closeBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [closeBtn setTitle:@"X" forState:UIControlStateNormal];
     __weak typeof(self) weakSelf = self;
-    [[closeBtn rac_signalForControlEvents:UIControlEventTouchUpInside]
-        subscribeNext:^(__kindof UIControl *_Nullable x) {
-          [weakSelf hideBannerView];
-        }];
+//    [[closeBtn rac_signalForControlEvents:UIControlEventTouchUpInside]
+//        subscribeNext:^(__kindof UIControl *_Nullable x) {
+//          [weakSelf hideBannerView];
+//        }];
     [closeBtn mas_makeConstraints:^(MASConstraintMaker *make) {
       make.top.bottom.right.equalTo(_bannerView);
       make.width.mas_equalTo(40);

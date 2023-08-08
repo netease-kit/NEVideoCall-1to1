@@ -3,10 +3,12 @@
 // found in the LICENSE file.
 
 #import "NEGroupCallViewController.h"
+#import <NERtcCallUIKit/NECustomButton.h>
 #import "NEGroupCalledViewController.h"
 #import "NEGroupContactsController.h"
 #import "NEGroupInCallViewController.h"
 #import "NEGroupUserController.h"
+#import <NERtcCallUIKit/NEVideoOperationView.h>
 
 @interface NEGroupCallViewController () <NEGroupCalledDelegate, NEGroupCallKitDelegate>
 
@@ -99,7 +101,7 @@
          groupCall:param
         completion:^(NSError *_Nullable error, GroupCallResult *_Nullable result) {
           if (error != nil) {
-            [UIApplication.sharedApplication.keyWindow makeToast:error.localizedDescription];
+            [UIApplication.sharedApplication.keyWindow ne_makeToast:error.localizedDescription];
             [self didBack];
             return;
           }
@@ -251,7 +253,7 @@
       groupAccept:param
        completion:^(NSError *_Nullable error, GroupAcceptResult *_Nullable result) {
          if (error != nil) {
-           [UIApplication.sharedApplication.keyWindow makeToast:error.localizedDescription];
+           [UIApplication.sharedApplication.keyWindow ne_makeToast:error.localizedDescription];
            [weakSelf didBack];
            return;
          }
@@ -274,7 +276,7 @@
       groupHangup:param
        completion:^(NSError *_Nullable error, GroupHangupResult *_Nullable result) {
          if (error != nil) {
-           [[UIApplication sharedApplication].keyWindow makeToast:error.localizedDescription];
+           [[UIApplication sharedApplication].keyWindow ne_makeToast:error.localizedDescription];
            return;
          }
        }];
@@ -364,7 +366,7 @@ navigation
          completion:^(NSError *_Nullable error, GroupInviteResult *_Nullable result) {
            NSLog(@"groupInvite : %@", error);
            if (error != nil) {
-             [UIApplication.sharedApplication.keyWindow makeToast:error.localizedDescription];
+             [UIApplication.sharedApplication.keyWindow ne_makeToast:error.localizedDescription];
              return;
            }
          }];
@@ -437,7 +439,7 @@ navigation
 - (void)onGroupHangupWithReason:(NSString *)reason {
   NSLog(@"Group controller onGroupHangupWithReason %@", reason);
   if ([reason isEqualToString:kReasonPeerAccept]) {
-    [UIApplication.sharedApplication.keyWindow makeToast:@"其他端已接听"];
+    [UIApplication.sharedApplication.keyWindow ne_makeToast:@"其他端已接听"];
   }
   [self didBack];
 }

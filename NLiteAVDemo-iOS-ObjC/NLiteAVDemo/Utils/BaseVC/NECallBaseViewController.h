@@ -2,15 +2,11 @@
 // Use of this source code is governed by a MIT license that can be
 // found in the LICENSE file.
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface LocalServerManager : NSObject
-
-+ (id)shareInstance;
-
-- (void)startServer;
+@interface NECallBaseViewController : UIViewController
 
 @end
 

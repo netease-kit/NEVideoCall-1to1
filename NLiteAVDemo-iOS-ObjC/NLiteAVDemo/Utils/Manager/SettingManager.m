@@ -3,9 +3,7 @@
 // found in the LICENSE file.
 
 #import "SettingManager.h"
-// #import "AppKey.h"
-#import "NERtcCallKit+Demo.h"
-
+#import <NERtcCallKit/NERtcCallKit.h>
 NSString *const kYXOTOTimeOut = @"kYXOTOTimeOut";
 
 NSString *const kShowCName = @"kShowCName";
@@ -42,21 +40,21 @@ NSString *const kShowCName = @"kShowCName";
 }
 
 - (void)setCallKitUid:(uint64_t)uid {
-  [[NERtcCallKit sharedInstance] setValue:[NSNumber numberWithUnsignedLongLong:uid]
+  [[NECallEngine sharedInstance] setValue:[NSNumber numberWithUnsignedLongLong:uid]
                                forKeyPath:@"context.currentUserUid"];
 
-  if ([[NERtcCallKit sharedInstance] respondsToSelector:@selector(changeStatusIdle)]) {
-    [[NERtcCallKit sharedInstance] changeStatusIdle];
-  }
+  //  if ([[NECallEngine sharedInstance] respondsToSelector:@selector(changeStatusIdle)]) {
+  //    [[NECallEngine sharedInstance] changeStatusIdle];
+  //  }
 }
 
 - (uint64_t)getCallKitUid {
-  return [[[NERtcCallKit sharedInstance] valueForKeyPath:@"context.currentUserUid"]
+  return [[[NECallEngine sharedInstance] valueForKeyPath:@"context.currentUserUid"]
       unsignedLongLongValue];
 }
 
 - (void)setAutoJoin:(BOOL)autoJoin {
-  [[NERtcCallKit sharedInstance] setValue:[NSNumber numberWithBool:autoJoin]
+  [[NECallEngine sharedInstance] setValue:[NSNumber numberWithBool:autoJoin]
                                forKeyPath:@"context.supportAutoJoinWhenCalled"];
   self.supportAutoJoinWhenCalled = autoJoin;
 }
@@ -69,7 +67,7 @@ NSString *const kShowCName = @"kShowCName";
   self = [super init];
   if (self) {
     self.isGroupPush = YES;
-    self.supportAutoJoinWhenCalled = [[[NERtcCallKit sharedInstance]
+    self.supportAutoJoinWhenCalled = [[[NECallEngine sharedInstance]
         valueForKeyPath:@"context.supportAutoJoinWhenCalled"] boolValue];
     self.rejectBusyCode = NO;
     NSUserDefaults *userDefault = [NSUserDefaults standardUserDefaults];
@@ -83,73 +81,56 @@ NSString *const kShowCName = @"kShowCName";
 }
 
 - (void)setTimeoutWithSecond:(NSInteger)second {
-  // self.timeout = second;
-  /*
-  NSNumber *secondNum = [NSNumber numberWithInteger:second];
-  NSUserDefaults *userDefault = [NSUserDefaults standardUserDefaults];
-  [userDefault setValue:secondNum forKey:kYXOTOTimeOut];
-  [userDefault synchronize];
-   */
-  [[NERtcCallKit sharedInstance] setTimeOutSeconds:second];
+  [[NECallEngine sharedInstance] setTimeOutSeconds:second];
 }
 
 - (NSInteger)timeout {
-  return [[NERtcCallKit sharedInstance] timeOutSeconds];
+  return [[NECallEngine sharedInstance] timeOutSeconds];
 }
 
 - (BOOL)isGlobalInit {
-  // globalInit
-  return ![[[NERtcCallKit sharedInstance] valueForKeyPath:@"context.globalInit"] boolValue];
+  return !([[[NECallEngine sharedInstance] valueForKeyPath:@"context.initRtcMode"] intValue] == 1);
 }
 
 - (void)setIsGlobalInit:(BOOL)isGlobalInit
             withApnsCer:(NSString *)apnsCer
              withAppkey:(NSString *)appkey {
-  [[NERtcCallKit sharedInstance] setValue:[NSNumber numberWithBool:!isGlobalInit]
-                               forKeyPath:@"context.globalInit"];
+  NSNumber *number = [NSNumber numberWithInteger:2];
   if (isGlobalInit == NO) {
-    NERtcCallOptions *option = [NERtcCallOptions new];
-    option.APNSCerName = apnsCer;
-    option.disableRecord = NO;
-    option.joinRtcWhenCall = [self isJoinRtcWhenCall];
-    option.globalInit = YES;
-    NERtcCallKit *callkit = [NERtcCallKit sharedInstance];
-    option.supportAutoJoinWhenCalled = self.supportAutoJoinWhenCalled;
-    [callkit setupAppKey:appkey options:option];
-  } else {
-    [NERtcEngine destroyEngine];
+    number = [NSNumber numberWithInteger:1];
   }
+  [[NECallEngine sharedInstance] setValue:number forKeyPath:@"context.initRtcMode"];
 }
 
 - (BOOL)isJoinRtcWhenCall {
-  return [[[NERtcCallKit sharedInstance] valueForKeyPath:@"context.joinRtcWhenCall"] boolValue];
+  return [[[NECallEngine sharedInstance] valueForKeyPath:@"context.joinRtcWhenCall"] boolValue];
 }
 
 - (void)setIsJoinRtcWhenCall:(BOOL)isJoinRtcWhenCall {
-  [[NERtcCallKit sharedInstance] setValue:[NSNumber numberWithBool:isJoinRtcWhenCall]
+  [[NECallEngine sharedInstance] setValue:[NSNumber numberWithBool:isJoinRtcWhenCall]
                                forKeyPath:@"context.joinRtcWhenCall"];
 }
 
 - (BOOL)isAudioConfirm {
-  return [[[NERtcCallKit sharedInstance] valueForKeyPath:@"context.confirmAudio"] boolValue];
+  return [[[NECallEngine sharedInstance] valueForKeyPath:@"context.confirmAudio"] boolValue];
 }
 
 - (void)setIsAudioConfirm:(BOOL)isAudioConfirm {
-  [[NERtcCallKit sharedInstance] setValue:[NSNumber numberWithBool:isAudioConfirm]
+  [[NECallEngine sharedInstance] setValue:[NSNumber numberWithBool:isAudioConfirm]
                                forKeyPath:@"context.confirmAudio"];
 }
 
 - (BOOL)isVideoConfirm {
-  return [[[NERtcCallKit sharedInstance] valueForKeyPath:@"context.confirmVideo"] boolValue];
+  return [[[NECallEngine sharedInstance] valueForKeyPath:@"context.confirmVideo"] boolValue];
 }
 
 - (void)setIsVideoConfirm:(BOOL)isVideoConfirm {
-  [[NERtcCallKit sharedInstance] setValue:[NSNumber numberWithBool:isVideoConfirm]
+  [[NECallEngine sharedInstance] setValue:[NSNumber numberWithBool:isVideoConfirm]
                                forKeyPath:@"context.confirmVideo"];
 }
 
 - (NSString *)getRtcCName {
-  return [[NERtcCallKit sharedInstance] valueForKeyPath:@"context.channelInfo.channelName"];
+  return [[NECallEngine sharedInstance] valueForKeyPath:@"context.channelInfo.channelName"];
 }
 
 - (void)setShowCName:(BOOL)show {

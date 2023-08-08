@@ -199,18 +199,18 @@
                           self.options.failedBlock();
                         }
                         NSString *msg = data[@"msg"] ?: @"请求错误";
-                        [self.view makeToast:msg];
+                        [self.view ne_makeToast:msg];
                       } else {
                         if (self.options.successBlock) {
                           self.options.successBlock();
                         }
                         [[NENavigator shared] closeLoginWithCompletion:nil];
-                        [self.view makeToast:@"登录成功"];
+                        [self.view ne_makeToast:@"登录成功"];
                       }
                     }];
   } else {
     ntes_main_async_safe(^{
-      [self.view makeToast:@"参数不合法"];
+      [self.view ne_makeToast:@"参数不合法"];
     });
   }
 }
@@ -239,10 +239,10 @@
                      ntes_main_async_safe(^{
                        if (error) {
                          NSString *msg = [error localizedDescription] ?: @"请求错误";
-                         [self.view makeToast:msg];
+                         [self.view ne_makeToast:msg];
                        } else {
                          [self.countDownBtn startCount];
-                         [self.view makeToast:@"验证码已发送,请注意查收"];
+                         [self.view ne_makeToast:@"验证码已发送,请注意查收"];
                        }
                      });
                    }];

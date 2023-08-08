@@ -10,27 +10,48 @@ NS_ASSUME_NONNULL_BEGIN
 @interface NEUICallParam : NSObject
 
 #pragma mark - 必要参数
+
 // 被叫accid
 @property(nonatomic, strong) NSString *remoteUserAccid;
+
 // 主叫accid
 @property(nonatomic, strong) NSString *currentUserAccid;
+
 // 通话页面被叫显示名称
 @property(nonatomic, strong) NSString *remoteShowName;
+
 // 被叫头像链接
 @property(nonatomic, strong) NSString *remoteAvatar;
+
 // 呼叫类型
-@property(assign, nonatomic) NERtcCallType callType;
+@property(assign, nonatomic) NECallType callType;
+
+// 是否是主叫 YES 表示主叫
+@property(nonatomic, assign) BOOL isCaller;
 
 #pragma mark - 可选自定义参数
-@property(nonatomic, strong) NSString *token;
+
+/// 推送自定义配置
+@property(nonatomic, strong, nullable) NECallPushConfig *pushConfig;
+
+/// 全局抄送
 @property(nonatomic, strong) NSString *extra;
+
+/// 自定义channel name
 @property(nonatomic, strong) NSString *channelName;
+
+/// 呼叫扩展参数
 @property(nonatomic, strong) NSString *attachment;
 
-// 本端关闭头像默认显示头像
+// 自定义参数扩展
+@property(nonatomic, strong) id customObject;
+
+#pragma mark - UI配置参数
+
+/// 本端关闭头像默认显示头像
 @property(nonatomic, strong) UIImage *muteDefaultImage;
 
-// 远端关闭视频默认显示头像
+/// 远端关闭视频默认显示头像
 @property(nonatomic, strong) UIImage *remoteDefaultImage;
 
 /// 是否禁止音频通话转视频通话，默认YES，支持转换
@@ -38,6 +59,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 是否禁止音频通话转视频通话，默认YES，支持转换
 @property(nonatomic, assign) BOOL enableVideoToAudio;
+
+/// 默认NO，关闭视频画面的时候使用 muteLocalVideo ，设置为YES时候，UI组件关闭视频时调用
+/// enableLocalVideo 设置NO来停止本端视频流
+@property(nonatomic, assign) BOOL useEnableLocalMute;
+
+/// 是否开启内部话单弹框话单toast
+@property(nonatomic, assign) BOOL enableShowRecorderToast;
 
 @end
 

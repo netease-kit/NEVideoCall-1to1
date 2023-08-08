@@ -4,21 +4,22 @@
 
 #import "NECallViewController.h"
 #import <NECommonKit/NECommonKit-Swift.h>
+#import <NECommonUIKit/UIView+YXToast.h>
+#import <NECoreKit/YXModel.h>
 #import <SDWebImage/SDWebImage.h>
-#import <Toast/Toast.h>
+#include <mach/mach_time.h>
 #import "NECallUIStateController.h"
 #import "NECustomButton.h"
 #import "NEExpandButton.h"
 #import "NERtcCallUIKit.h"
 #import "NEVideoOperationView.h"
 #import "NetManager.h"
-#import "SettingManager.h"
 
 NSString *const kCallKitDismissNoti = @"kCallKitDismissNoti";
 
 NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
 
-@interface NECallViewController () <NERtcLinkEngineDelegate, NERecordProvider>
+@interface NECallViewController () <NERtcLinkEngineDelegate>
 
 @property(nonatomic, strong) UIButton *switchCameraBtn;
 
@@ -33,8 +34,6 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
 @property(strong, nonatomic) UIToolbar *toolBar;
 
 @property(assign, nonatomic) int timerCount;
-
-@property(nonatomic, assign) BOOL isPstn;  // 当前呼叫是否已进入pstn流程，默认 NO
 
 @property(nonatomic, strong) UIView *bannerView;
 
@@ -59,6 +58,12 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
 
 @property(nonatomic, strong) NSBundle *bundle;
 
+/// 上次点击时间
+@property(nonatomic, assign) double lastClickTime;
+
+/// 点击限制间隔时间
+@property(nonatomic, assign) double clickDuration;
+
 @end
 
 @implementation NECallViewController
@@ -68,28 +73,35 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
   if (self) {
     self.timerCount = 0;
     self.factor = 1.0;
-    self.bundle = [NSBundle bundleForClass:self.class];
+    self.bundle = [NSBundle bundleForClass:NECallViewController.class];
+    self.clickDuration = 500;
   }
   return self;
-}
-
-- (void)onRecordSend:(NERecordConfig *)config {
 }
 
 - (void)viewDidLoad {
   [super viewDidLoad];
   [[NSNotificationCenter defaultCenter] postNotificationName:kCallKitShowNoti object:nil];
   [[NERtcEngine sharedEngine] setParameters:@{kNERtcKeyVideoStartWithBackCamera : @NO}];
-  if (self.callType == NERtcCallTypeVideo) {
-    self.remoteCameraAvailable = YES;
-  }
+  [self setupCommon];
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+  [super viewDidDisappear:animated];
+  [[NECallEngine sharedInstance] setupLocalView:nil];
+}
+
+#pragma mark - SDK
+
+- (void)setupCommon {
   [self setupUI];
   [self setupSDK];
   [self updateUIonStatus:self.status];
-  if (self.isCaller == NO && [NERtcCallKit sharedInstance].callStatus == NERtcCallStatusIdle) {
+  if (self.callParam.isCaller == NO &&
+      [NECallEngine sharedInstance].callStatus == NERtcCallStatusIdle) {
     __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-      [weakSelf onCallEnd];
+      [weakSelf destroy];
     });
   }
 
@@ -102,60 +114,50 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
   ]];
 }
 
-- (void)viewDidDisappear:(BOOL)animated {
-  [super viewDidDisappear:animated];
-  [[NERtcCallKit sharedInstance] setupLocalView:nil];
-}
-
-#pragma mark - SDK
 - (void)setupSDK {
-  [[NERtcCallKit sharedInstance] addDelegate:self];
-  [[NERtcCallKit sharedInstance] enableLocalVideo:YES];
+  [[NECallEngine sharedInstance] addCallDelegate:self];
+  [[NECallEngine sharedInstance] enableLocalVideo:YES];
 
   __weak typeof(self) weakSelf = self;
   if (self.status == NERtcCallStatusCalling) {
-    [[NERtcCallKit sharedInstance]
-               call:self.callParam.remoteUserAccid
-               type:self.callType ? self.callType : NERtcCallTypeVideo
-         attachment:self.callParam.attachment
-        globalExtra:self.callParam.extra
-          withToken:self.callParam.token
-        channelName:self.callParam.channelName
-         completion:^(NSError *_Nullable error) {
-           NSLog(@"call error code : %@", error);
-           __strong typeof(self) strongSelf = weakSelf;
-           if (strongSelf.callType == NERtcCallTypeVideo) {
-             if ([[SettingManager shareInstance] isGlobalInit] == YES) {
-               __weak typeof(self) weakSelf2 = strongSelf;
-               dispatch_async(dispatch_get_main_queue(), ^{
-                 __strong typeof(self) strongSelf2 = weakSelf2;
-                 [[NERtcCallKit sharedInstance]
-                     setupLocalView:strongSelf2.videoCallingController.bigVideoView.videoView];
-               });
-             }
-             strongSelf.videoCallingController.bigVideoView.userID =
-                 strongSelf.callParam.currentUserAccid;
-           }
+    NECallParam *param = [[NECallParam alloc] initWithAccId:self.callParam.remoteUserAccid
+                                               withCallType:self.callParam.callType];
+    param.globalExtraCopy = self.callParam.extra;
+    param.rtcChannelName = self.callParam.channelName;
+    param.extraInfo = self.callParam.attachment;
+    param.pushConfig = self.callParam.pushConfig;
 
-           if (error) {
-             /// 对方离线时 通过APNS推送 UI不弹框提示
-             if (error.code == 10202 || error.code == 10201) {
-               return;
-             } else {
-               [strongSelf onCallEnd];
-             }
-             [UIApplication.sharedApplication.keyWindow makeToast:error.localizedDescription];
-           }
-         }];
+    [[NECallEngine sharedInstance]
+              call:param
+        completion:^(NSError *_Nullable error, NECallInfo *_Nullable callInfo) {
+          NSLog(@"callkit call callback ne call info : %@", [callInfo yx_modelToJSONString]);
+          if (weakSelf.callParam.callType == NERtcCallTypeVideo) {
+            if ([self isGlobalInit] == YES) {
+              dispatch_async(dispatch_get_main_queue(), ^{
+                [[NECallEngine sharedInstance]
+                    setupLocalView:weakSelf.videoCallingController.bigVideoView.videoView];
+              });
+            }
+            weakSelf.videoCallingController.bigVideoView.userID =
+                weakSelf.callParam.currentUserAccid;
+          }
+
+          if (error) {
+            /// 对方离线时 通过APNS推送 UI不弹框提示
+            if (error.code == NIMRemoteErrorCodeSignalResPeerPushOffline ||
+                error.code == NIMRemoteErrorCodeSignalResPeerNIMOffline) {
+              return;
+            } else {
+              [weakSelf destroy];
+            }
+            [UIApplication.sharedApplication.keyWindow ne_makeToast:error.localizedDescription];
+          }
+        }];
   }
 }
 
-- (void)setCallType:(NERtcCallType)callType {
-  NSLog(@"set current call type : %lu", (unsigned long)callType);
-  _callType = callType;
-}
-
 #pragma mark - UI
+
 - (void)setupUI {
   if (self.view.frame.size.height < 600) {
     self.factor = 0.5;
@@ -211,11 +213,6 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
                                                     constant:-50.0 * self.factor]
   ]];
 
-  if (self.callType == NECallTypeVideo) {
-    if (self.callParam.enableVideoToAudio == NO) {
-    }
-  }
-
   /// 未接通状态下的音视频切换按钮
   self.mediaSwitchBtn = [[NECustomButton alloc] init];
   self.mediaSwitchBtn.maskBtn.accessibilityIdentifier = @"inCallSwitch";
@@ -246,7 +243,7 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
 
 - (void)setCallingTypeSwith:(BOOL)show {
   if (show == YES && self.config.showCallingSwitchCallType == YES) {
-    if ([[SettingManager shareInstance] supportAutoJoinWhenCalled] == YES) {
+    if ([self isSupportAutoJoinWhenCalled] == YES) {
       self.mediaSwitchBtn.hidden = NO;
     } else {
       self.mediaSwitchBtn.hidden = YES;
@@ -257,7 +254,7 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
 }
 
 - (void)setupChildController {
-  if (self.isCaller == YES) {
+  if (self.callParam.isCaller == YES) {
     [self addChildViewController:self.videoCallingController];
     [self.view addSubview:self.videoCallingController.view];
     [self addChildViewController:self.audioCallingController];
@@ -301,7 +298,7 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
       [self setCallingTypeSwith:YES];
       self.operationView.hidden = YES;
       self.stateUIController.view.hidden = YES;
-      if (self.callType == NERtcCallTypeVideo) {
+      if (self.callParam.callType == NECallTypeVideo) {
         self.stateUIController = self.videoCallingController;
         [self.videoCallingController refreshUI];
         [self setSwitchAudioStyle];
@@ -320,7 +317,7 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
       self.stateUIController = self.calledController;
       self.stateUIController.view.hidden = NO;
       [self.calledController refreshUI];
-      if (self.callType == NERtcCallTypeVideo) {
+      if (self.callParam.callType == NECallTypeVideo) {
         self.mediaSwitchBtn.imageView.image = [UIImage imageNamed:@"switch_audio"
                                                          inBundle:self.bundle
                                     compatibleWithTraitCollection:nil];
@@ -338,17 +335,16 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
           sd_setImageWithURL:[NSURL URLWithString:self.callParam.remoteAvatar]
                    completed:^(UIImage *_Nullable image, NSError *_Nullable error,
                                SDImageCacheType cacheType, NSURL *_Nullable imageURL) {
-                     __strong typeof(self) strongSelf = weakSelf;
                      if (image == nil) {
                        image = [UIImage imageNamed:@"avator"
-                                                inBundle:strongSelf.bundle
+                                                inBundle:weakSelf.bundle
                            compatibleWithTraitCollection:nil];
                      }
-                     if (strongSelf.isCaller == false &&
-                         strongSelf.callType == NERtcCallTypeVideo) {
-                       [strongSelf.blurImage setHidden:NO];
+                     if (weakSelf.callParam.isCaller == false &&
+                         weakSelf.callParam.callType == NECallTypeVideo) {
+                       [weakSelf.blurImage setHidden:NO];
                      }
-                     strongSelf.blurImage.image = image;
+                     weakSelf.blurImage.image = image;
                    }];
 
     } break;
@@ -356,9 +352,13 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
       [self setCallingTypeSwith:NO];
       self.operationView.hidden = NO;
       self.stateUIController.view.hidden = YES;
-      if (self.callType == NERtcCallTypeVideo) {
+      if (self.callParam.callType == NECallTypeVideo) {
         self.stateUIController = self.videoInCallController;
         self.switchCameraBtn.hidden = NO;
+        self.isRemoteMute = NO;
+        self.videoInCallController.operationView.cameraBtn.selected = NO;
+        self.videoInCallController.smallVideoView.imageView.hidden = YES;
+        self.videoInCallController.bigVideoView.imageView.hidden = YES;
         [self.videoInCallController refreshUI];
         if (self.callParam.enableVideoToAudio == NO) {
           [self.operationView removeMediaBtn];
@@ -366,6 +366,7 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
       } else {
         [self.operationView changeAudioStyle];
         self.stateUIController = self.audioInCallController;
+        self.switchCameraBtn.hidden = YES;
         if (self.callParam.enableAudioToVideo == NO) {
           [self.operationView removeMediaBtn];
         }
@@ -381,45 +382,49 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
 
 - (void)showVideoView {
   if (self.status == NERtcCallStatusCalling) {
-    [[NERtcCallKit sharedInstance]
+    [[NECallEngine sharedInstance]
         setupLocalView:self.videoCallingController.bigVideoView.videoView];
   }
   if (self.status == NERtcCallStatusInCall) {
-    [[NERtcCallKit sharedInstance]
+    [[NECallEngine sharedInstance]
         setupLocalView:self.videoInCallController.smallVideoView.videoView];
-    [[NERtcCallKit sharedInstance] setupRemoteView:self.videoInCallController.bigVideoView.videoView
-                                           forUser:self.callParam.remoteUserAccid];
+    [[NECallEngine sharedInstance]
+        setupRemoteView:self.videoInCallController.bigVideoView.videoView];
   }
 
-  [[NERtcCallKit sharedInstance] muteLocalAudio:NO];
-  [[NERtcCallKit sharedInstance] muteLocalVideo:NO];
+  [[NECallEngine sharedInstance] muteLocalVideo:NO];
+  [[NECallEngine sharedInstance] muteLocalAudio:NO];
   self.operationView.microPhone.selected = NO;
   self.operationView.cameraBtn.selected = NO;
 
   self.operationView.speakerBtn.selected = NO;
   self.operationView.microPhone.selected = NO;
-  NSError *error;
-  [[NERtcCallKit sharedInstance] setLoudSpeakerMode:YES error:&error];
+  [[NERtcEngine sharedEngine] setLoudspeakerMode:YES];
   [[NERtcEngine sharedEngine] muteLocalAudio:NO];
 }
 
 - (void)hideVideoView {
-  [[NERtcCallKit sharedInstance] setupLocalView:nil];
-  [[NERtcCallKit sharedInstance] setupRemoteView:nil forUser:nil];
+  [[NECallEngine sharedInstance] setupLocalView:nil];
+  [[NECallEngine sharedInstance] setupRemoteView:nil];
   self.operationView.speakerBtn.selected = YES;
   self.operationView.microPhone.selected = NO;
-  NSError *error;
-  [[NERtcCallKit sharedInstance] setLoudSpeakerMode:NO error:&error];
+  [[NERtcEngine sharedEngine] setLoudspeakerMode:NO];
   [[NERtcEngine sharedEngine] muteLocalAudio:NO];
 }
 
 #pragma mark - event
 
-- (void)closeEvent:(UIButton *)button {
-  [[NERtcCallKit sharedInstance] hangup:^(NSError *_Nullable error){
-
-  }];
-}
+//- (void)closeEvent:(UIButton *)button {
+//    __weak typeof(self) weakSelf = self;
+//
+//  NEHangupParam *param = [[NEHangupParam alloc] init];
+//  [[NECallEngine sharedInstance] hangup:param
+//                             completion:^(NSError *_Nullable error){
+//                                if (error != nil && error.code == CurrentStatusNotSupport) {
+//                                    [weakSelf destroy];
+//                                }
+//                             }];
+//}
 
 - (void)cancelEvent:(UIButton *)button {
   __weak typeof(self) weakSelf = self;
@@ -427,20 +432,15 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
   if ([[NetManager shareInstance] isClose] == YES) {
     [self destroy];
   }
-  [[NERtcCallKit sharedInstance] cancel:^(NSError *_Nullable error) {
-    NSLog(@"cancel error %@", error);
-    button.enabled = YES;
-    __strong typeof(weakSelf) strongSelf = weakSelf;
-    if (error.code == 20016) {
-      if ([UIApplication.sharedApplication respondsToSelector:@selector(keyWindow)]) {
-        [UIApplication.sharedApplication.keyWindow
-            makeToast:[strongSelf localizableWithKey:@"cancel_failed"]];
-      }
-    } else {
-      [strongSelf destroy];
-    }
-  }];
+  NEHangupParam *param = [[NEHangupParam alloc] init];
+  [[NECallEngine sharedInstance] hangup:param
+                             completion:^(NSError *_Nullable error) {
+                               NSLog(@"cancel error %@", error);
+                               button.enabled = YES;
+                               [weakSelf destroy];
+                             }];
 }
+
 - (void)rejectEvent:(UIButton *)button {
   if ([[NetManager shareInstance] isClose] == YES) {
     [self destroy];
@@ -448,25 +448,17 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
   self.calledController.acceptBtn.userInteractionEnabled = NO;
   __weak typeof(self) weakSelf = self;
 
-  if ([[SettingManager shareInstance] rejectBusyCode] == YES) {
-    [[NERtcCallKit sharedInstance]
-        rejectWithReason:TerminalCodeBusy
-          withCompletion:^(NSError *_Nullable error) {
-            __strong typeof(self) strongSelf = weakSelf;
-            strongSelf.calledController.acceptBtn.userInteractionEnabled = YES;
-            [strongSelf destroy];
-          }];
-  } else {
-    [[NERtcCallKit sharedInstance] reject:^(NSError *_Nullable error) {
-      __strong typeof(self) strongSelf = weakSelf;
-      strongSelf.calledController.acceptBtn.userInteractionEnabled = YES;
-      [strongSelf destroy];
-    }];
-  }
+  NEHangupParam *param = [[NEHangupParam alloc] init];
+  [[NECallEngine sharedInstance] hangup:param
+                             completion:^(NSError *_Nullable error) {
+                               weakSelf.calledController.acceptBtn.userInteractionEnabled = YES;
+                               [weakSelf destroy];
+                             }];
 }
+
 - (void)acceptEvent:(UIButton *)button {
   if ([[NetManager shareInstance] isClose] == YES) {
-    [self.view makeToast:[self localizableWithKey:@"network_error"]];
+    [self.view ne_makeToast:[self localizableWithKey:@"network_error"]];
     return;
   }
 
@@ -474,38 +466,30 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
   self.calledController.acceptBtn.userInteractionEnabled = NO;
   __weak typeof(self) weakSelf = self;
 
-  [[NERtcCallKit sharedInstance]
-      acceptWithToken:[[SettingManager shareInstance] customToken]
-       withCompletion:^(NSError *_Nullable error) {
-         __strong typeof(self) strongSelf = weakSelf;
-         strongSelf.calledController.rejectBtn.userInteractionEnabled = YES;
-         strongSelf.calledController.acceptBtn.userInteractionEnabled = YES;
-         if (error) {
-           if (error.code != 10420) {
-             [UIApplication.sharedApplication.keyWindow
-                 makeToast:[NSString
-                               stringWithFormat:@"%@ %@",
-                                                [strongSelf localizableWithKey:@"accept_failed"],
-                                                error.localizedDescription]];
-           }
-           __weak typeof(self) weakSelf2 = strongSelf;
-           dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)),
-                          dispatch_get_main_queue(), ^{
-                            __strong typeof(self) strongSelf2 = weakSelf2;
-                            [strongSelf2 destroy];
-                          });
-         } else {
-           [[NERtcCallKit sharedInstance] memberOfAccid:@""
-                                             completion:^(NIMSignalingMemberInfo *_Nullable info){
-
-                                             }];
-           [strongSelf updateUIonStatus:NERtcCallStatusInCall];
-           [strongSelf startTimer];
-         }
-       }];
+  [[NECallEngine sharedInstance] accept:^(NSError *_Nullable error,
+                                          NECallInfo *_Nullable callInfo) {
+    weakSelf.calledController.rejectBtn.userInteractionEnabled = YES;
+    weakSelf.calledController.acceptBtn.userInteractionEnabled = YES;
+    if (error) {
+      if (error.code != 10420) {
+        [UIApplication.sharedApplication.keyWindow
+            ne_makeToast:[NSString stringWithFormat:@"%@ %@",
+                                                    [weakSelf localizableWithKey:@"accept_failed"],
+                                                    error.localizedDescription]];
+      }
+      dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)),
+                     dispatch_get_main_queue(), ^{
+                       [weakSelf destroy];
+                     });
+    } else {
+      [weakSelf updateUIonStatus:NERtcCallStatusInCall];
+      [weakSelf startTimer];
+    }
+  }];
 }
+
 - (void)switchCameraBtn:(UIButton *)button {
-  [[NERtcCallKit sharedInstance] switchCamera];
+  [[NECallEngine sharedInstance] switchCamera];
   button.selected = !button.selected;
   if (button.isSelected == YES) {
     [[NERtcEngine sharedEngine] setParameters:@{kNERtcKeyVideoStartWithBackCamera : @YES}];
@@ -513,296 +497,169 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
     [[NERtcEngine sharedEngine] setParameters:@{kNERtcKeyVideoStartWithBackCamera : @NO}];
   }
 }
+
 - (void)microPhoneClick:(UIButton *)button {
   button.selected = !button.selected;
-  [[NERtcCallKit sharedInstance] muteLocalAudio:button.selected];
+  [[NECallEngine sharedInstance] muteLocalAudio:button.selected];
 }
+
 - (void)cameraBtnClick:(UIButton *)button {
   button.selected = !button.selected;
   NSLog(@"mute video select : %d", button.selected);
-  if ([[SettingManager shareInstance] useEnableLocalMute] == YES) {
+  if (self.callParam.useEnableLocalMute == YES) {
     NSLog(@"enableLocalVideo: %d", !button.selected);
-    [[NERtcCallKit sharedInstance] enableLocalVideo:!button.selected];
+    [[NECallEngine sharedInstance] enableLocalVideo:!button.selected];
   } else {
-    [[NERtcCallKit sharedInstance] muteLocalVideo:button.selected];
+    [[NECallEngine sharedInstance] muteLocalVideo:button.selected];
   }
   [self changeDefaultImage:button.selected];
   [self cameraAvailble:!button.selected userId:self.callParam.currentUserAccid];
 }
+
 - (void)hangupBtnClick:(UIButton *)button {
-  [[NERtcCallKit sharedInstance] hangup:^(NSError *_Nullable error){
-
-  }];
-
-  [self destroy];
+  NEHangupParam *param = [[NEHangupParam alloc] init];
+  [[NECallEngine sharedInstance] hangup:param
+                             completion:^(NSError *_Nullable error) {
+                               [self destroy];
+                             }];
 }
+
 - (void)microphoneBtnClick:(UIButton *)button {
   NSLog(@"micro phone btn click : %d", button.imageView.highlighted);
   self.audioCallingController.microphoneBtn.imageView.highlighted =
       !self.audioCallingController.microphoneBtn.imageView.highlighted;
-  [[NERtcCallKit sharedInstance]
+  [[NECallEngine sharedInstance]
       muteLocalAudio:self.audioCallingController.microphoneBtn.imageView.highlighted];
   _operationView.microPhone.selected =
       self.audioCallingController.microphoneBtn.imageView.highlighted;
 }
+
 - (void)speakerBtnClick:(UIButton *)button {
   NSLog(@"speaker btn click : %d", self.audioCallingController.speakerBtn.imageView.highlighted);
-  NSError *error = nil;
-
-  [[NERtcCallKit sharedInstance]
-      setLoudSpeakerMode:!self.audioCallingController.speakerBtn.imageView.highlighted
-                   error:&error];
-  if (error == nil) {
+  int ret = [[NERtcEngine sharedEngine]
+      setLoudspeakerMode:!self.audioCallingController.speakerBtn.imageView.highlighted];
+  if (ret == 0) {
     self.audioCallingController.speakerBtn.imageView.highlighted =
         !self.audioCallingController.speakerBtn.imageView.highlighted;
     _operationView.speakerBtn.selected =
         !self.audioCallingController.speakerBtn.imageView.highlighted;
   } else {
-    [self.view makeToast:error.description];
+    [self.view ne_makeToast:[self localizableWithKey:@"operation_failed"]];
   }
 }
 
 - (void)operationSwitchClick:(UIButton *)btn {
+  double currentTime = [self uptimeMillis];
+  if (currentTime - self.lastClickTime < 500) {
+    NSLog(@"click too fast");
+    return;
+  }
+  self.lastClickTime = currentTime;
+
   if ([[NetManager shareInstance] isClose] == YES) {
-    [self.view makeToast:[self localizableWithKey:@"network_error"]];
+    [self.view ne_makeToast:[self localizableWithKey:@"network_error"]];
     return;
   }
   __weak typeof(self) weakSelf = self;
   btn.enabled = NO;
-  NERtcCallType type =
-      self.callType == NERtcCallTypeVideo ? NERtcCallTypeAudio : NERtcCallTypeVideo;
-  [[NERtcCallKit sharedInstance]
-      switchCallType:type
-           withState:NERtcSwitchStateInvite
+  NECallType type = self.callParam.callType == NECallTypeVideo ? NECallTypeAudio : NECallTypeVideo;
+
+  NESwitchParam *param = [[NESwitchParam alloc] init];
+  param.state = NECallSwitchStateInvite;
+  param.callType = type;
+
+  [[NECallEngine sharedInstance]
+      switchCallType:param
           completion:^(NSError *_Nullable error) {
-            __strong typeof(self) strongSelf = weakSelf;
-            // weakSelf.mediaSwitchBtn.enabled = YES;
             btn.enabled = YES;
             if (error == nil) {
               NSLog(@"切换成功 : %lu", type);
               NSLog(@"switch : %d", btn.selected);
-              if (type == NERtcCallTypeVideo && [SettingManager.shareInstance isVideoConfirm]) {
-                [strongSelf showBannerView];
-              } else if (type == NERtcCallTypeAudio &&
-                         [SettingManager.shareInstance isAudioConfirm]) {
-                [strongSelf showBannerView];
+              if (type == NECallTypeVideo &&
+                  [[NECallEngine sharedInstance] getCallConfig].enableSwitchVideoConfirm) {
+                [weakSelf showBannerView];
+              } else if (type == NECallTypeAudio &&
+                         [[NECallEngine sharedInstance] getCallConfig].enableSwitchAudioConfirm) {
+                [weakSelf showBannerView];
               }
             } else {
-              [strongSelf.view
-                  makeToast:[NSString
-                                stringWithFormat:@"%@: %@",
-                                                 [strongSelf localizableWithKey:@"switch_error"],
-                                                 error]];
+              [weakSelf.view
+                  ne_makeToast:[NSString
+                                   stringWithFormat:@"%@: %@",
+                                                    [weakSelf localizableWithKey:@"switch_error"],
+                                                    error]];
             }
           }];
 }
 
 - (void)operationSpeakerClick:(UIButton *)btn {
-  NSError *error = nil;
-  BOOL use;
-  [[NERtcEngine sharedEngine] getLoudspeakerMode:&use];
-  NSLog(@"get loud speaker %d", use);
-  [[NERtcCallKit sharedInstance] setLoudSpeakerMode:btn.selected error:&error];
-  if (error == nil) {
+  int ret = [NERtcEngine.sharedEngine setLoudspeakerMode:btn.selected];
+  if (ret == 0) {
     btn.selected = !btn.selected;
   } else {
-    [self.view makeToast:error.description];
+    [self.view ne_makeToast:[self localizableWithKey:@"operation_failed"]];
   }
 }
 
 - (void)mediaClick:(UIButton *)btn {
+  double currentTime = [self uptimeMillis];
+  if (currentTime - self.lastClickTime < 500) {
+    NSLog(@"click too fast");
+    return;
+  }
+  self.lastClickTime = currentTime;
   if ([[NetManager shareInstance] isClose] == YES) {
-    [self.view makeToast:[self localizableWithKey:@"network_error"]];
+    [self.view ne_makeToast:[self localizableWithKey:@"network_error"]];
     return;
   }
   __weak typeof(self) weakSelf = self;
   self.mediaSwitchBtn.maskBtn.enabled = NO;
-  NERtcCallType type =
-      weakSelf.callType == NERtcCallTypeVideo ? NERtcCallTypeAudio : NERtcCallTypeVideo;
-  [[NERtcCallKit sharedInstance]
-      switchCallType:type
-           withState:NERtcSwitchStateInvite
+
+  NECallType type =
+      weakSelf.callParam.callType == NECallTypeVideo ? NECallTypeAudio : NECallTypeVideo;
+
+  NESwitchParam *param = [[NESwitchParam alloc] init];
+  param.state = NECallSwitchStateInvite;
+  param.callType = type;
+
+  [[NECallEngine sharedInstance]
+      switchCallType:param
           completion:^(NSError *_Nullable error) {
-            __strong typeof(self) strongSelf = weakSelf;
-            strongSelf.mediaSwitchBtn.maskBtn.enabled = YES;
+            weakSelf.mediaSwitchBtn.maskBtn.enabled = YES;
             if (error == nil) {
-              if (type == NERtcCallTypeVideo && [SettingManager.shareInstance isVideoConfirm]) {
-                [strongSelf showBannerView];
-              } else if (type == NERtcCallTypeAudio &&
-                         [SettingManager.shareInstance isAudioConfirm]) {
-                [strongSelf showBannerView];
+              if (type == NECallTypeVideo &&
+                  [[NECallEngine sharedInstance] getCallConfig].enableSwitchVideoConfirm) {
+                [weakSelf showBannerView];
+              } else if (type == NECallTypeAudio &&
+                         [[NECallEngine sharedInstance] getCallConfig].enableSwitchAudioConfirm) {
+                [weakSelf showBannerView];
               }
             } else {
-              [strongSelf.view
-                  makeToast:[NSString
-                                stringWithFormat:@"%@ : %@",
-                                                 [strongSelf localizableWithKey:@"switch_error"],
-                                                 error]];
+              [weakSelf.view
+                  ne_makeToast:[NSString
+                                   stringWithFormat:@"%@ : %@",
+                                                    [weakSelf localizableWithKey:@"switch_error"],
+                                                    error]];
             }
           }];
 }
 
-#pragma mark - NERtcVideoCallDelegate
-
-- (void)onDisconnect:(NSError *)reason {
-  [self destroy];
-}
-- (void)onUserEnter:(NSString *)userID {
-  [self updateUIonStatus:NERtcCallStatusInCall];
-  [self startTimer];
-  if ([[SettingManager shareInstance] incallShowCName] == YES &&
-      [self.cnameLabel superview] == nil) {
-    [self.view addSubview:self.cnameLabel];
-    self.cnameLabel.text =
-        [NSString stringWithFormat:@"cname: %@", [[SettingManager shareInstance] getRtcCName]];
-    [NSLayoutConstraint activateConstraints:@[
-      [self.cnameLabel.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
-      [self.cnameLabel.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor]
-    ]];
-  }
-}
-- (void)onUserCancel:(NSString *)userID {
-  [[NERtcCallKit sharedInstance] hangup:^(NSError *_Nullable error){
-  }];
-  [UIApplication.sharedApplication.keyWindow makeToast:[self localizableWithKey:@"remote_cancel"]];
-  [self destroy];
-}
-- (void)onCameraAvailable:(BOOL)available userID:(NSString *)userID {
-  self.isRemoteMute = !available;
-  [self cameraAvailble:available userId:userID];
-}
-- (void)onVideoMuted:(BOOL)muted userID:(NSString *)userID {
-  self.isRemoteMute = muted;
-  [self cameraAvailble:!muted userId:userID];
-}
-- (void)onUserLeave:(NSString *)userID {
-  NSLog(@"onUserLeave");
-  [self destroy];
-}
-- (void)onUserDisconnect:(NSString *)userID {
-  NSLog(@"onUserDiconnect");
-  [self destroy];
-}
-- (void)onCallingTimeOut {
-  if ([[NetManager shareInstance] isClose] == YES) {
-    [self destroy];
-    return;
-  }
-  if (self.isCaller == YES) {
-    [UIApplication.sharedApplication.keyWindow
-        makeToast:[self localizableWithKey:@"remote_timeout"]];
-  }
-  [self destroy];
-}
-- (void)onUserBusy:(NSString *)userID {
-  [UIApplication.sharedApplication.keyWindow makeToast:[self localizableWithKey:@"remote_busy"]];
-  [self destroy];
-}
-- (void)onCallEnd {
-  [self destroy];
-}
-- (void)onUserReject:(NSString *)userID {
-  [UIApplication.sharedApplication.keyWindow makeToast:[self localizableWithKey:@"remote_reject"]];
-  [self destroy];
-}
-
-- (void)onOtherClientAccept {
-  [UIApplication.sharedApplication.keyWindow
-      makeToast:[self localizableWithKey:@"other_client_accept"]];
-  [self destroy];
-}
-
-- (void)onOtherClientReject {
-  [UIApplication.sharedApplication.keyWindow
-      makeToast:[self localizableWithKey:@"other_client_reject"]];
-  [self destroy];
-}
-
-- (void)onCallTypeChange:(NERtcCallType)callType withState:(NERtcSwitchState)state {
-  NSLog(@"onCallTypeChange: %lu withState: %lu", (unsigned long)callType, (unsigned long)state);
-  switch (state) {
-    case NERtcSwitchStateAgree:
-      [self hideBannerView];
-      [self onCallTypeChange:callType];
-      break;
-    case NERtcSwitchStateInvite: {
-      if (self.alert != nil) {
-        NSLog(@"alert is showing");
-        return;
-      }
-      UIAlertController *alert = [UIAlertController
-          alertControllerWithTitle:[self localizableWithKey:@"permission"]
-                           message:callType == NERtcCallTypeVideo
-                                       ? [self localizableWithKey:@"audio_to_video"]
-                                       : [self localizableWithKey:@"video_to_audio"]
-                    preferredStyle:UIAlertControllerStyleAlert];
-      self.alert = alert;
-      UIAlertAction *rejectAction =
-          [UIAlertAction actionWithTitle:[self localizableWithKey:@"reject"]
-                                   style:UIAlertActionStyleDefault
-                                 handler:^(UIAlertAction *_Nonnull action) {
-                                   [[NERtcCallKit sharedInstance]
-                                       switchCallType:callType
-                                            withState:NERtcSwitchStateReject
-                                           completion:^(NSError *_Nullable error) {
-                                             if (error) {
-                                               [UIApplication.sharedApplication.keyWindow
-                                                   makeToast:error.localizedDescription];
-                                             }
-                                           }];
-                                 }];
-      __weak typeof(self) weakSelf = self;
-      UIAlertAction *agreeAction =
-          [UIAlertAction actionWithTitle:[self localizableWithKey:@"agree"]
-                                   style:UIAlertActionStyleDefault
-                                 handler:^(UIAlertAction *_Nonnull action) {
-                                   [[NERtcCallKit sharedInstance]
-                                       switchCallType:callType
-                                            withState:NERtcSwitchStateAgree
-                                           completion:^(NSError *_Nullable error) {
-                                             [weakSelf onCallTypeChange:callType];
-                                             if (error) {
-                                               [UIApplication.sharedApplication.keyWindow
-                                                   makeToast:error.localizedDescription];
-                                             }
-                                           }];
-                                 }];
-
-      [alert addAction:rejectAction];
-      [alert addAction:agreeAction];
-      [self presentViewController:alert animated:YES completion:nil];
-
-      NSLog(@"NERtcSwitchStateInvite : %ld", callType);
-
-    }
-
-    break;
-    case NERtcSwitchStateReject:
-      [self hideBannerView];
-      [UIApplication.sharedApplication.keyWindow makeToast:[self localizableWithKey:@"reject_tip"]];
-      break;
-    default:
-      break;
-  }
-  NSLog(@"onCallTypeChange : %lu  with state : %lu", callType, state);
-}
-
-- (void)onCallTypeChange:(NERtcCallType)callType {
+- (void)onCallTypeChangeWithType:(NECallType)callType {
   NSLog(@"onCallTypeChange:");
-  if (self.callType == callType) {
+  if (self.callParam.callType == callType) {
     return;
   }
-  self.callType = callType;
+  self.callParam.callType = callType;
   [self updateUIonStatus:self.status];
 
   if (self.status == NERtcCallStatusInCall) {
     switch (callType) {
-      case NERtcCallTypeAudio:
+      case NECallTypeAudio:
         NSLog(@"NERtcCallTypeAudio");
         [self.operationView changeAudioStyle];
         [self hideVideoView];
         break;
-      case NERtcCallTypeVideo:
+      case NECallTypeVideo:
         NSLog(@"NERtcCallTypeVideo");
         [self.operationView changeVideoStyle];
         [self showVideoView];
@@ -814,11 +671,11 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
   }
 
   switch (callType) {
-    case NERtcCallTypeAudio:
+    case NECallTypeAudio:
       [self.operationView changeAudioStyle];
       [self setSwitchVideoStyle];
       break;
-    case NERtcCallTypeVideo:
+    case NECallTypeVideo:
       [self.operationView changeVideoStyle];
       [self setSwitchAudioStyle];
       break;
@@ -827,15 +684,141 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
   }
 }
 
-- (void)onError:(NSError *)error {
-  NSLog(@"call kit on error : %@", error);
+#pragma mark -  call engine delegate
+
+- (void)onVideoMuted:(BOOL)muted userID:(NSString *)userId {
+  self.isRemoteMute = muted;
+  [self cameraAvailble:!muted userId:userId];
 }
 
-- (void)onAudioAvailable:(BOOL)available userID:(NSString *)userID {
-  NSLog(@"onAudioAvailable");
+- (void)onVideoAvailable:(BOOL)available userID:(NSString *)userId {
+  self.isRemoteMute = !available;
+  [self cameraAvailble:available userId:userId];
+}
+
+- (void)onCallConnected:(NECallInfo *)info {
+  [self updateUIonStatus:NERtcCallStatusInCall];
+  [self startTimer];
+}
+
+- (void)onCallEnd:(NECallEndInfo *)info {
+  switch (info.reasonCode) {
+    case TerminalCodeTimeOut:
+      if ([[NetManager shareInstance] isClose] == YES) {
+        [self destroy];
+        return;
+      }
+      if (self.callParam.isCaller == YES) {
+        [self showToastWithContent:[self localizableWithKey:@"remote_timeout"]];
+      }
+      break;
+    case TerminalCodeBusy:
+      [self showToastWithContent:[self localizableWithKey:@"remote_busy"]];
+      break;
+
+    case TerminalCalleeCancel:
+      [self showToastWithContent:[self localizableWithKey:@"remote_cancel"]];
+      break;
+
+    case TerminalCallerRejcted:
+      [self showToastWithContent:[self localizableWithKey:@"remote_reject"]];
+      break;
+
+    case TerminalOtherRejected:
+      [UIApplication.sharedApplication.keyWindow
+          ne_makeToast:[self localizableWithKey:@"other_client_reject"]];
+      break;
+
+    case TerminalOtherAccepted:
+      [UIApplication.sharedApplication.keyWindow
+          ne_makeToast:[self localizableWithKey:@"other_client_accept"]];
+      break;
+
+    case TerminalCallerCancel:
+
+      return;
+
+    default:
+      break;
+  }
+  [self destroy];
+}
+
+- (void)onCallTypeChange:(NECallTypeChangeInfo *)info {
+  NSLog(@"V2 onCallTypeChange : %@", [info yx_modelToJSONString]);
+  switch (info.state) {
+    case NECallSwitchStateAgree:
+      [self hideBannerView];
+      [self onCallTypeChangeWithType:info.callType];
+      break;
+    case NECallSwitchStateInvite: {
+      if (self.alert != nil) {
+        NSLog(@"alert is showing");
+        return;
+      }
+      UIAlertController *alert = [UIAlertController
+          alertControllerWithTitle:[self localizableWithKey:@"permission"]
+                           message:info.callType == NECallTypeVideo
+                                       ? [self localizableWithKey:@"audio_to_video"]
+                                       : [self localizableWithKey:@"video_to_audio"]
+                    preferredStyle:UIAlertControllerStyleAlert];
+      self.alert = alert;
+      UIAlertAction *rejectAction =
+          [UIAlertAction actionWithTitle:[self localizableWithKey:@"reject"]
+                                   style:UIAlertActionStyleDefault
+                                 handler:^(UIAlertAction *_Nonnull action) {
+                                   NESwitchParam *param = [[NESwitchParam alloc] init];
+                                   param.callType = info.callType;
+                                   param.state = NECallSwitchStateReject;
+                                   [[NECallEngine sharedInstance]
+                                       switchCallType:param
+                                           completion:^(NSError *_Nullable error) {
+                                             if (error) {
+                                               [UIApplication.sharedApplication.keyWindow
+                                                   ne_makeToast:error.localizedDescription];
+                                             }
+                                           }];
+                                 }];
+      __weak typeof(self) weakSelf = self;
+      UIAlertAction *agreeAction =
+          [UIAlertAction actionWithTitle:[self localizableWithKey:@"agree"]
+                                   style:UIAlertActionStyleDefault
+                                 handler:^(UIAlertAction *_Nonnull action) {
+                                   NESwitchParam *param = [[NESwitchParam alloc] init];
+                                   param.callType = info.callType;
+                                   param.state = NECallSwitchStateAgree;
+                                   [[NECallEngine sharedInstance]
+                                       switchCallType:param
+                                           completion:^(NSError *_Nullable error) {
+                                             [weakSelf onCallTypeChangeWithType:info.callType];
+                                             if (error) {
+                                               [UIApplication.sharedApplication.keyWindow
+                                                   ne_makeToast:error.localizedDescription];
+                                             }
+                                           }];
+                                 }];
+
+      [alert addAction:rejectAction];
+      [alert addAction:agreeAction];
+      [self presentViewController:alert animated:YES completion:nil];
+
+      NSLog(@"NERtcSwitchStateInvite : %ld", info.callType);
+
+    }
+
+    break;
+    case NECallSwitchStateReject:
+      [self hideBannerView];
+      [UIApplication.sharedApplication.keyWindow
+          ne_makeToast:[self localizableWithKey:@"reject_tip"]];
+      break;
+    default:
+      break;
+  }
 }
 
 #pragma mark - private mothed
+
 - (void)cameraAvailble:(BOOL)available userId:(NSString *)userId {
   if ([self.videoInCallController.bigVideoView.userID isEqualToString:userId]) {
     self.videoInCallController.bigVideoView.maskView.hidden = available;
@@ -843,7 +826,6 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
   if ([self.videoInCallController.smallVideoView.userID isEqualToString:userId]) {
     self.videoInCallController.smallVideoView.maskView.hidden = available;
   }
-  self.remoteCameraAvailable = available;
 
   if (self.showMyBigView) {
     [self changeRemoteMute:self.isRemoteMute videoView:self.stateUIController.smallVideoView];
@@ -855,26 +837,25 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
 - (void)setUrl:(NSString *)url withPlaceholder:(NSString *)holder {
   __weak typeof(self) weakSelf = self;
   UIImageView *remoteAvatorView = nil;
-  if (self.callType == NERtcCallTypeVideo) {
+  if (self.callParam.callType == NECallTypeVideo) {
     remoteAvatorView = self.videoCallingController.remoteAvatorView;
   } else {
     remoteAvatorView = self.calledController.remoteBigAvatorView;
   }
-  [remoteAvatorView
-      sd_setImageWithURL:[NSURL URLWithString:url]
-               completed:^(UIImage *_Nullable image, NSError *_Nullable error,
-                           SDImageCacheType cacheType, NSURL *_Nullable imageURL) {
-                 __strong typeof(self) strongSelf = weakSelf;
-                 if (image == nil) {
-                   image = [UIImage imageNamed:holder
-                                            inBundle:strongSelf.bundle
-                       compatibleWithTraitCollection:nil];
-                 }
-                 if (strongSelf.isCaller == false && strongSelf.callType == NERtcCallTypeVideo) {
-                   [strongSelf.blurImage setHidden:NO];
-                 }
-                 strongSelf.blurImage.image = image;
-               }];
+  [remoteAvatorView sd_setImageWithURL:[NSURL URLWithString:url]
+                             completed:^(UIImage *_Nullable image, NSError *_Nullable error,
+                                         SDImageCacheType cacheType, NSURL *_Nullable imageURL) {
+                               if (image == nil) {
+                                 image = [UIImage imageNamed:holder
+                                                          inBundle:weakSelf.bundle
+                                     compatibleWithTraitCollection:nil];
+                               }
+                               if (weakSelf.callParam.isCaller == false &&
+                                   weakSelf.callParam.callType == NECallTypeVideo) {
+                                 [weakSelf.blurImage setHidden:NO];
+                               }
+                               weakSelf.blurImage.image = image;
+                             }];
 }
 
 - (void)startTimer {
@@ -909,8 +890,9 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
 }
 
 - (NSString *)getInviteText {
-  return (self.callType == NERtcCallTypeAudio ? [self localizableWithKey:@"invite_audio_call"]
-                                              : [self localizableWithKey:@"invite_video_call"]);
+  return (self.callParam.callType == NECallTypeAudio
+              ? [self localizableWithKey:@"invite_audio_call"]
+              : [self localizableWithKey:@"invite_video_call"]);
 }
 
 - (void)hideBannerView {
@@ -927,7 +909,7 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
     [self.alert dismissViewControllerAnimated:NO completion:nil];
   }
   [[NSNotificationCenter defaultCenter] postNotificationName:kCallKitDismissNoti object:nil];
-  [[NERtcCallKit sharedInstance] removeDelegate:self];
+  [[NECallEngine sharedInstance] removeCallDelegate:self];
 
   if (self.timer != nil) {
     [self.timer invalidate];
@@ -936,16 +918,6 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
 }
 
 #pragma mark - property
-
-- (UILabel *)cnameLabel {
-  if (_cnameLabel == nil) {
-    _cnameLabel = [[UILabel alloc] init];
-    _cnameLabel.textColor = [UIColor redColor];
-    _cnameLabel.font = [UIFont systemFontOfSize:14];
-    _cnameLabel.translatesAutoresizingMaskIntoConstraints = NO;
-  }
-  return _cnameLabel;
-}
 
 - (UIView *)bannerView {
   if (!_bannerView) {
@@ -1041,7 +1013,7 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
 }
 
 - (void)dealloc {
-  [[NERtcCallKit sharedInstance] removeDelegate:self];
+  [[NECallEngine sharedInstance] removeCallDelegate:self];
 }
 
 - (void)hideViews:(NSArray<UIView *> *)views {
@@ -1066,26 +1038,18 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
       if (self.showMyBigView) {
         self.stateUIController.bigVideoView.imageView.image = image;
         self.stateUIController.bigVideoView.imageView.hidden = NO;
-        //                [self changeRemoteMute:self.isRemoteMute
-        //                videoView:self.stateUIController.smallVideoView];
       } else {
         self.stateUIController.smallVideoView.imageView.image = image;
         self.stateUIController.smallVideoView.imageView.hidden = NO;
-        //                [self changeRemoteMute:self.isRemoteMute
-        //                videoView:self.stateUIController.bigVideoView];
       }
     } else {
       if (self.showMyBigView) {
         self.stateUIController.bigVideoView.imageView.image = nil;
         self.stateUIController.bigVideoView.imageView.hidden = YES;
         self.stateUIController.smallVideoView.imageView.hidden = YES;
-        //                [self changeRemoteMute:self.isRemoteMute
-        //                videoView:self.stateUIController.smallVideoView];
       } else {
         self.stateUIController.smallVideoView.imageView.image = nil;
         self.stateUIController.smallVideoView.imageView.hidden = YES;
-        //                [self changeRemoteMute:self.isRemoteMute
-        //                videoView:self.stateUIController.bigVideoView];
       }
     }
   }
@@ -1108,9 +1072,7 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
   }
   if (nil == _audioCallingController) {
     _audioCallingController = [[NEAudioCallingController alloc] init];
-    _audioCallingController.isCaller = self.isCaller;
     _audioCallingController.callParam = self.callParam;
-    _audioCallingController.callType = self.callType;
     _audioCallingController.mainController = self;
     _audioCallingController.view.hidden = YES;
     _audioCallingController.operationView = self.operationView;
@@ -1126,9 +1088,7 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
   }
   if (nil == _audioInCallController) {
     _audioInCallController = [[NEAudioInCallController alloc] init];
-    _audioInCallController.isCaller = self.isCaller;
     _audioInCallController.callParam = self.callParam;
-    _audioInCallController.callType = self.callType;
     _audioInCallController.mainController = self;
     _audioInCallController.view.hidden = YES;
     _audioInCallController.operationView = self.operationView;
@@ -1143,9 +1103,7 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
   }
   if (nil == _videoCallingController) {
     _videoCallingController = [[NEVideoCallingController alloc] init];
-    _videoCallingController.isCaller = self.isCaller;
     _videoCallingController.callParam = self.callParam;
-    _videoCallingController.callType = self.callType;
     _videoCallingController.mainController = self;
     _videoCallingController.view.hidden = YES;
     _videoCallingController.operationView = self.operationView;
@@ -1160,9 +1118,7 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
   }
   if (nil == _videoInCallController) {
     _videoInCallController = [[NEVideoInCallController alloc] init];
-    _videoInCallController.isCaller = self.isCaller;
     _videoInCallController.callParam = self.callParam;
-    _videoInCallController.callType = self.callType;
     _videoInCallController.mainController = self;
     _videoInCallController.view.hidden = YES;
   }
@@ -1176,9 +1132,7 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
   }
   if (nil == _calledController) {
     _calledController = [[NECalledViewController alloc] init];
-    _calledController.isCaller = self.isCaller;
     _calledController.callParam = self.callParam;
-    _calledController.callType = self.callType;
     _calledController.mainController = self;
     _calledController.view.hidden = YES;
   }
@@ -1191,9 +1145,7 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
   Class cls = [self.uiConfigDic objectForKey:key];
   if (nil != cls) {
     NECallUIStateController *controller = [[cls alloc] init];
-    controller.isCaller = self.isCaller;
     controller.callParam = self.callParam;
-    controller.callType = self.callType;
     controller.mainController = self;
     controller.operationView = self.operationView;
     controller.view.hidden = YES;
@@ -1227,4 +1179,26 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
 - (NSString *)localizableWithKey:(NSString *)key {
   return [self.bundle localizedStringForKey:key value:nil table:@"Localizable"];
 }
+
+#pragma mark CallEngine Key Value
+
+- (BOOL)isGlobalInit {
+  return !([[[NECallEngine sharedInstance] valueForKeyPath:@"context.initRtcMode"] intValue] == 1);
+}
+
+- (BOOL)isSupportAutoJoinWhenCalled {
+  return [[[NECallEngine sharedInstance] valueForKeyPath:@"context.supportAutoJoinWhenCalled"]
+      boolValue];
+}
+
+- (uint64_t)uptimeMillis {
+  static mach_timebase_info_data_t timebaseInfo;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    (void)mach_timebase_info(&timebaseInfo);
+  });
+  uint64_t uptime = mach_absolute_time() * timebaseInfo.numer / timebaseInfo.denom;
+  return uptime / NSEC_PER_MSEC;
+}
+
 @end

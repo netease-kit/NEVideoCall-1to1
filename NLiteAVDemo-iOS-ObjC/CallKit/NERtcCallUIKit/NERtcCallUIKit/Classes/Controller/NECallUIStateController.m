@@ -41,11 +41,6 @@
   return self;
 }
 
-//- (void)loadView {
-//    NSLog(@"state view load parent view %@",self.parentView);
-//    self.view = self.parentView;
-//}
-
 - (void)viewDidLoad {
   [super viewDidLoad];
   // Do any additional setup after loading the view.
@@ -373,28 +368,28 @@ navigation
 }
 
 - (NSString *)getInviteText {
-  return (self.callType == NERtcCallTypeAudio ? [self localizableWithKey:@"invite_audio_call"]
-                                              : [self localizableWithKey:@"invite_video_call"]);
+  return (self.callParam.callType == NERtcCallTypeAudio
+              ? [self localizableWithKey:@"invite_audio_call"]
+              : [self localizableWithKey:@"invite_video_call"]);
 }
 
 - (void)refreshVideoView {
   NSLog(@"show my big view : %d", self.mainController.showMyBigView);
   NSLog(@"self.operationView.cameraBtn.selected : %d", self.operationView.cameraBtn.selected);
+
   if (self.mainController.showMyBigView) {
-    [[NERtcCallKit sharedInstance] setupLocalView:self.bigVideoView.videoView];
-    [[NERtcCallKit sharedInstance] setupRemoteView:self.smallVideoView.videoView
-                                           forUser:self.callParam.remoteUserAccid];
+    [[NECallEngine sharedInstance] setupLocalView:self.bigVideoView.videoView];
+    [[NECallEngine sharedInstance] setupRemoteView:self.smallVideoView.videoView];
     NSLog(@"show my big view");
-    self.smallVideoView.maskView.hidden = !self.mainController.remoteCameraAvailable;
+    self.smallVideoView.maskView.hidden = !self.mainController.isRemoteMute;
     self.bigVideoView.maskView.hidden = !self.operationView.cameraBtn.selected;
     self.bigVideoView.userID = self.callParam.currentUserAccid;
     self.smallVideoView.userID = self.callParam.remoteUserAccid;
   } else {
-    [[NERtcCallKit sharedInstance] setupLocalView:self.smallVideoView.videoView];
-    [[NERtcCallKit sharedInstance] setupRemoteView:self.bigVideoView.videoView
-                                           forUser:self.callParam.remoteUserAccid];
+    [[NECallEngine sharedInstance] setupLocalView:self.smallVideoView.videoView];
+    [[NECallEngine sharedInstance] setupRemoteView:self.bigVideoView.videoView];
     NSLog(@"show my small view");
-    self.bigVideoView.maskView.hidden = !self.mainController.remoteCameraAvailable;
+    self.bigVideoView.maskView.hidden = !self.mainController.isRemoteMute;
     self.smallVideoView.maskView.hidden = !self.operationView.cameraBtn.selected;
     self.bigVideoView.userID = self.callParam.remoteUserAccid;
     self.smallVideoView.userID = self.callParam.currentUserAccid;

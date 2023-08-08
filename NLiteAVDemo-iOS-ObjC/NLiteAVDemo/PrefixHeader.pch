@@ -7,9 +7,8 @@
 #import <NERtcSDK/NERtcSDK.h>
 #import <Masonry/Masonry.h>
 #import <SDWebImage/SDWebImage.h>
-#import <Toast/Toast.h>
-#import <ReactiveObjC/ReactiveObjC.h>
-#import <NERtcCallUIKit/SettingManager.h>
+#import <NECommonUIKit/UIView+YXToast.h>
+#import "SettingManager.h"
 #import <NECallKitPstn/NECallKitPstn.h>
 #import <NERtcCallKit/NERtcCallKit.h>
 #import "NEUser.h"

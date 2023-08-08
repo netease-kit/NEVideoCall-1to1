@@ -2,12 +2,8 @@
 // Use of this source code is governed by a MIT license that can be
 // found in the LICENSE file.
 
-#import <UIKit/UIKit.h>
+#import "NERtcCallKit+Pstn.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface NEBaseViewController : UIViewController
+@implementation NERtcCallKit (Pstn)
 
 @end
-
-NS_ASSUME_NONNULL_END

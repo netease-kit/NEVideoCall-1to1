@@ -1,25 +1,27 @@
 # Uncomment the next line to define a global platform for your project
-# platform :ios, '9.0'
+ platform :ios, '10.0'
 
 source 'https://github.com/CocoaPods/Specs.git'
 target 'NLiteAVDemo' do
   use_frameworks!
-  pod 'ReactiveObjC'
+  # 云信基础SDK
+  pod 'NERtcSDK', '5.4.3'
+  pod 'NIMSDK_LITE', '9.12.0'
+  
+  pod 'NECallKitPstn', :path => 'CallKit/NECallKitPstn/NECallKitPstn.podspec'
+
+  # 三方依赖
   pod 'Masonry'
   pod 'SDWebImage', '~> 5.7.1'
-  pod 'Toast'
-  pod 'AFNetworking', '4.0'
-  pod 'NIMSDK_LITE', '9.10.0'
-  pod 'GCDWebServer', '~> 3.5.4'
-  pod 'NERtcSDK', '4.6.50'
-  pod 'NECallKitPstn', '1.8.0'
   
   #呼叫组件API组件
-  pod 'NERtcCallKit', '2.0.0'
+  pod 'NERtcCallKit', '2.1.0'
   
   #呼叫组件UI组件
-  pod 'NERtcCallUIKit', '2.0.0'
+  pod 'NERtcCallUIKit', '2.1.0'
   
   #如果需要查看呼叫组件UI组件源码请注释远端引用，打开下面本地引用
-  #pod 'NERtcCallUIKit', :path => 'CallKit/NERtcCallUIKit/NERtcCallUIKit.podspec'
+#  pod 'NERtcCallUIKit', :path => 'CallKit/NERtcCallUIKit/NERtcCallUIKit.podspec'
+
+
 end

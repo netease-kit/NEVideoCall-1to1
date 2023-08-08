@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be
 // found in the LICENSE file.
 
-#import "NERtcCallUIConfig.h"
+#import "NECallUIKitConfig.h"
 
 @implementation NECallUIConfig
 
@@ -17,7 +17,7 @@
 
 @end
 
-@implementation NERtcCallUIConfig
+@implementation NECallUIKitConfig
 
 - (NECallUIConfig *)uiConfig {
   if (nil == _uiConfig) {
