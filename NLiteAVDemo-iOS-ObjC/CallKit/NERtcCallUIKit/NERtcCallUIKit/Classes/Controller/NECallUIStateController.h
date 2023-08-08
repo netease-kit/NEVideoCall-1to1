@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 #import <UIKit/UIKit.h>
+#import "NECallUIKitConfig.h"
 #import "NECustomButton.h"
-#import "NERtcCallUIConfig.h"
 #import "NEUICallParam.h"
 #import "NEVideoOperationView.h"
 #import "NEVideoView.h"
@@ -43,9 +43,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// 通话中音视频操作工具栏
 @property(strong, nonatomic) NEVideoOperationView *operationView;
 
-/// YES 主叫  NO 被叫
-@property(nonatomic, assign) BOOL isCaller;
-
 /// 呼叫参数
 @property(nonatomic, weak) NEUICallParam *callParam;
 /// 配置参数
@@ -64,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// 通话前按钮大小(挂断 接听 取消)
 @property(nonatomic, assign, readonly) CGSize buttonSize;
 /// 当前通话类型
-@property(nonatomic, assign) NERtcCallType callType;
+//@property(nonatomic, assign) NERtcCallType callType;
 
 @property(nonatomic, weak) NECallViewController *mainController;
 

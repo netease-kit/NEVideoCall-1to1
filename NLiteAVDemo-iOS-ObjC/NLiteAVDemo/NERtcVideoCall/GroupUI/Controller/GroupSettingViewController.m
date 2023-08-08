@@ -86,7 +86,7 @@
 - (void)saveSetting {
   [[SettingManager shareInstance] setCustomPushContent:self.pushContent.text];
   [self.navigationController popViewControllerAnimated:YES];
-  [[UIApplication sharedApplication].keyWindow makeToast:NSLocalizedString(@"save_success", nil)];
+  [[UIApplication sharedApplication].keyWindow ne_makeToast:NSLocalizedString(@"save_success", nil)];
 }
 
 - (UILabel *)createLabelWithText:(NSString *)text {

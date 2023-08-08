@@ -15,6 +15,7 @@
 #import "NEUser.h"
 #import "NSArray+NTES.h"
 #import <NERtcCallUIKit/NetManager.h>
+
 @interface NEMenuViewController () <UITableViewDelegate,
                                     UITableViewDataSource,
                                     NERtcCallKitDelegate,
@@ -29,6 +30,7 @@ static NSString *cellID = @"menuCellID";
 @implementation NEMenuViewController
 
 - (void)viewWillAppear:(BOOL)animated {
+  [super viewWillAppear:animated];
   self.navigationController.navigationBar.hidden = YES;
 }
 - (void)viewDidLoad {
@@ -107,7 +109,7 @@ static NSString *cellID = @"menuCellID";
                        completion:^(NSError *_Nullable error) {
                          if (error) {
                            [self.view
-                               makeToast:[NSString stringWithFormat:@"IM登录失败%@",
+                               ne_makeToast:[NSString stringWithFormat:@"IM登录失败%@",
                                                                     error.localizedDescription]];
                          } else {
                            // 首次登录成功之后上传deviceToken
@@ -150,16 +152,16 @@ static NSString *cellID = @"menuCellID";
         loginByTokenWithCompletion:^(NSDictionary *_Nullable data, NSError *_Nullable error) {
           if (error) {
             NSString *msg = data[@"msg"] ?: @"请求错误";
-            [self.view makeToast:msg];
+            [self.view ne_makeToast:msg];
           } else {
             [[NERtcCallKit sharedInstance] login:[NEAccount shared].userModel.imAccid
                                            token:[NEAccount shared].userModel.imToken
                                       completion:^(NSError *_Nullable error) {
                                         NSLog(@"login im error : %@", error);
                                         if (error) {
-                                          [self.view makeToast:error.localizedDescription];
+                                          [self.view ne_makeToast:error.localizedDescription];
                                         } else {
-                                          [self.view makeToast:@"IM登录成功"];
+                                          [self.view ne_makeToast:@"IM登录成功"];
                                           [self updateUserInfo:[NEAccount shared].userModel];
                                         }
                                       }];
@@ -188,13 +190,13 @@ static NSString *cellID = @"menuCellID";
                   [NEAccount logoutWithCompletion:^(NSDictionary *_Nullable data,
                                                     NSError *_Nullable error) {
                     if (error) {
-                      [self.view makeToast:error.localizedDescription];
+                      [self.view ne_makeToast:error.localizedDescription];
                     } else {
                       [[NERtcCallKit sharedInstance] logout:^(NSError *_Nullable error) {
                         if (error) {
-                          [weakSelf.view makeToast:error.localizedDescription];
+                          [weakSelf.view ne_makeToast:error.localizedDescription];
                         } else {
-                          [weakSelf.view makeToast:@"已退出登录"];
+                          [weakSelf.view ne_makeToast:@"已退出登录"];
                         }
                       }];
                     }
@@ -218,7 +220,7 @@ static NSString *cellID = @"menuCellID";
              type:(NERtcCallType)type
        attachment:(nullable NSString *)attachment {
   NSLog(@"menu controoler onInvited");
-  NERtcCallUIConfig *config = [[NERtcCallUIKit sharedInstance] valueForKey:@"config"];
+  NECallUIKitConfig *config = [[NERtcCallUIKit sharedInstance] valueForKey:@"config"];
   if (config.uiConfig.disableShowCalleeView == NO) {
     NSLog(@"callee view show in call ui kit");
     return;
@@ -227,7 +229,7 @@ static NSString *cellID = @"menuCellID";
       fetchUserInfos:@[ invitor ]
           completion:^(NSArray<NIMUser *> *_Nullable users, NSError *_Nullable error) {
             if (error) {
-              [self.view makeToast:error.description];
+              [self.view ne_makeToast:error.description];
               return;
             } else {
               NIMUser *imUser = users.firstObject;

@@ -17,6 +17,7 @@
 #import "NESectionHeaderView.h"
 #import "NSArray+NTES.h"
 #import "NSMacro.h"
+#import <NERtcCallUIKit/NetManager.h>
 
 @interface NEGroupContactsController () <UITextFieldDelegate,
                                          NIMChatManagerDelegate,
@@ -252,7 +253,7 @@
   task.req_mobile = mobile;
   [task postWithCompletion:^(NSDictionary *_Nullable data, NSError *_Nullable error) {
     if (error) {
-      [weakSelf.view makeToast:error.localizedDescription];
+      [weakSelf.view ne_makeToast:error.localizedDescription];
     } else {
       NSDictionary *userDic = [data objectForKey:@"data"];
       if (userDic) {
@@ -265,7 +266,7 @@
         }
       } else {
         [weakSelf.searchResultData removeAllObjects];
-        [weakSelf.view makeToast:@"未找到此用户"];
+        [weakSelf.view ne_makeToast:@"未找到此用户"];
       }
       [weakSelf.contentTable reloadData];
     }
@@ -365,7 +366,7 @@
 
 - (void)didCall {
   if ([self.userController getAllUsers].count <= 0) {
-    [[UIApplication sharedApplication].keyWindow makeToast:@"请选择通话成员"];
+    [[UIApplication sharedApplication].keyWindow ne_makeToast:@"请选择通话成员"];
     return;
   }
 
@@ -461,7 +462,7 @@
     }
   }
   if ([user.imAccid isEqualToString:NIMSDK.sharedSDK.loginManager.currentAccount]) {
-    [UIApplication.sharedApplication.keyWindow makeToast:@"不能呼叫自己"];
+    [UIApplication.sharedApplication.keyWindow ne_makeToast:@"不能呼叫自己"];
     return;
   }
   NEUser *inCallUser = [self.inCallUserDic objectForKey:user.imAccid];
@@ -472,7 +473,7 @@
   NEUser *calledUser = [self.flagDic objectForKey:user.imAccid];
   if (calledUser == nil) {
     if ((self.hasJoinCount + [self.userController getAllUsers].count) >= GroupCallUserLimit) {
-      [UIApplication.sharedApplication.keyWindow makeToast:@"邀请已达上限"];
+      [UIApplication.sharedApplication.keyWindow ne_makeToast:@"邀请已达上限"];
       return;
     }
     [self.userController addUsers:@[ user ]];
@@ -650,7 +651,7 @@
 //- (void)sendMessage:(NIMMessage *)message didCompleteWithError:(NSError *)error {
 //    NSLog(@"send complete : %@", error);
 //    if (error == nil) {
-//        [[UIApplication sharedApplication].keyWindow makeToast:@"自定义消息发送成功"];
+//        [[UIApplication sharedApplication].keyWindow ne_makeToast:@"自定义消息发送成功"];
 //    }
 //}
 //
@@ -658,7 +659,7 @@
 //    NSLog(@"contacts onRecvMessages : %lu", (unsigned long)messages.count);
 //    for (NIMMessage *message in messages) {
 //        if (message.messageType == NIMMessageTypeCustom) {
-//            [[UIApplication sharedApplication].keyWindow makeToast:@"收到消息"];
+//            [[UIApplication sharedApplication].keyWindow ne_makeToast:@"收到消息"];
 //        }
 //    }
 //}

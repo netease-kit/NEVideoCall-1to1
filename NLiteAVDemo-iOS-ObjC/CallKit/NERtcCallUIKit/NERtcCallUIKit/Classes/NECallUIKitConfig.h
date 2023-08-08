@@ -28,12 +28,16 @@ NS_ASSUME_NONNULL_BEGIN
 /// 被叫显示昵称字段还是手机号字段，默认显示昵称
 @property(nonatomic, assign) BOOL calleeShowPhone;
 
+/// 默认NO，关闭视频画面的时候使用 muteLocalVideo ，设置为YES时候，UI组件关闭视频时调用
+/// enableLocalVideo 设置NO来停止本端视频流
+@property(nonatomic, assign) BOOL useEnableLocalMute;
+
 @end
 
-@interface NERtcCallUIConfig : NSObject
+@interface NECallUIKitConfig : NSObject
 
-/// 透传 NERtcCallKit 初始化配置，如果不需要UI组件内部初始化 NERtcCallKit 则不传此参数即可
-@property(nonatomic, strong) NERtcCallOptions *option;
+/// 透传 NECallEngine 初始化配置，如果不需要UI组件内部初始化 NECallEngine 则不传此参数即可
+@property(nonatomic, strong, nullable) NESetupConfig *config;
 
 /// appkey
 @property(nonatomic, strong) NSString *appKey;

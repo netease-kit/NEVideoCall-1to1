@@ -13,6 +13,7 @@
 #import "NESectionHeaderView.h"
 #import "NSArray+NTES.h"
 #import "NSMacro.h"
+#import <NERtcCallUIKit/NetManager.h>
 
 @interface NERtcContactsViewController () <UITextFieldDelegate,
                                            NIMChatManagerDelegate,
@@ -69,8 +70,9 @@
     self.title = @"发起融合呼叫";
   }
   [self setupContent];
-  [self setSetting];
+  //  [self setSetting];
   [self addObserver];
+  //  [[NERingPlayerManager shareInstance] playRingWithRingType:CRTRejectRing isRtcPlay:YES];
 }
 
 - (void)dealloc {
@@ -189,7 +191,7 @@
   task.req_mobile = mobile;
   [task postWithCompletion:^(NSDictionary *_Nullable data, NSError *_Nullable error) {
     if (error) {
-      [weakSelf.view makeToast:error.localizedDescription];
+      [weakSelf.view ne_makeToast:error.localizedDescription];
     } else {
       NSDictionary *userDic = [data objectForKey:@"data"];
       if (userDic) {
@@ -202,7 +204,7 @@
         }
       } else {
         [weakSelf.searchResultData removeAllObjects];
-        [weakSelf.view makeToast:@"未找到此用户"];
+        [weakSelf.view ne_makeToast:@"未找到此用户"];
       }
       [weakSelf.contentTable reloadData];
     }
@@ -276,24 +278,24 @@
 #pragma mark - SearchCellDelegate
 - (void)didSelectSearchUser:(NEUser *)user {
   //    if ([user.imAccid isEqualToString:[NEAccount shared].userModel.imAccid]) {
-  //        [self.view makeToast:@"呼叫用户不可以是自己哦"];
+  //        [self.view ne_makeToast:@"呼叫用户不可以是自己哦"];
   //        return;
   //    }
   //    [self didCallWithUser:user withType:NERtcCallTypeVideo];
 }
 
-- (void)didCallWithUser:(NEUser *)user withType:(NERtcCallType)callType {
+- (void)didCallWithUser:(NEUser *)user withType:(NECallType)callType {
   if ([user.imAccid isEqualToString:[NEAccount shared].userModel.imAccid]) {
-    [self.view makeToast:@"呼叫用户不可以是自己哦"];
+    [self.view ne_makeToast:@"呼叫用户不可以是自己哦"];
     return;
   }
 
   if ([[NetManager shareInstance] isClose] == YES) {
-    [self.view makeToast:@"网络连接异常，请稍后再试"];
+    [self.view ne_makeToast:@"网络连接异常，请稍后再试"];
     return;
   }
 
-  NERtcCallUIConfig *config = [[NERtcCallUIKit sharedInstance] valueForKey:@"config"];
+  NECallUIKitConfig *config = [[NERtcCallUIKit sharedInstance] valueForKey:@"config"];
   if (config.uiConfig.disableShowCalleeView == YES) {
     NEPSTNViewController *callVC = [[NEPSTNViewController alloc] init];
     callVC.localUser = [NEAccount shared].userModel;
@@ -318,7 +320,8 @@
   callParam.remoteDefaultImage = [[SettingManager shareInstance] remoteDefaultImage];
   callParam.muteDefaultImage = [[SettingManager shareInstance] muteDefaultImage];
   callParam.extra = [[SettingManager shareInstance] globalExtra];
-  [[NERtcCallUIKit sharedInstance] callWithParam:callParam withCallType:callType];
+  callParam.callType = callType;
+  [[NERtcCallUIKit sharedInstance] callWithParam:callParam];
 }
 
 #pragma mark - file read & write
@@ -433,9 +436,9 @@
     user.avatar = model.avatar;
   }
   if (self.callKitType == CALLKIT) {
-    [self didCallWithUser:user withType:NERtcCallTypeVideo];
+    [self didCallWithUser:user withType:[self isAudioCall] ? NECallTypeAudio : NECallTypeVideo];
   } else if (self.callKitType == PSTN) {
-    [self didCallWithUser:user withType:NERtcCallTypeAudio];
+    [self didCallWithUser:user withType:NECallTypeAudio];
   }
 }
 
@@ -553,6 +556,12 @@
     _recordHeader.titleLabel.text = @"通话记录";
   }
   return _recordHeader;
+}
+
+- (BOOL)isAudioCall {
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+  NSNumber *number = [defaults objectForKey:@"audio_call"];
+  return number.boolValue;
 }
 
 #pragma mark - call view status delegate

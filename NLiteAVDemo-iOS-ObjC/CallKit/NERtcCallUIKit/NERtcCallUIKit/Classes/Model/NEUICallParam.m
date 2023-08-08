@@ -6,4 +6,12 @@
 
 @implementation NEUICallParam
 
+- (instancetype)init {
+  self = [super init];
+  if (self) {
+    self.enableShowRecorderToast = YES;
+  }
+  return self;
+}
+
 @end

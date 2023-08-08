@@ -3,11 +3,11 @@
 // found in the LICENSE file.
 
 #import <UIKit/UIKit.h>
-#import "NEBaseViewController.h"
+#import "NECallBaseViewController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NERtcContactsViewController : NEBaseViewController
+@interface NERtcContactsViewController : NECallBaseViewController
 
 @property(nonatomic, assign) CallKitType callKitType;
 

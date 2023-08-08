@@ -108,7 +108,7 @@
                      ntes_main_async_safe(^{
                        if (error) {
                          NSString *msg = [error localizedDescription] ?: @"请求错误";
-                         [self.view makeToast:msg];
+                         [self.view ne_makeToast:msg];
                        } else {
                          NTFInputSmsVC *vc =
                              [[NTFInputSmsVC alloc] initWithMobile:self.phoneNumField.text
