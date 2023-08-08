@@ -1,0 +1,37 @@
+/*
+ * Copyright (c) 2022 NetEase, Inc. All rights reserved.
+ * Use of this source code is governed by a MIT license that can be
+ * found in the LICENSE file.
+ */
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+
+    buildFeatures {
+        viewBinding = true
+    }
+}
+
+dependencies {
+    implementation(libs.coreKtx)
+    implementation(libs.kotlinxCoroutinesCore)
+    implementation(libs.kotlinxCoroutinesAndroid)
+    implementation(libs.appcompat)
+    implementation(libs.constraintlayout)
+    implementation(libs.material)
+
+    implementation(libs.alog)
+    implementation(libs.glide)
+    implementation(libs.recyclerview)
+    implementation(libs.lifecycleViewModelKtx)
+
+    implementation (libs.lifecycleProcess)
+    implementation (libs.viewpager2)
+
+    implementation (libs.glideTransformations)
+    api (libs.call)
+}

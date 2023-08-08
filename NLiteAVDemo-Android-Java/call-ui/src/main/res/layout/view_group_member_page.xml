@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/lineV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/lineH"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <include
+        android:id="@+id/item1"
+        layout="@layout/view_item_group_member_on_the_call_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="0.5dp"
+        android:layout_marginBottom="0.5dp"
+        app:layout_constraintBottom_toBottomOf="@id/lineH"
+        app:layout_constraintEnd_toEndOf="@id/lineV"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <include
+        android:id="@+id/item2"
+        layout="@layout/view_item_group_member_on_the_call_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="0.5dp"
+        android:layout_marginBottom="0.5dp"
+        app:layout_constraintBottom_toBottomOf="@id/lineH"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/lineV" />
+
+    <include
+        android:id="@+id/item3"
+        layout="@layout/view_item_group_member_on_the_call_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0.5dp"
+        android:layout_marginEnd="0.5dp"
+        app:layout_constraintEnd_toEndOf="@id/lineV"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/lineH" />
+
+    <include
+        android:id="@+id/item4"
+        layout="@layout/view_item_group_member_on_the_call_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="0.5dp"
+        android:layout_marginTop="0.5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/lineV"
+        app:layout_constraintTop_toTopOf="@id/lineH" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

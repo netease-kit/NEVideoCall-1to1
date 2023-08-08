@@ -1,12 +1,13 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     repositories {
-        google()
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+        google()
         jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.0.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21"
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -15,9 +16,9 @@ buildscript {
 
 allprojects {
     repositories {
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
         google()
         mavenCentral()
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
         maven { url 'http://developer.huawei.com/repo/' }
         maven { url "https://jitpack.io" }
         jcenter()
@@ -42,20 +43,26 @@ ext {
     ]
     AppKey = ''
     BaseUrl = ''
-}
-def loadLocalConfig() {
-    String env = System.getProperty("env", "test")
-    if (env != "test") env = "online"
-    println "env=$env"
-    def propertiesFile = file("config/${env}.properties")
-    if (!propertiesFile.exists()) {
-        println "Local properties don't exist."
-        return
-    }
-    Properties config = new Properties()
-    config.load(propertiesFile.newInputStream())
-    this.AppKey = config.getProperty('APP_KEY')
-    this.BaseUrl = config.getProperty('BASE_URL')
+    libs = new Libs()
 }
 
-loadLocalConfig()
+class Libs{
+    static def coreKtx = "androidx.core:core-ktx:1.7.0"
+    static def appcompat = "androidx.appcompat:appcompat:1.4.2"
+    static def constraintlayout = "androidx.constraintlayout:constraintlayout:2.1.4"
+    static def material = "com.google.android.material:material:1.5.0"
+    static def lifecycleViewModelKtx = "androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1"
+    static def lifecycleProcess = "androidx.lifecycle:lifecycle-process:2.4.1"
+    static def viewpager2 = "androidx.viewpager2:viewpager2:1.0.0"
+    static def glide = "com.github.bumptech.glide:glide:4.13.1"
+    static def glideTransformations = "jp.wasabeef:glide-transformations:4.3.0"
+    static def recyclerview = "androidx.recyclerview:recyclerview:1.2.1"
+    static def alog = "com.netease.yunxin.kit:alog:1.1.0"
+    static def kotlinxCoroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
+    static def kotlinxCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
+    static def call = "com.netease.yunxin.kit.call:call:2.1.0"
+    static def okhttp = "com.squareup.okhttp3:okhttp:4.9.3"
+    static def okhttpLoggingInterceptor = "com.squareup.okhttp3:logging-interceptor:4.9.3"
+    static def retrofitCore = "com.squareup.retrofit2:retrofit:2.9.0"
+    static def retrofitConverterGson = "com.squareup.retrofit2:converter-gson:2.9.0"
+}

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <!-- 被叫用户邀请操作控制 start-->
+    <ImageView
+        android:id="@+id/ivUserAvatarBlur"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageView
+        android:id="@+id/ivUserAvatar"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="160dp"
+        android:src="@drawable/t_avchat_avatar_default"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvUserName"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginTop="5dp"
+        android:textColor="@color/colorWhite"
+        android:textSize="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ivUserAvatar" />
+
+    <TextView
+        android:id="@+id/tvOtherCallTip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="邀请您加入多人通话..."
+        android:textColor="@color/colorWhite"
+        android:textSize="14dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvUserName"
+        tools:ignore="SpUsage" />
+
+    <TextView
+        android:id="@+id/tvOtherCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="还有15人参与通话"
+        android:textColor="@color/colorWhite"
+        android:textSize="14dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvOtherCallTip"
+        tools:ignore="SpUsage" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvUserAvatar"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="15dp"
+        android:overScrollMode="never"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        app:layout_constraintBottom_toTopOf="@id/ivReject"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvOtherCount" />
+
+    <ImageView
+        android:id="@+id/ivReject"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="75dp"
+        android:src="@drawable/call_reject"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/ivAccept"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tvRejectDesc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:text="拒绝"
+        android:textColor="@color/colorWhite"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="@id/ivReject"
+        app:layout_constraintStart_toStartOf="@id/ivReject"
+        app:layout_constraintTop_toBottomOf="@id/ivReject" />
+
+    <ImageView
+        android:id="@+id/ivAccept"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginStart="70dp"
+        android:layout_marginBottom="75dp"
+        android:src="@drawable/icon_call_audio_accept"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/ivReject" />
+
+    <TextView
+        android:id="@+id/tvAcceptTip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:text="接听"
+        android:textColor="@color/colorWhite"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="@id/ivAccept"
+        app:layout_constraintStart_toStartOf="@id/ivAccept"
+        app:layout_constraintTop_toBottomOf="@id/ivAccept" />
+</androidx.constraintlayout.widget.ConstraintLayout>

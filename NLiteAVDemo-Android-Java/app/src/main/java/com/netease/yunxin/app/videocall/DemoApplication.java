@@ -6,14 +6,22 @@ import android.text.TextUtils;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.SDKOptions;
 import com.netease.nimlib.sdk.auth.LoginInfo;
+import com.netease.nimlib.sdk.util.NIMUtil;
 import com.netease.yunxin.app.videocall.login.model.ProfileManager;
 import com.netease.yunxin.app.videocall.login.model.UserModel;
+import com.netease.yunxin.nertc.nertcvideocall.utils.NetworkUtils;
 
 
 public class DemoApplication extends Application {
+    public static DemoApplication app;
+
     @Override
     public void onCreate() {
         super.onCreate();
+        if (NIMUtil.isMainProcess(this)) {
+            NetworkUtils.init(this);
+            app = this;
+        }
         NIMClient.init(this, loginInfo(), options());
     }
 

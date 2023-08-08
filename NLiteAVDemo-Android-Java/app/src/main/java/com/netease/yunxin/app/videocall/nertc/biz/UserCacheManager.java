@@ -1,10 +1,15 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 package com.netease.yunxin.app.videocall.nertc.biz;
 
-import com.blankj.utilcode.util.GsonUtils;
-import com.blankj.utilcode.util.SPUtils;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.netease.yunxin.app.videocall.login.model.ProfileManager;
 import com.netease.yunxin.app.videocall.login.model.UserModel;
-
+import com.netease.yunxin.app.videocall.nertc.utils.SPUtils;
+import com.netease.yunxin.nertc.nertcvideocall.utils.GsonUtils;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -12,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 
 public class UserCacheManager {
 
@@ -24,27 +28,23 @@ public class UserCacheManager {
 
     private static final String USER_LIST = "user_list";
 
-    private static final int MAX_SIZE = 3;
+    private static final int MAX_SIZE = 15;
 
     public static UserCacheManager getInstance() {
         return new UserCacheManager();
     }
 
-    private UserCacheManager() {
-
-    }
+    private UserCacheManager() {}
 
     public void getLastSearchUser(final GetUserCallBack callBack) {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
+        executorService.submit(
+            () -> {
                 if (lastSearchUser == null || lastSearchUser.size() == 0) {
                     loadUsers();
                 }
                 callBack.getUser(lastSearchUser);
-            }
-        });
+            });
     }
 
     public void addUser(final UserModel userModel) {
@@ -52,9 +52,8 @@ public class UserCacheManager {
             userModelMap.put(userModel.imAccid, userModel);
         }
         ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
+        executorService.submit(
+            () -> {
                 if (lastSearchUser == null || lastSearchUser.size() == 0) {
                     loadUsers();
                 }
@@ -70,19 +69,19 @@ public class UserCacheManager {
                     lastSearchUser.add(userModel);
                 }
                 uploadUsers();
-            }
-        });
+            });
     }
 
-    public UserModel getUserModelFromAccId(String accId){
+    public UserModel getUserModelFromAccId(String accId) {
         return userModelMap.get(accId);
     }
 
     private void loadUsers() {
         UserModel currentUser = ProfileManager.getInstance().getUserModel();
-        String userStr = SPUtils.getInstance(LAST_SEARCH_USER + currentUser.mobile).getString(USER_LIST);
-        Type type = GsonUtils.getListType(UserModel.class);
-        lastSearchUser = GsonUtils.fromJson(userStr, type);
+        String userStr =
+            SPUtils.getInstance(LAST_SEARCH_USER + currentUser.mobile).getString(USER_LIST);
+        Type type = TypeToken.getParameterized(List.class, UserModel.class).getType();
+        lastSearchUser = new Gson().fromJson(userStr, type);
     }
 
     private void uploadUsers() {

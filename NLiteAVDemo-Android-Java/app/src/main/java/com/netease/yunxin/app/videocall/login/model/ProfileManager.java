@@ -2,8 +2,6 @@ package com.netease.yunxin.app.videocall.login.model;
 
 import android.text.TextUtils;
 
-import com.blankj.utilcode.util.GsonUtils;
-import com.blankj.utilcode.util.SPUtils;
 import com.netease.nimlib.sdk.AbortableFuture;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
@@ -12,12 +10,13 @@ import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.nimlib.sdk.uinfo.UserService;
 import com.netease.nimlib.sdk.uinfo.constant.UserInfoFieldEnum;
 import com.netease.yunxin.app.videocall.base.CommonDataManager;
-import com.netease.yunxin.nertc.nertcvideocall.model.UserInfoInitCallBack;
+import com.netease.yunxin.app.videocall.nertc.utils.SPUtils;
+import com.netease.yunxin.nertc.nertcvideocall.utils.GsonUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public final class ProfileManager implements UserInfoInitCallBack {
+public final class ProfileManager {
     private static final ProfileManager instance = new ProfileManager();
 
     public static ProfileManager getInstance() {
@@ -136,16 +135,5 @@ public final class ProfileManager implements UserInfoInitCallBack {
         token = null;
         NIMClient.getService(AuthService.class).logout();
         SPUtils.getInstance(CommonDataManager.PER_DATA).put(PER_USER_MODEL, "");
-    }
-
-    @Override
-    public void onUserLoginToIm(String imAccId, String imToken) {
-        UserModel userModel = getUserModel();
-        if (userModel==null){
-            userModel=new UserModel();
-        }
-        userModel.imAccid = imAccId;
-        userModel.imToken = imToken;
-        setUserModel(userModel);
     }
 }

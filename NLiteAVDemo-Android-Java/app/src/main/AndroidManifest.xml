@@ -34,10 +34,10 @@
 
     <!-- 下面的 uses-permission 一起加入到你的 AndroidManifest 文件中。 -->
     <permission
-        android:name="com.netease.yunxin.nertc.demo.permission.RECEIVE_MSG"
+        android:name="com.netease.yunxin.app.videocall.permission.RECEIVE_MSG"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="com.netease.yunxin.nertc.demo.permission.RECEIVE_MSG" />
+    <uses-permission android:name="com.netease.yunxin.app.videocall.permission.RECEIVE_MSG" />
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
@@ -132,7 +132,7 @@
         <!-- android:authorities="{包名}.ipc.provider", 请将com.netease.nim.demo替换为自己的包名 -->
         <provider
             android:name="com.netease.nimlib.ipc.NIMContentProvider"
-            android:authorities="com.netease.videocall.demo.ipc.provider"
+            android:authorities="com.netease.yunxin.app.videocall.ipc.provider"
             android:exported="false"
             android:process=":core" />
     </application>

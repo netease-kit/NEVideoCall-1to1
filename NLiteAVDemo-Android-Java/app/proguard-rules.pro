@@ -19,3 +19,23 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-dontwarn com.netease.nim.**
+-keep class com.netease.nim.** {*;}
+
+-dontwarn com.netease.nimlib.**
+-keep class com.netease.nimlib.** {*;}
+
+-dontwarn com.netease.share.**
+-keep class com.netease.share.** {*;}
+
+-dontwarn com.netease.mobsec.**
+-keep class com.netease.mobsec.** {*;}
+
+-keep class com.netease.lava.** {*;}
+-keep class com.netease.yunxin.** {*;}
+
+-dontwarn com.netease.yunxin.kit.**
+-keep class com.netease.yunxin.kit.** {*;}
+-keep public class * extends com.netease.yunxin.kit.corekit.XKitInitOptions
+-keep class * implements com.netease.yunxin.kit.corekit.XKitService {*;}

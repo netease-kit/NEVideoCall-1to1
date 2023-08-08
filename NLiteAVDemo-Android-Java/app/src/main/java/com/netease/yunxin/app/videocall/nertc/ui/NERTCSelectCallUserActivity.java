@@ -17,12 +17,9 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.blankj.utilcode.util.NetworkUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.netease.yunxin.app.videocall.R;
 import com.netease.yunxin.app.videocall.base.BaseService;
 import com.netease.yunxin.app.videocall.login.model.ProfileManager;
@@ -33,6 +30,7 @@ import com.netease.yunxin.app.videocall.login.model.UserModel;
 import com.netease.yunxin.app.videocall.nertc.biz.UserCacheManager;
 import com.netease.yunxin.app.videocall.nertc.model.CallOrder;
 import com.netease.yunxin.app.videocall.nertc.ui.adapter.RecentUserAdapter;
+import com.netease.yunxin.nertc.nertcvideocall.utils.NetworkUtils;
 
 import java.util.List;
 
@@ -128,13 +126,10 @@ public class NERTCSelectCallUserActivity extends AppCompatActivity {
         UserModel currentUser = ProfileManager.getInstance().getUserModel();
         tvSelfNumber.setText(String.format(getString(R.string.your_phone_number_is), currentUser.mobile));
 
-        CallOrderManager.getInstance().getOrdersLiveData().observe(this, new Observer<List<CallOrder>>() {
-            @Override
-            public void onChanged(List<CallOrder> orders) {
-                callOrderAdapter.updateItem(orders);
-                if (!orders.isEmpty()) {
-                    tvCallRecord.setVisibility(View.VISIBLE);
-                }
+        CallOrderManager.getInstance().getOrdersLiveData().observe(this, orders -> {
+            callOrderAdapter.updateItem(orders);
+            if (!orders.isEmpty()) {
+                tvCallRecord.setVisibility(View.VISIBLE);
             }
         });
 
@@ -169,7 +164,7 @@ public class NERTCSelectCallUserActivity extends AppCompatActivity {
                             }
                             UserCacheManager.getInstance().addUser(response);
                         } else {
-                            ToastUtils.showLong(R.string.nertc_cant_find_this_user);
+                            Toast.makeText(NERTCSelectCallUserActivity.this, R.string.nertc_cant_find_this_user, Toast.LENGTH_SHORT).show();
                         }
                     }
 
