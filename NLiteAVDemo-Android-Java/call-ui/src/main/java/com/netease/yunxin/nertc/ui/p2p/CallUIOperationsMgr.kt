@@ -102,15 +102,13 @@ object CallUIOperationsMgr {
 
     private lateinit var context: Context
 
-    init {
-        callEngine.addCallDelegate(callEngineDelegate)
-        NERtcCallbackProxyMgr.getInstance().addCallback(neRtcCallback)
-    }
 
     /**
      * 初始化呼叫信息及状态
      */
     fun initCallInfoAndUIState(callInfoWithUIState: CallInfoWithUIState): String? {
+        callEngine.addCallDelegate(callEngineDelegate)
+        NERtcCallbackProxyMgr.getInstance().addCallback(neRtcCallback)
         ALog.d(
             TAG,
             ParameterMap("initCallInfoAndUIState").append(
@@ -138,6 +136,8 @@ object CallUIOperationsMgr {
             )
             return
         }
+        callEngine.removeCallDelegate(callEngineDelegate)
+        NERtcCallbackProxyMgr.getInstance().removeCallback(neRtcCallback)
         this.callInfoWithUIState = CallInfoWithUIState()
         this.timer?.cancel()
         this.timer = null
