@@ -18,6 +18,7 @@ import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.kit.alog.ParameterMap
 import com.netease.yunxin.kit.call.NEResultObserver
 import com.netease.yunxin.kit.call.p2p.NECallEngine
+import com.netease.yunxin.kit.call.p2p.model.NECallEndInfo
 import com.netease.yunxin.kit.call.p2p.model.NECallEngineDelegateAbs
 import com.netease.yunxin.kit.call.p2p.model.NECallInfo
 import com.netease.yunxin.kit.call.p2p.model.NECallTypeChangeInfo
@@ -84,6 +85,12 @@ object CallUIOperationsMgr {
                     timeTickConfig?.onTimeTick?.invoke(it)
                 }
             }
+        }
+
+        override fun onCallEnd(info: NECallEndInfo?) {
+            this@CallUIOperationsMgr.timer?.cancel()
+            this@CallUIOperationsMgr.timer = null
+            this@CallUIOperationsMgr.timeTickConfig = null
         }
     }
 
