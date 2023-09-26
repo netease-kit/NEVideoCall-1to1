@@ -9,9 +9,9 @@ App<IAppOption>({
     nim: undefined,
   },
   onLaunch() {
-    const appKey = "56813bdfbaa1c2a29bbea391ffbbe27a"; // 请填写自己应用的 appKey
-    const account = "312628990132480"; // 请填写当前用户的im账号
-    const token = "2b83ac96-9600-4173-a1da-25cbe59221bf"; // 请填写当前用户的im token
+    const appKey = ""; // 请填写自己应用的 appKey
+    const account = ""; // 请填写当前用户的im账号
+    const token = ""; // 请填写当前用户的im token
     const nim = NIM.getInstance({
       appKey,
       token,
@@ -19,12 +19,13 @@ App<IAppOption>({
       debugLevel: "debug",
       onconnect: () => {
         this.globalData.nim = nim;
-        this.globalData.neCall = NECall.getInstance() as any;
-        this.globalData.neCall.setup({
+        this.globalData.neCall = new NECall({
           nim,
-          appkey: appKey,
-        })
-        this.globalData.neCall.on("onReceiveInvited", () => {
+          appKey,
+          currentUserInfo: { accId: account },
+          debug: true,
+        }) as unknown as WXNECall;
+        this.globalData.neCall?.on("onReceiveInvited", () => {
           // 接收到邀请后跳转到呼叫页面，路由用户可以自定义，该页面下需要包含 `@xkit-yx/call-kit-wx-ui` 相关的 UI 组件
           wx.navigateTo({
             url: "/pages/call/call",
