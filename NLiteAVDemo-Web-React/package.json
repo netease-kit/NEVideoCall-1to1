@@ -9,10 +9,9 @@
     "start": "npm run dev"
   },
   "dependencies": {
-    "@xkit-yx/call-kit": "^2.0.0",
-    "@xkit-yx/call-kit-react-ui": "^0.4.0",
-    "@xkit-yx/login-react-ui": "^0.2.6",
-    "@xkit-yx/utils": "^0.4.3",
+    "@xkit-yx/call-kit": "^2.1.2",
+    "@xkit-yx/call-kit-react-ui": "^0.4.5",
+    "@yxim/nim-web-sdk": "^8.9.117",
     "antd": "^4.23.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",

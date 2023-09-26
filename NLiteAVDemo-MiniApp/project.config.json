@@ -8,7 +8,9 @@
   "compileType": "miniprogram",
   "projectname": "ts-demo",
   "setting": {
-    "useCompilerPlugins": ["typescript"],
+    "useCompilerPlugins": [
+      "typescript"
+    ],
     "babelSetting": {
       "ignore": [],
       "disablePlugins": [],
@@ -26,7 +28,7 @@
   "simulatorPluginLibVersion": {},
   "condition": {},
   "srcMiniprogramRoot": "miniprogram/",
-  "appid": "",
+  "appid": "wx2c192ef6a14ef778",
   "libVersion": "2.28.1",
   "editorSetting": {
     "tabIndent": "insertSpaces",

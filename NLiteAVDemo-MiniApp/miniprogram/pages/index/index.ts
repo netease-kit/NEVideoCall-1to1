@@ -35,7 +35,7 @@ Page<IPageData, any>({
   },
   startCall() {
     app.globalData.neCall
-      ?.call({
+      .call({
         callType: this.data.callType,
         accId: this.data.imAccid,
       })

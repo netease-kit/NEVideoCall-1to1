@@ -6,7 +6,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@xkit-yx/call-kit": "^1.8.2",
+    "@xkit-yx/call-kit": "^2.0.1",
     "@xkit-yx/call-kit-wx-ui": "^0.0.2"
   },
   "devDependencies": {
