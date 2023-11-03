@@ -23,7 +23,6 @@ import com.bumptech.glide.request.target.Target
 import com.netease.nimlib.sdk.NIMClient
 import com.netease.nimlib.sdk.RequestCallbackWrapper
 import com.netease.nimlib.sdk.nos.NosService
-import com.netease.nimlib.sdk.team.TeamService
 import com.netease.nimlib.sdk.uinfo.UserService
 import com.netease.nimlib.sdk.uinfo.model.NimUserInfo
 import com.netease.nimlib.sdk.uinfo.model.UserInfo
@@ -52,6 +51,11 @@ private val bgRes = intArrayOf(
 private const val AVATAR_NAME_LEN = 2
 
 /**
+ * 内部缓存用户昵称信息
+ */
+private val nameMap = mutableMapOf<String, String?>()
+
+/**
  * 直接展示用户头像，如果用户只有短链会自动解析长链进行展示
  */
 fun String.loadAvatarByAccId(
@@ -61,17 +65,12 @@ fun String.loadAvatarByAccId(
     txtView: TextView? = null,
     enableTextDefaultAvatar: Boolean
 ) {
-    val extension = UserInfoExtensionHelper.userInfoHelper
-    if (extension?.loadAvatar(context, this, imageView) == true) {
-        return
-    }
     val applicationContext = context.applicationContext
     val defaultResId = R.drawable.t_avchat_avatar_default
 
     val thumbSize = applicationContext.resources.getDimension(R.dimen.avatar_max_size).toInt()
 
-    val loadAction: (String?, String) -> Unit = { url, name ->
-
+    val loadAction: (String?, Int, String) -> Unit = { url, res, name ->
         val requestBuilder = Glide.with(applicationContext).asBitmap().load(url)
             .listener(object : RequestListener<Bitmap> {
                 override fun onLoadFailed(
@@ -101,7 +100,7 @@ fun String.loadAvatarByAccId(
                     isFirstResource: Boolean
                 ): Boolean = false
             }).transform(RoundedCornersCenterCrop(4.dip2Px(context))).apply(
-                RequestOptions().placeholder(defaultResId).error(defaultResId)
+                RequestOptions().placeholder(res).error(res)
                     .override(thumbSize, thumbSize)
             )
         imageView?.run {
@@ -112,12 +111,12 @@ fun String.loadAvatarByAccId(
     val userInfo: UserInfo? = NIMClient.getService(UserService::class.java).getUserInfo(this)
     val getLongUrlAndLoad: (String?, String) -> Unit = { url, name ->
         if (url == null) {
-            loadAction(null, name)
+            loadAction(null, defaultResId, name)
         } else {
             NIMClient.getService(NosService::class.java).getOriginUrlFromShortUrl(url)
                 .setCallback(object : RequestCallbackWrapper<String>() {
                     override fun onResult(code: Int, result: String?, exception: Throwable?) {
-                        loadAction(result, name)
+                        loadAction(result, defaultResId, name)
                         bgView?.run {
                             Glide.with(applicationContext).asBitmap().load(result)
                                 .transform(BlurCenterCorp(51, 3)).into(this)
@@ -125,6 +124,24 @@ fun String.loadAvatarByAccId(
                     }
                 })
         }
+    }
+    // 用户自定义头像
+    val extension = UserInfoExtensionHelper.userInfoHelper
+    if (extension?.fetchAvatar(context, this) { url, res ->
+            loadAction(
+                url,
+                res ?: defaultResId,
+                nameMap[this] ?: this@loadAvatarByAccId
+            )
+            bgView?.run {
+                Glide.with(applicationContext).asBitmap().load(url)
+                    .error(res ?: defaultResId)
+                    .placeholder(res ?: defaultResId)
+                    .transform(BlurCenterCorp(51, 3)).into(this)
+            }
+        } == true
+    ) {
+        return
     }
     if (userInfo?.avatar != null) {
         getLongUrlAndLoad(userInfo.avatar, getNameFromInfo(userInfo.name, this@loadAvatarByAccId))
@@ -134,7 +151,7 @@ fun String.loadAvatarByAccId(
         .setCallback(object : RequestCallbackWrapper<List<NimUserInfo?>>() {
             override fun onResult(code: Int, result: List<NimUserInfo?>?, exception: Throwable?) {
                 if (result.isNullOrEmpty()) {
-                    loadAction(null, this@loadAvatarByAccId)
+                    loadAction(null, defaultResId, this@loadAvatarByAccId)
                     return
                 }
                 getLongUrlAndLoad(
@@ -146,39 +163,12 @@ fun String.loadAvatarByAccId(
 }
 
 /**
- * 通过 accId， teamId 获取用户在 teamId 中的昵称，如果昵称为空，则使用使用成员用户昵称，如用户昵称为空则使用 accId
- */
-fun String.fetchNicknameByTeam(teamId: String, notify: ((String) -> Unit)) {
-    val extension = UserInfoExtensionHelper.userInfoHelper
-    if (extension?.fetchNicknameByTeam(this, teamId) {
-            notify(it)
-        } == true
-    ) {
-        return
-    }
-    val teamMember =
-        NIMClient.getService(TeamService::class.java).queryTeamMemberBlock(teamId, this)
-
-    val name = if (teamMember?.teamNick?.trim()?.isEmpty() == false) {
-        teamMember.teamNick
-    } else {
-        null
-    }
-    if (name == null) {
-        fetchNickname {
-            notify(it)
-        }
-    } else {
-        notify(name)
-    }
-}
-
-/**
  * 获取用户的 昵称信息，如果为空 则返回 accId
  */
 fun String.fetchNickname(notify: ((String) -> Unit)) {
     val extension = UserInfoExtensionHelper.userInfoHelper
     if (extension?.fetchNickname(this) {
+            nameMap[this] = it
             notify(it)
         } == true
     ) {

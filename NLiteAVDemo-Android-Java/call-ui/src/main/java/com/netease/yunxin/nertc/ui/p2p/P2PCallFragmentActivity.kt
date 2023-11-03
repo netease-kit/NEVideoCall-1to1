@@ -6,10 +6,10 @@
 
 package com.netease.yunxin.nertc.ui.p2p
 
+import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
-import androidx.appcompat.app.AlertDialog
 import com.netease.lava.nertc.sdk.video.NERtcVideoView
 import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.kit.call.NEResultObserver
@@ -37,13 +37,14 @@ import com.netease.yunxin.nertc.ui.p2p.fragment.P2PCallFragmentType.VIDEO_CALLEE
 import com.netease.yunxin.nertc.ui.p2p.fragment.P2PCallFragmentType.VIDEO_CALLER
 import com.netease.yunxin.nertc.ui.p2p.fragment.P2PCallFragmentType.VIDEO_ON_THE_CALL
 import com.netease.yunxin.nertc.ui.p2p.fragment.P2PUIUpdateType.CHANGE_CALL_TYPE
+import com.netease.yunxin.nertc.ui.p2p.fragment.P2PUIUpdateType.FROM_FLOATING_WINDOW
+import com.netease.yunxin.nertc.ui.p2p.fragment.P2PUIUpdateType.INIT
 import com.netease.yunxin.nertc.ui.p2p.fragment.callee.AudioCalleeFragment
 import com.netease.yunxin.nertc.ui.p2p.fragment.callee.VideoCalleeFragment
 import com.netease.yunxin.nertc.ui.p2p.fragment.caller.AudioCallerFragment
 import com.netease.yunxin.nertc.ui.p2p.fragment.caller.VideoCallerFragment
 import com.netease.yunxin.nertc.ui.p2p.fragment.onthecall.AudioOnTheCallFragment
 import com.netease.yunxin.nertc.ui.p2p.fragment.onthecall.VideoOnTheCallFragment
-import com.netease.yunxin.nertc.ui.utils.SwitchCallTypeConfirmDialog
 import com.netease.yunxin.nertc.ui.utils.toastShort
 
 open class P2PCallFragmentActivity : CommonCallActivity() {
@@ -64,6 +65,10 @@ open class P2PCallFragmentActivity : CommonCallActivity() {
             get() = this@P2PCallFragmentActivity.isLocalMuteVideo
         override val isLocalMuteSpeaker: Boolean
             get() = this@P2PCallFragmentActivity.isLocalMuteSpeaker
+        override val isLocalSmallVideo: Boolean
+            get() = this@P2PCallFragmentActivity.isLocalSmallVideo
+        override val isVirtualBlur: Boolean
+            get() = this@P2PCallFragmentActivity.isVirtualBlur
 
         override fun isSpeakerOn(): Boolean = this@P2PCallFragmentActivity.isSpeakerOn()
 
@@ -72,6 +77,9 @@ open class P2PCallFragmentActivity : CommonCallActivity() {
         override fun doMuteAudio(mute: Boolean) = this@P2PCallFragmentActivity.doMuteAudio(mute)
 
         override fun doMuteVideo(mute: Boolean) = this@P2PCallFragmentActivity.doMuteVideo(mute)
+
+        override fun doVirtualBlur(enable: Boolean) =
+            this@P2PCallFragmentActivity.doVirtualBlur(enable)
 
         override fun doSwitchCamera() = this@P2PCallFragmentActivity.doSwitchCamera()
 
@@ -84,7 +92,11 @@ open class P2PCallFragmentActivity : CommonCallActivity() {
         override fun doAccept(observer: NEResultObserver<CommonResult<NECallInfo>>?) =
             this@P2PCallFragmentActivity.doAccept(observer)
 
-        override fun doHangup(observer: NEResultObserver<CommonResult<Void>>?, channelId: String?, extraInfo: String?) {
+        override fun doHangup(
+            observer: NEResultObserver<CommonResult<Void>>?,
+            channelId: String?,
+            extraInfo: String?
+        ) {
             this@P2PCallFragmentActivity.doHangup(observer, channelId, extraInfo)
             finish()
         }
@@ -93,16 +105,24 @@ open class P2PCallFragmentActivity : CommonCallActivity() {
             callType: Int, switchCallState: Int, observer: NEResultObserver<CommonResult<Void>>?
         ) = this@P2PCallFragmentActivity.doSwitchCallType(callType, switchCallState, observer)
 
-        override fun setupLocalView(view: NERtcVideoView?) =
-            this@P2PCallFragmentActivity.setupLocalView(view)
+        override fun setupLocalView(view: NERtcVideoView?, action: ((NERtcVideoView?) -> Unit)?) {
+            this@P2PCallFragmentActivity.setupLocalView(view, action)
+        }
 
-        override fun setupRemoteView(view: NERtcVideoView?) =
-            this@P2PCallFragmentActivity.setupRemoteView(view)
+        override fun setupRemoteView(view: NERtcVideoView?, action: ((NERtcVideoView?) -> Unit)?) {
+            this@P2PCallFragmentActivity.setupRemoteView(view, action)
+        }
 
         override fun currentCallState(): Int = this@P2PCallFragmentActivity.currentCallState()
 
         override fun showPermissionDialog(clickListener: View.OnClickListener) =
             this@P2PCallFragmentActivity.showPermissionDialog(clickListener)
+
+        override fun showFloatingWindow() = this@P2PCallFragmentActivity.doShowFloatingWindow()
+
+        override fun startVideoPreview() = this@P2PCallFragmentActivity.startVideoPreview()
+
+        override fun stopVideoPreview() = this@P2PCallFragmentActivity.stopVideoPreview()
     }
 
     private var currentFragment: BaseP2pCallFragment? = null
@@ -114,14 +134,6 @@ open class P2PCallFragmentActivity : CommonCallActivity() {
     private val audioCallerFragment = AudioCallerFragment()
     private val audioCalleeFragment = AudioCalleeFragment()
     private val audioOnTheCallFragment = AudioOnTheCallFragment()
-
-    private val switchConfirmDialog by lazy {
-        SwitchCallTypeConfirmDialog(this, {
-            doSwitchCallType(it, SwitchCallState.ACCEPT)
-        }, {
-            doSwitchCallType(it, SwitchCallState.REJECT)
-        })
-    }
 
     override fun onCallEnd(info: NECallEndInfo) {
         when (info.reasonCode) {
@@ -170,7 +182,7 @@ open class P2PCallFragmentActivity : CommonCallActivity() {
             }
 
             SwitchCallState.INVITE -> {
-                switchConfirmDialog.show(info.callType)
+                showSwitchCallTypeConfirmDialog(info.callType)
             }
 
             SwitchCallState.REJECT -> {
@@ -229,8 +241,7 @@ open class P2PCallFragmentActivity : CommonCallActivity() {
         confirmDialog.setPositiveButton(
             R.string.tip_dialog_finish_call_positive
         ) { _: DialogInterface?, _: Int ->
-            doHangup()
-            finish()
+            releaseAndFinish(true)
         }
         confirmDialog.setNegativeButton(
             R.string.tip_dialog_finish_call_negative
@@ -244,28 +255,36 @@ open class P2PCallFragmentActivity : CommonCallActivity() {
     ) {
         val fragment = getFragment(callState, callType)
         if (fragment == null) {
-            ALog.e(tag, "currentFragment is null, currentCallState is ${currentCallState()}.")
+            ALog.e(tag, "currentFragment is null, callState is $callState, callType is $callType.")
             finish()
             return
         }
-        fragment.configData(bridge)
-        if (fragment != currentFragment) {
-            supportFragmentManager.beginTransaction().add(R.id.clRoot, fragment)
-                .commitAllowingStateLoss()
-            currentFragment?.run {
-                supportFragmentManager.beginTransaction().remove(this).commitAllowingStateLoss()
+        fragment.configData(
+            bridge,
+            if (isFromFloatingWindow) {
+                FROM_FLOATING_WINDOW
+            } else {
+                INIT
             }
+        )
+        if (fragment != currentFragment) {
+            val tag = "${getFragmentKey(callState, callType)}"
+            val transaction = supportFragmentManager.beginTransaction()
+            if (supportFragmentManager.findFragmentByTag(tag) == fragment) {
+                transaction.show(fragment)
+            } else {
+                transaction.add(R.id.clRoot, fragment, tag)
+            }
+            currentFragment?.run {
+                transaction.hide(this)
+            }
+            transaction.commitAllowingStateLoss()
         }
         currentFragment = fragment
     }
 
-    protected fun getFragment(callState: Int, callType: Int): BaseP2pCallFragment? {
-        val key = when (callState) {
-            STATE_CALL_OUT, STATE_IDLE -> if (callType == NECallType.VIDEO) VIDEO_CALLER else AUDIO_CALLER
-            STATE_INVITED -> if (callType == NECallType.VIDEO) VIDEO_CALLEE else AUDIO_CALLEE
-            STATE_DIALOG -> if (callType == NECallType.VIDEO) VIDEO_ON_THE_CALL else AUDIO_ON_THE_CALL
-            else -> null
-        } ?: return null
+    protected open fun getFragment(callState: Int, callType: Int): BaseP2pCallFragment? {
+        val key = getFragmentKey(callState, callType) ?: return null
         return uiConfig?.customCallFragmentMap?.get(key) ?: when (key) {
             VIDEO_CALLEE -> videoCalleeFragment
             VIDEO_CALLER -> videoCallerFragment
@@ -273,6 +292,15 @@ open class P2PCallFragmentActivity : CommonCallActivity() {
             AUDIO_CALLEE -> audioCalleeFragment
             AUDIO_CALLER -> audioCallerFragment
             AUDIO_ON_THE_CALL -> audioOnTheCallFragment
+            else -> null
+        }
+    }
+
+    protected open fun getFragmentKey(callState: Int, callType: Int): Int? {
+        return when (callState) {
+            STATE_CALL_OUT, STATE_IDLE -> if (callType == NECallType.VIDEO) VIDEO_CALLER else AUDIO_CALLER
+            STATE_INVITED -> if (callType == NECallType.VIDEO) VIDEO_CALLEE else AUDIO_CALLEE
+            STATE_DIALOG -> if (callType == NECallType.VIDEO) VIDEO_ON_THE_CALL else AUDIO_ON_THE_CALL
             else -> null
         }
     }

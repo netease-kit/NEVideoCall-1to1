@@ -301,6 +301,7 @@ object CallKitUI {
         if (options?.enableGroup == true) {
             NEGroupCall.instance().release()
         }
+        UserInfoExtensionHelper.userInfoHelper = null
         ALog.d(TAG, "CallKitUI destroy inner, completed.")
     }
 

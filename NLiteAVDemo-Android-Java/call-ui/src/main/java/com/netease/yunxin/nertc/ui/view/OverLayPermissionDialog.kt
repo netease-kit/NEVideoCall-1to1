@@ -4,7 +4,7 @@
  * found in the LICENSE file.
  */
 
-package com.netease.yunxin.nertc.ui.utils
+package com.netease.yunxin.nertc.ui.view
 
 import android.app.Activity
 import android.app.Dialog
@@ -13,26 +13,16 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
-import com.netease.yunxin.kit.call.p2p.model.NECallType
+import androidx.annotation.LayoutRes
 import com.netease.yunxin.nertc.ui.R
-import com.netease.yunxin.nertc.ui.databinding.ViewSwitchCallTypeTipDialogBinding
+import com.netease.yunxin.nertc.ui.utils.dip2Px
 
-/**
- * 底部弹窗基类，子类需要实现 顶部view，以及底部view 的渲染即可
- */
-open class SwitchCallTypeConfirmDialog(
-    activity: Activity,
-    val onPositive: (Int) -> Unit,
-    val onNegative: (Int) -> Unit
-) :
+open class OverLayPermissionDialog(activity: Activity, private val clickListener: View.OnClickListener) :
     Dialog(
         activity,
         R.style.BottomDialogTheme
     ) {
-    private val binding: ViewSwitchCallTypeTipDialogBinding by lazy {
-        ViewSwitchCallTypeTipDialogBinding.inflate(LayoutInflater.from(context))
-    }
-
+    private var rootView: View
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val window = window
@@ -44,45 +34,36 @@ open class SwitchCallTypeConfirmDialog(
             wlp.height = WindowManager.LayoutParams.WRAP_CONTENT
             window.attributes = wlp
         }
-        setContentView(binding.root)
+        setContentView(rootView)
         setCanceledOnTouchOutside(false)
-        setCancelable(false)
+        setCancelable(true)
+    }
+
+    @LayoutRes
+    private fun contentLayoutId(): Int {
+        return R.layout.view_overlay_permission_tip_dialog
     }
 
     /**
      * 页面渲染
      */
-    protected open fun renderRootView(rootView: View?, type: Int) {
+    private fun renderRootView(rootView: View?) {
         if (rootView == null) {
             return
         }
-
-        binding.tvTipAccept.setOnClickListener {
-            onPositive(type)
-            dismiss()
-        }
-
-        binding.tvTipReject.setOnClickListener {
-            onNegative(type)
-            dismiss()
+        val button = rootView.findViewById<View>(R.id.tv_tip_ok)
+        button.setOnClickListener {
+            clickListener.onClick(it)
         }
     }
 
-    final override fun show() {
-        super.show()
-    }
-
-    open fun show(type: Int) {
+    override fun show() {
         if (isShowing) {
             return
         }
-
-        binding.tvTipContent.setText(
-            if (type == NECallType.AUDIO) R.string.ui_dialog_switch_call_type_content_audio else R.string.ui_dialog_switch_call_type_content_video
-        )
-        renderRootView(binding.root, type)
+        renderRootView(rootView)
         try {
-            show()
+            super.show()
         } catch (ignored: Throwable) {
             ignored.printStackTrace()
         }
@@ -96,5 +77,9 @@ open class SwitchCallTypeConfirmDialog(
             super.dismiss()
         } catch (ignored: Throwable) {
         }
+    }
+
+    init {
+        rootView = LayoutInflater.from(context).inflate(contentLayoutId(), null)
     }
 }

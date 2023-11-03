@@ -10,9 +10,11 @@ import android.content.Context
 import com.netease.yunxin.kit.call.p2p.NECallEngine
 import com.netease.yunxin.kit.call.p2p.model.NECallPushConfig
 import com.netease.yunxin.kit.corekit.XKitService
+import com.netease.yunxin.kit.corekit.model.ResultInfo
 import com.netease.yunxin.kit.corekit.model.ResultObserver
 import com.netease.yunxin.kit.corekit.route.XKitRouter
 import com.netease.yunxin.kit.corekit.startup.Initializer
+import com.netease.yunxin.nertc.nertcvideocall.model.impl.state.CallState
 import com.netease.yunxin.nertc.ui.CallKitUI.startSingleCall
 import com.netease.yunxin.nertc.ui.base.CallParam
 import com.netease.yunxin.nertc.ui.base.Constants
@@ -33,6 +35,28 @@ class CallKitUIService : XKitService {
     }
 
     override fun create(context: Context): XKitService {
+        XKitRouter.registerRouter(
+            Constants.PATH_IS_CALL_IDLE,
+            XKitRouter.RouterValue(
+                Constants.PATH_IS_CALL_IDLE,
+                object : XKitRouter.Navigator {
+                    override fun navigate(
+                        value: Any,
+                        params: MutableMap<String, Any?>,
+                        observer: ResultObserver<Any?>?
+                    ): Boolean {
+                        observer?.onResult(
+                            ResultInfo(
+                                value = NECallEngine.sharedInstance().callInfo.callStatus == CallState.STATE_IDLE,
+                                success = true
+                            )
+                        )
+                        return true
+                    }
+                }
+            )
+        )
+
         XKitRouter.registerRouter(
             Constants.PATH_CALL_SINGLE_PAGE,
             XKitRouter.RouterValue(

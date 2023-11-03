@@ -6,7 +6,7 @@
 
 package com.netease.yunxin.nertc.ui.utils
 
-import java.util.*
+import java.util.Locale
 
 fun Long.formatSecondTime(): String {
     if (this <= 0) {

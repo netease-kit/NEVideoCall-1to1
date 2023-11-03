@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2021 NetEase, Inc.  All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:ignore="SpUsage"
+    android:background="@drawable/shape_permission_dialog_bg">
+
+    <TextView
+        android:id="@+id/tv_tip_title"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:gravity="center"
+        android:text="@string/ui_dialog_overlay_permission_title"
+        android:textColor="@color/black"
+        android:textSize="18dp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_tip_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingEnd="20dp"
+        android:paddingStart="20dp"
+        android:text="@string/ui_dialog_overlay_permission_content"
+        android:textColor="@color/color_666666"
+        android:textSize="15.5dp"
+        app:layout_constraintTop_toBottomOf="@id/tv_tip_title" />
+
+    <View
+        android:id="@+id/divide"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="30dp"
+        android:background="@color/color_e6e7eb"
+        app:layout_constraintTop_toBottomOf="@id/tv_tip_content" />
+
+    <TextView
+        android:id="@+id/tv_tip_ok"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:gravity="center"
+        android:text="@string/ui_dialog_overlay_permission_positive"
+        android:textColor="@color/color_black_333333"
+        android:textSize="19dp"
+        app:layout_constraintTop_toBottomOf="@id/divide" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -62,5 +62,7 @@ dependencies {
     implementation(libs.okhttpLoggingInterceptor)
     implementation(libs.retrofitCore)
     implementation(libs.retrofitConverterGson)
+    implementation(libs.nertc.nenn)
+    implementation(libs.nertc.segment)
     implementation project(':call-ui')
 }

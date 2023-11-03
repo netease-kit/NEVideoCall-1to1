@@ -16,4 +16,9 @@ object P2PUIUpdateType {
      * 变更通话类型
      */
     const val CHANGE_CALL_TYPE = 2
+
+    /**
+     * 从浮窗转换至通话界面
+     */
+    const val FROM_FLOATING_WINDOW = 3
 }

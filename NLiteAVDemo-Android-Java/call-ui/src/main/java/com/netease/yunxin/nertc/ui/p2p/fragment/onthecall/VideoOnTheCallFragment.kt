@@ -6,6 +6,8 @@
 
 package com.netease.yunxin.nertc.ui.p2p.fragment.onthecall
 
+import android.Manifest.permission.CAMERA
+import android.Manifest.permission.RECORD_AUDIO
 import android.graphics.Color
 import android.os.Bundle
 import android.text.TextUtils
@@ -14,15 +16,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import com.bumptech.glide.Glide
+import com.netease.lava.api.IVideoRender
+import com.netease.lava.nertc.sdk.NERtcConstants
 import com.netease.lava.nertc.sdk.video.NERtcVideoView
 import com.netease.yunxin.kit.alog.ALog
-import com.netease.yunxin.kit.call.NEResultObserver
 import com.netease.yunxin.kit.call.p2p.model.NECallEndInfo
 import com.netease.yunxin.kit.call.p2p.model.NECallType
-import com.netease.yunxin.kit.call.p2p.model.NECallTypeChangeInfo
-import com.netease.yunxin.nertc.nertcvideocall.bean.CommonResult
-import com.netease.yunxin.nertc.nertcvideocall.model.SwitchCallState
+import com.netease.yunxin.nertc.nertcvideocall.model.impl.NERtcCallbackExTemp
+import com.netease.yunxin.nertc.nertcvideocall.model.impl.NERtcCallbackProxyMgr
 import com.netease.yunxin.nertc.nertcvideocall.model.impl.state.CallState
 import com.netease.yunxin.nertc.nertcvideocall.utils.NetworkUtils
 import com.netease.yunxin.nertc.ui.R
@@ -33,7 +36,9 @@ import com.netease.yunxin.nertc.ui.databinding.FragmentP2pVideoOnTheCallBinding
 import com.netease.yunxin.nertc.ui.p2p.CallUIOperationsMgr
 import com.netease.yunxin.nertc.ui.p2p.P2PUIConfig
 import com.netease.yunxin.nertc.ui.p2p.fragment.BaseP2pCallFragment
-import com.netease.yunxin.nertc.ui.utils.ClickUtils
+import com.netease.yunxin.nertc.ui.p2p.fragment.P2PUIUpdateType.CHANGE_CALL_TYPE
+import com.netease.yunxin.nertc.ui.p2p.fragment.P2PUIUpdateType.FROM_FLOATING_WINDOW
+import com.netease.yunxin.nertc.ui.p2p.fragment.P2PUIUpdateType.INIT
 import com.netease.yunxin.nertc.ui.utils.formatSecondTime
 import com.netease.yunxin.nertc.ui.utils.toastShort
 import kotlinx.coroutines.CoroutineScope
@@ -47,27 +52,33 @@ open class VideoOnTheCallFragment : BaseP2pCallFragment() {
 
     protected val logTag = "VideoOnTheCallFragment"
 
-    protected val switchObserver = object : NEResultObserver<CommonResult<Void>> {
-        override fun onResult(result: CommonResult<Void>?) {
-            if (result?.isSuccessful != true) {
-                context?.run {
-                    getString(R.string.tip_switch_call_type_failed).toastShort(this)
+    protected lateinit var binding: FragmentP2pVideoOnTheCallBinding
+
+    protected open val rtcCallback = object : NERtcCallbackExTemp() {
+        override fun onVirtualBackgroundSourceEnabled(enabled: Boolean, reason: Int) {
+            var tipRes: Int? = null
+            when (reason) {
+                NERtcConstants.NERtcVirtualBackgroundSourceStateReason.VBS_STATE_REASON_SUCCESS -> {
+                    tipRes = R.string.ui_tip_virtual_blur_success
                 }
-                ALog.e(
-                    logTag,
-                    "doSwitchCallType to ${NECallType.AUDIO} error, result is $result."
-                )
-                return
+
+                NERtcConstants.NERtcVirtualBackgroundSourceStateReason.VBS_STATE_REASON_DEVICE_NOT_SUPPORTED -> {
+                    tipRes = R.string.ui_tip_virtual_blur_device_not_supported
+                    getView<ImageView>(viewKeyImageVirtualBlur)?.run {
+                        setImageResource(R.drawable.icon_call_virtual_blur_off)
+                    }
+                    CallUIOperationsMgr.updateUIState(isVirtualBlur = false)
+                }
             }
-            getView<View>(viewKeySwitchTypeTipGroup)?.run {
-                visibility = View.VISIBLE
+
+            tipRes ?: return
+            context?.run {
+                Toast.makeText(this, tipRes, Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    protected lateinit var binding: FragmentP2pVideoOnTheCallBinding
-
-    protected var localIsSmallVideo = true
+    private var permissionAllowed = false
 
     override fun toCreateRootView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -95,6 +106,8 @@ open class VideoOnTheCallFragment : BaseP2pCallFragment() {
         bindView(viewKeyTextSwitchTip, binding.tvSwitchTip)
         bindView(viewKeyImageSwitchTipClose, binding.ivSwitchTipClose)
         bindView(viewKeySwitchTypeTipGroup, binding.switchTypeTipGroup)
+        bindView(viewKeyImageFloatingWindow, binding.ivFloatingWindow)
+        bindView(viewKeyImageVirtualBlur, binding.ivVirtualBlur)
     }
 
     override fun toRenderView(callParam: CallParam, uiConfig: P2PUIConfig?) {
@@ -120,39 +133,27 @@ open class VideoOnTheCallFragment : BaseP2pCallFragment() {
     }
 
     protected open fun renderOperations(uiConfig: P2PUIConfig?) {
-        getView<View>(viewKeyImageCancel)?.setOnClickListener {
-            bridge.doHangup()
-        }
-        getView<View>(viewKeySwitchTypeTipGroup)?.run {
-            visibility = View.GONE
-        }
         getView<View>(viewKeyImageSwitchType)?.run {
             visibility =
                 if (uiConfig?.showVideo2AudioSwitchOnTheCall == true) View.VISIBLE else View.GONE
-            setOnClickListener {
-                if (ClickUtils.isFastClick()) {
-                    return@setOnClickListener
-                }
+            bindClick(viewKeyImageSwitchType) {
                 if (!NetworkUtils.isConnected()) {
                     context?.run { getString(R.string.tip_network_error).toastShort(this) }
-                    return@setOnClickListener
+                    return@bindClick
                 }
-                bridge.doSwitchCallType(NECallType.AUDIO, SwitchCallState.INVITE, switchObserver)
+                switchCallType(NECallType.AUDIO)
             }
         }
         getView<ImageView>(viewKeyMuteImageAudio)?.run {
-            setOnClickListener {
+            bindClick(viewKeyMuteImageAudio) {
                 bridge.doMuteAudio()
                 setImageResource(
                     if (bridge.isLocalMuteAudio) R.drawable.voice_off else R.drawable.voice_on
                 )
             }
         }
-        getView<View>(viewKeyImageVideoShadeSmall)?.run {
-            setBackgroundColor(Color.BLACK)
-        }
         getView<ImageView>(viewKeyMuteImageVideo)?.run {
-            setOnClickListener {
+            bindClick(viewKeyMuteImageVideo) {
                 bridge.doMuteVideo()
                 setImageResource(
                     if (bridge.isLocalMuteVideo) R.drawable.cam_off else R.drawable.cam_on
@@ -161,7 +162,7 @@ open class VideoOnTheCallFragment : BaseP2pCallFragment() {
             }
         }
         getView<ImageView>(viewKeyImageSpeaker)?.run {
-            setOnClickListener {
+            bindClick(viewKeyImageSpeaker) {
                 val speakerEnable = !bridge.isSpeakerOn()
                 bridge.doConfigSpeaker(speakerEnable)
                 setImageResource(
@@ -170,48 +171,71 @@ open class VideoOnTheCallFragment : BaseP2pCallFragment() {
             }
         }
         getView<ImageView>(viewKeyImageHangup)?.run {
-            setOnClickListener {
+            bindClick(viewKeyImageHangup) {
                 bridge.doHangup()
             }
         }
         getView<ImageView>(viewKeyImageSwitchCamera)?.run {
-            setOnClickListener {
+            bindClick(viewKeyImageSwitchCamera) {
                 bridge.doSwitchCamera()
             }
         }
-        getView<TextView>(viewKeyTextTimeCountdown)?.run {
-            bridge.configTimeTick(
-                CallUIOperationsMgr.TimeTickConfig({
-                    CoroutineScope(Dispatchers.Main).launch {
-                        this@run.text = it.formatSecondTime()
-                    }
-                })
-            )
-        }
-        getView<NERtcVideoView>(viewKeyVideoViewBig)?.run {
-            bridge.setupRemoteView(this)
-        }
         getView<NERtcVideoView>(viewKeyVideoViewSmall)?.run {
-            bridge.setupLocalView(this)
             if (uiConfig?.enableCanvasSwitch == true) {
-                setOnClickListener {
+                bindClick(viewKeyVideoViewSmall) {
                     doSwitchCanvas()
                 }
             }
         }
         getView<View>(viewKeyImageSwitchTipClose)?.run {
-            setOnClickListener {
+            bindClick(viewKeyImageSwitchTipClose) {
                 getView<View>(viewKeySwitchTypeTipGroup)?.run {
                     visibility = View.GONE
                 }
             }
         }
+        getView<View>(viewKeyImageFloatingWindow)?.run {
+            visibility = if (uiConfig?.enableFloatingWindow == true) View.VISIBLE else View.GONE
+            bindClick(viewKeyImageFloatingWindow) {
+                bridge.showFloatingWindow()
+            }
+        }
+        getView<ImageView>(viewKeyImageVirtualBlur)?.run {
+            visibility = if (uiConfig?.enableVirtualBlur == true) View.VISIBLE else View.GONE
+            bindClick(viewKeyImageVirtualBlur) {
+                bridge.doVirtualBlur()
+                setImageResource(
+                    if (bridge.isVirtualBlur) R.drawable.icon_call_virtual_blur_on else R.drawable.icon_call_virtual_blur_off
+                )
+            }
+        }
+    }
+
+    override fun permissionList(): List<String> {
+        return listOf(RECORD_AUDIO, CAMERA)
+    }
+
+    override fun actionForPermissionGranted() {
+        if (!permissionAllowed) {
+            bridge.callEngine.enableLocalVideo(true)
+        }
+    }
+
+    override fun onPermissionRequest() {
+        permissionAllowed = arePermissionsGranted()
+        super.onPermissionRequest()
     }
 
     override fun onCreateAction() {
+        NERtcCallbackProxyMgr.getInstance().addCallback(rtcCallback)
         if (bridge.currentCallState() == CallState.STATE_IDLE) {
             bridge.doCall()
         }
+    }
+
+    override fun onDestroyAction() {
+        super.onDestroyAction()
+        NERtcCallbackProxyMgr.getInstance().removeCallback(rtcCallback)
     }
 
     override fun onCallEnd(info: NECallEndInfo) {
@@ -219,15 +243,10 @@ open class VideoOnTheCallFragment : BaseP2pCallFragment() {
     }
 
     override fun toUpdateUIState(type: Int) {
-        bridge.doConfigSpeaker(true)
-        bridge.doMuteAudio(false)
-        bridge.doMuteVideo(false)
-    }
-
-    override fun onCallTypeChange(info: NECallTypeChangeInfo) {
-        if (info.state == SwitchCallState.REJECT) {
-            getView<View>(viewKeySwitchTypeTipGroup)?.run {
-                visibility = View.GONE
+        when (type) {
+            INIT, CHANGE_CALL_TYPE -> toInitState()
+            FROM_FLOATING_WINDOW -> {
+                toFromFloatingWindowState()
             }
         }
     }
@@ -237,6 +256,11 @@ open class VideoOnTheCallFragment : BaseP2pCallFragment() {
         updateCloseVideoTipUI(userId, mute)
     }
 
+    override fun onVideoAvailable(userId: String?, available: Boolean) {
+        userId ?: return
+        updateCloseVideoTipUI(userId, !available)
+    }
+
     protected open fun doSwitchCanvas() {
         val videoViewSmall = getView<NERtcVideoView>(viewKeyVideoViewSmall)
         val videoViewBig = getView<NERtcVideoView>(viewKeyVideoViewBig)
@@ -244,14 +268,23 @@ open class VideoOnTheCallFragment : BaseP2pCallFragment() {
             videoViewBig?.clearImage()
             videoViewSmall?.clearImage()
         }
-        if (localIsSmallVideo) {
-            bridge.setupRemoteView(videoViewSmall)
-            bridge.setupLocalView(videoViewBig)
+        if (bridge.isLocalSmallVideo) {
+            bridge.setupRemoteView(videoViewSmall, action = {
+                it?.run {
+                    setScalingType(IVideoRender.ScalingType.SCALE_ASPECT_BALANCED)
+                }
+            })
+            bridge.setupLocalView(videoViewBig, action = {
+                it?.run {
+                    setZOrderMediaOverlay(true)
+                    setScalingType(IVideoRender.ScalingType.SCALE_ASPECT_BALANCED)
+                }
+            })
         } else {
             bridge.setupRemoteView(videoViewBig)
             bridge.setupLocalView(videoViewSmall)
         }
-        localIsSmallVideo = !localIsSmallVideo
+        CallUIOperationsMgr.updateUIState(isLocalSmallVideo = !bridge.isLocalSmallVideo)
 
         updateCloseVideoTipUI(bridge.callParam.currentAccId, muteVideo = bridge.isLocalMuteVideo)
         updateCloseVideoTipUI(bridge.callParam.otherAccId, muteVideo = bridge.isRemoteMuteVideo)
@@ -262,7 +295,7 @@ open class VideoOnTheCallFragment : BaseP2pCallFragment() {
         val ivBigVideoShade = getView<ImageView>(viewKeyImageVideoShadeBig)
         val tvRemoteVideoCloseTip = getView<TextView>(viewKeyTextRemoteVideoCloseTip)
 
-        if (localIsSmallVideo) {
+        if (bridge.isLocalSmallVideo) {
             if (TextUtils.equals(userAccId, bridge.callParam.currentAccId)) {
                 muteVideo?.run {
                     loadImg(bridge.uiConfig?.closeVideoLocalUrl, ivSmallVideoShade)
@@ -323,5 +356,114 @@ open class VideoOnTheCallFragment : BaseP2pCallFragment() {
             .placeholder(R.color.black)
             .centerCrop()
             .into(imageView)
+    }
+
+    protected open fun toInitState() {
+        getView<View>(viewKeySwitchTypeTipGroup)?.run {
+            visibility = View.GONE
+        }
+        getView<View>(viewKeyImageVideoShadeSmall)?.run {
+            setBackgroundColor(Color.BLACK)
+        }
+        getView<TextView>(viewKeyTextTimeCountdown)?.run {
+            bridge.configTimeTick(
+                CallUIOperationsMgr.TimeTickConfig({
+                    CoroutineScope(Dispatchers.Main).launch {
+                        this@run.text = it.formatSecondTime()
+                    }
+                })
+            )
+        }
+        bridge.doVirtualBlur(false)
+        getView<ImageView>(viewKeyImageVirtualBlur)?.run {
+            setImageResource(
+                if (bridge.isVirtualBlur) R.drawable.icon_call_virtual_blur_on else R.drawable.icon_call_virtual_blur_off
+            )
+        }
+        bridge.doConfigSpeaker(true)
+        getView<ImageView>(viewKeyImageSpeaker)?.run {
+            setImageResource(
+                if (bridge.isSpeakerOn()) R.drawable.speaker_on else R.drawable.speaker_off
+            )
+        }
+        bridge.doMuteAudio(false)
+        getView<ImageView>(viewKeyMuteImageAudio)?.run {
+            setImageResource(
+                if (bridge.isLocalMuteAudio) R.drawable.voice_off else R.drawable.voice_on
+            )
+        }
+        bridge.doMuteVideo(false)
+        getView<ImageView>(viewKeyMuteImageVideo)?.run {
+            setImageResource(
+                if (bridge.isLocalMuteVideo) R.drawable.cam_off else R.drawable.cam_on
+            )
+            updateCloseVideoTipUI(bridge.callParam.currentAccId, bridge.isLocalMuteVideo)
+        }
+        updateCloseVideoTipUI(bridge.callParam.otherAccId, muteVideo = false)
+
+        getView<NERtcVideoView>(viewKeyVideoViewBig)?.run {
+            bridge.setupRemoteView(this)
+        }
+        getView<NERtcVideoView>(viewKeyVideoViewSmall)?.run {
+            bridge.setupLocalView(this)
+        }
+    }
+
+    protected open fun toFromFloatingWindowState() {
+        getView<TextView>(viewKeyTextTimeCountdown)?.run {
+            bridge.configTimeTick(
+                CallUIOperationsMgr.TimeTickConfig({
+                    CoroutineScope(Dispatchers.Main).launch {
+                        this@run.text = it.formatSecondTime()
+                    }
+                })
+            )
+        }
+        getView<ImageView>(viewKeyImageVirtualBlur)?.run {
+            setImageResource(
+                if (bridge.isVirtualBlur) R.drawable.icon_call_virtual_blur_on else R.drawable.icon_call_virtual_blur_off
+            )
+        }
+        getView<ImageView>(viewKeyImageSpeaker)?.run {
+            setImageResource(
+                if (bridge.isSpeakerOn()) R.drawable.speaker_on else R.drawable.speaker_off
+            )
+        }
+        getView<ImageView>(viewKeyMuteImageAudio)?.run {
+            setImageResource(
+                if (bridge.isLocalMuteAudio) R.drawable.voice_off else R.drawable.voice_on
+            )
+        }
+        getView<ImageView>(viewKeyMuteImageVideo)?.run {
+            setImageResource(
+                if (bridge.isLocalMuteVideo) R.drawable.cam_off else R.drawable.cam_on
+            )
+        }
+        if (bridge.isLocalSmallVideo) {
+            getView<NERtcVideoView>(viewKeyVideoViewBig)?.run {
+                bridge.setupRemoteView(this)
+            }
+            getView<NERtcVideoView>(viewKeyVideoViewSmall)?.run {
+                bridge.setupLocalView(this)
+            }
+        } else {
+            getView<NERtcVideoView>(viewKeyVideoViewBig)?.run {
+                bridge.setupLocalView(this, action = {
+                    it?.run {
+                        setScalingType(IVideoRender.ScalingType.SCALE_ASPECT_BALANCED)
+                    }
+                })
+            }
+            getView<NERtcVideoView>(viewKeyVideoViewSmall)?.run {
+                bridge.setupRemoteView(this, action = {
+                    it?.run {
+                        setZOrderMediaOverlay(true)
+                        setScalingType(IVideoRender.ScalingType.SCALE_ASPECT_BALANCED)
+                    }
+                })
+            }
+        }
+        updateCloseVideoTipUI(bridge.callParam.currentAccId, muteVideo = bridge.isLocalMuteVideo)
+        updateCloseVideoTipUI(bridge.callParam.otherAccId, muteVideo = bridge.isRemoteMuteVideo)
     }
 }

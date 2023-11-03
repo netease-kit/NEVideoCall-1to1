@@ -15,12 +15,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import com.netease.nimlib.sdk.ResponseCode
-import com.netease.yunxin.kit.alog.ALog
-import com.netease.yunxin.kit.call.NEResultObserver
 import com.netease.yunxin.kit.call.p2p.model.NECallType
-import com.netease.yunxin.kit.call.p2p.model.NECallTypeChangeInfo
-import com.netease.yunxin.nertc.nertcvideocall.bean.CommonResult
-import com.netease.yunxin.nertc.nertcvideocall.model.SwitchCallState
 import com.netease.yunxin.nertc.nertcvideocall.model.impl.state.CallState
 import com.netease.yunxin.nertc.nertcvideocall.utils.NetworkUtils
 import com.netease.yunxin.nertc.ui.CallKitUI
@@ -31,9 +26,7 @@ import com.netease.yunxin.nertc.ui.base.loadAvatarByAccId
 import com.netease.yunxin.nertc.ui.databinding.FragmentP2pAudioCallerBinding
 import com.netease.yunxin.nertc.ui.p2p.P2PUIConfig
 import com.netease.yunxin.nertc.ui.p2p.fragment.BaseP2pCallFragment
-import com.netease.yunxin.nertc.ui.utils.ClickUtils
-import com.netease.yunxin.nertc.ui.utils.isGranted
-import com.netease.yunxin.nertc.ui.utils.requestPermission
+import com.netease.yunxin.nertc.ui.p2p.fragment.P2PUIUpdateType.FROM_FLOATING_WINDOW
 import com.netease.yunxin.nertc.ui.utils.toastShort
 
 /**
@@ -44,22 +37,6 @@ open class AudioCallerFragment : BaseP2pCallFragment() {
     protected val logTag = "AudioCallerFragment"
 
     protected lateinit var binding: FragmentP2pAudioCallerBinding
-
-    protected val switchObserver = object : NEResultObserver<CommonResult<Void>> {
-        override fun onResult(result: CommonResult<Void>?) {
-            if (result?.isSuccessful != true) {
-                context?.run { getString(R.string.tip_switch_call_type_failed).toastShort(this) }
-                ALog.e(
-                    logTag,
-                    "doSwitchCallType to ${NECallType.VIDEO} error, result is $result."
-                )
-                return
-            }
-            getView<View>(viewKeySwitchTypeTipGroup)?.run {
-                visibility = View.VISIBLE
-            }
-        }
-    }
 
     override fun toCreateRootView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -90,6 +67,7 @@ open class AudioCallerFragment : BaseP2pCallFragment() {
         bindView(viewKeyTextMuteAudioDesc, binding.tvCallMuteAudioTip)
         bindView(viewKeyImageSpeaker, binding.ivCallSpeaker)
         bindView(viewKeyTextSpeakerDesc, binding.tvCallSpeakerTip)
+        bindView(viewKeyImageFloatingWindow, binding.ivFloatingWindow)
     }
 
     override fun toRenderView(callParam: CallParam, uiConfig: P2PUIConfig?) {
@@ -115,7 +93,7 @@ open class AudioCallerFragment : BaseP2pCallFragment() {
     }
 
     protected open fun renderOperations(uiConfig: P2PUIConfig?) {
-        getView<View>(viewKeyImageCancel)?.setOnClickListener {
+        getView<View>(viewKeyImageCancel)?.bindClick(viewKeyImageCancel) {
             bridge.doHangup()
             activity?.finish()
         }
@@ -126,43 +104,32 @@ open class AudioCallerFragment : BaseP2pCallFragment() {
         }
         getView<View>(viewKeyImageSwitchType)?.run {
             visibility = if (enableAutoJoinWhenCalled) View.VISIBLE else View.GONE
-            setOnClickListener {
-                if (ClickUtils.isFastClick()) {
-                    return@setOnClickListener
+            bindClick(viewKeyImageSwitchType) {
+                if (!NetworkUtils.isConnected()) {
+                    context?.run { getString(R.string.tip_network_error).toastShort(this) }
+                    return@bindClick
                 }
                 val action = Action@{
-                    if (!NetworkUtils.isConnected()) {
-                        context?.run { getString(R.string.tip_network_error).toastShort(this) }
-                        return@Action
-                    }
-                    bridge.doSwitchCallType(
-                        NECallType.VIDEO,
-                        SwitchCallState.INVITE,
-                        switchObserver
-                    )
+                    switchCallType(NECallType.VIDEO)
                 }
-                if (context?.isGranted(CAMERA) == true) {
+                if (arePermissionsGranted(listOf(CAMERA))) {
                     action.invoke()
-                    return@setOnClickListener
+                    return@bindClick
                 }
-                requestPermission(
-                    onGranted = {
-                        action.invoke()
-                    },
-                    onDenied = { _, _ ->
-                        context?.run {
-                            getString(R.string.tip_permission_request_failed).toastShort(this)
-                        }
-                    },
-                    CAMERA
-                )
+                requestPermission(listOf(CAMERA), {
+                    action.invoke()
+                }, { _, _ ->
+                    context?.run {
+                        getString(R.string.tip_permission_request_failed).toastShort(this)
+                    }
+                })
             }
         }
         getView<View>(viewKeyTextSwitchTypeDesc)?.visibility =
             if (enableAutoJoinWhenCalled) View.VISIBLE else View.GONE
 
         getView<ImageView>(viewKeyMuteImageAudio)?.run {
-            setOnClickListener {
+            bindClick(viewKeyMuteImageAudio) {
                 bridge.doMuteAudio()
                 setImageResource(
                     if (bridge.isLocalMuteAudio) R.drawable.icon_call_audio_off else R.drawable.icon_call_audio_on
@@ -171,7 +138,7 @@ open class AudioCallerFragment : BaseP2pCallFragment() {
         }
 
         getView<ImageView>(viewKeyImageSpeaker)?.run {
-            setOnClickListener {
+            bindClick(viewKeyImageSpeaker) {
                 val speakerEnable = !bridge.isSpeakerOn()
                 bridge.doConfigSpeaker(speakerEnable)
                 setImageResource(
@@ -180,64 +147,60 @@ open class AudioCallerFragment : BaseP2pCallFragment() {
             }
         }
         getView<View>(viewKeyImageSwitchTipClose)?.run {
-            setOnClickListener {
+            bindClick(viewKeyImageSwitchTipClose) {
                 getView<View>(viewKeySwitchTypeTipGroup)?.run {
                     visibility = View.GONE
                 }
             }
         }
+        getView<View>(viewKeyImageFloatingWindow)?.run {
+            visibility = if (uiConfig?.enableFloatingWindow == true) View.VISIBLE else View.GONE
+            bindClick(viewKeyImageFloatingWindow) {
+                bridge.showFloatingWindow()
+            }
+        }
     }
 
-    override fun onCreateAction() {
-        val action = {
-            if (bridge.currentCallState() == CallState.STATE_IDLE) {
-                bridge.doCall { result ->
-                    if (result?.isSuccessful != true &&
-                        result.code != ResponseCode.RES_PEER_NIM_OFFLINE.toInt() &&
-                        result.code != ResponseCode.RES_PEER_PUSH_OFFLINE.toInt()
-                    ) {
-                        context?.run { getString(R.string.tip_start_call_failed).toastShort(this) }
-                    }
-                }
-            }
-        }
+    override fun permissionList(): List<String> {
+        return listOf(RECORD_AUDIO)
+    }
 
-        val dialog = if (context?.isGranted(RECORD_AUDIO) == true) {
-            action.invoke()
+    override fun actionForPermissionGranted() {
+        if (bridge.currentCallState() != CallState.STATE_IDLE) {
             return
-        } else {
-            bridge.showPermissionDialog {
-                activity?.finish()
+        }
+        bridge.doCall { result ->
+            if (result?.isSuccessful != true &&
+                result.code != ResponseCode.RES_PEER_NIM_OFFLINE.toInt() &&
+                result.code != ResponseCode.RES_PEER_PUSH_OFFLINE.toInt()
+            ) {
+                context?.run { getString(R.string.tip_start_call_failed).toastShort(this) }
             }
         }
-
-        requestPermission(
-            onGranted = {
-                dialog.dismiss()
-                action.invoke()
-            },
-            onDenied = { _, _ ->
-                context?.run {
-                    getString(R.string.tip_permission_request_failed).toastShort(this)
-                }
-            },
-            RECORD_AUDIO
-        )
     }
 
     override fun toUpdateUIState(type: Int) {
-        bridge.doConfigSpeaker(false)
-        getView<ImageView>(viewKeyImageSpeaker)?.run {
-            setImageResource(
-                if (bridge.isSpeakerOn()) R.drawable.icon_call_audio_speaker_on else R.drawable.icon_call_audio_speaker_off
-            )
-        }
-    }
+        when (type) {
+            FROM_FLOATING_WINDOW -> {
+                getView<ImageView>(viewKeyImageSpeaker)?.run {
+                    setImageResource(
+                        if (bridge.isSpeakerOn()) R.drawable.icon_call_audio_speaker_on else R.drawable.icon_call_audio_speaker_off
+                    )
+                }
+                getView<ImageView>(viewKeyMuteImageAudio)?.run {
+                    setImageResource(
+                        if (bridge.isLocalMuteAudio) R.drawable.icon_call_audio_off else R.drawable.icon_call_audio_on
+                    )
+                }
+            }
 
-    override fun onCallTypeChange(info: NECallTypeChangeInfo) {
-        if (info.state == SwitchCallState.REJECT) {
-            getView<View>(viewKeySwitchTypeTipGroup)?.run {
-                visibility = View.GONE
+            else -> {
+                bridge.doConfigSpeaker(false)
+                getView<ImageView>(viewKeyImageSpeaker)?.run {
+                    setImageResource(
+                        if (bridge.isSpeakerOn()) R.drawable.icon_call_audio_speaker_on else R.drawable.icon_call_audio_speaker_off
+                    )
+                }
             }
         }
     }

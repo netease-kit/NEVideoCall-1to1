@@ -25,19 +25,19 @@ class P2PUIConfig constructor(
     /**
      * 本端用户关闭摄像头时的图像展示
      */
-    val closeVideoLocalUrl: String? = null, // TODO:
+    val closeVideoLocalUrl: String? = null,
     /**
      * 本端用户关闭摄像头时的文本提示
      */
-    val closeVideoLocalTip: CharSequence? = null, // TODO:
+    val closeVideoLocalTip: CharSequence? = null,
     /**
      * 对端用户关闭摄像头时的本端的图像展示
      */
-    val closeVideoRemoteUrl: String? = null, // TODO:
+    val closeVideoRemoteUrl: String? = null,
     /**
      * 对端用户关闭摄像头时的本端文本提示
      */
-    val closeVideoRemoteTip: CharSequence? = null, // TODO:
+    val closeVideoRemoteTip: CharSequence? = null,
     /**
      * 关闭视频模式，默认 [CLOSE_TYPE_MUTE]，也支持 [CLOSE_TYPE_DISABLE]，[CLOSE_TYPE_COMPAT]
      */
@@ -45,11 +45,11 @@ class P2PUIConfig constructor(
     /**
      * 是否支持通话中大小画面点击切换，默认 true
      */
-    val enableCanvasSwitch: Boolean = true, // TODO:
+    val enableCanvasSwitch: Boolean = true,
     /**
      * 通话中页面支持覆盖的view
      */
-    val overlayViewOnTheCall: View? = null, // TODO:
+    val overlayViewOnTheCall: View? = null,
     /**
      * 当没有头像时是否展示文字头像，默认 true
      */
@@ -65,11 +65,27 @@ class P2PUIConfig constructor(
     /**
      * 自定义通话中 fragment 页面
      */
-    val customCallFragmentMap: Map<Int, BaseP2pCallFragment>? = null
+    val customCallFragmentMap: Map<Int, BaseP2pCallFragment>? = null,
+    /**
+     * 是否支持小窗，默认false
+     */
+    val enableFloatingWindow: Boolean = false,
+    /**
+     * 是否支持在 home 出应用后自动展示小窗，默认false
+     */
+    val enableAutoFloatingWindowWhenHome: Boolean = false,
+    /**
+     * 是否开启被叫视频预览，默认false
+     */
+    val enableVideoCalleePreview: Boolean = false,
+    /**
+     * 是否支持通话视频虚化，默认false
+     */
+    val enableVirtualBlur: Boolean = false
 ) {
 
     override fun toString(): String {
-        return "P2PUIConfig(showAudio2VideoSwitchOnTheCall=$showAudio2VideoSwitchOnTheCall, showVideo2AudioSwitchOnTheCall=$showVideo2AudioSwitchOnTheCall, closeVideoLocalUrl=$closeVideoLocalUrl, closeVideoLocalTip=$closeVideoLocalTip, closeVideoRemoteUrl=$closeVideoRemoteUrl, closeVideoRemoteTip=$closeVideoRemoteTip, closeVideoType=$closeVideoType, enableCanvasSwitch=$enableCanvasSwitch, overlayViewOnTheCall=$overlayViewOnTheCall, enableTextDefaultAvatar=$enableTextDefaultAvatar, enableForegroundService=$enableForegroundService, foregroundNotificationConfig=$foregroundNotificationConfig, customCallFragmentMap=$customCallFragmentMap)"
+        return "P2PUIConfig(showAudio2VideoSwitchOnTheCall=$showAudio2VideoSwitchOnTheCall, showVideo2AudioSwitchOnTheCall=$showVideo2AudioSwitchOnTheCall, closeVideoLocalUrl=$closeVideoLocalUrl, closeVideoLocalTip=$closeVideoLocalTip, closeVideoRemoteUrl=$closeVideoRemoteUrl, closeVideoRemoteTip=$closeVideoRemoteTip, closeVideoType=$closeVideoType, enableCanvasSwitch=$enableCanvasSwitch, overlayViewOnTheCall=$overlayViewOnTheCall, enableTextDefaultAvatar=$enableTextDefaultAvatar, enableForegroundService=$enableForegroundService, foregroundNotificationConfig=$foregroundNotificationConfig, customCallFragmentMap=$customCallFragmentMap, enableFloatingWindow=$enableFloatingWindow, enableAutoFloatingWindowWhenHome=$enableAutoFloatingWindowWhenHome, enableVideoCalleePreview=$enableVideoCalleePreview, enableVirtualBlur=$enableVirtualBlur)"
     }
 
     class Builder {
@@ -86,6 +102,10 @@ class P2PUIConfig constructor(
         private var enableForegroundService: Boolean = false
         private var foregroundNotificationConfig: CallKitNotificationConfig? = null
         private var customCallFragmentMap: MutableMap<Int, BaseP2pCallFragment> = mutableMapOf()
+        private var enableFloatingWindow: Boolean = true
+        private var enableAutoFloatingWindowWhenHome: Boolean = false
+        private var enableVideoCalleePreview: Boolean = false
+        private var enableVirtualBlur: Boolean = false
 
         fun showAudio2VideoSwitchOnTheCall(enable: Boolean) =
             apply { this.showAudio2VideoSwitchOnTheCall = enable }
@@ -119,21 +139,39 @@ class P2PUIConfig constructor(
         fun customCallFragmentByKey(key: Int, fragment: BaseP2pCallFragment) =
             apply { customCallFragmentMap[key] = fragment }
 
+        fun enableFloatingWindow(enable: Boolean) = apply { this.enableFloatingWindow = enable }
+
+        fun enableAutoFloatingWindowWhenHome(enable: Boolean) = apply {
+            this.enableAutoFloatingWindowWhenHome = enable
+        }
+
+        fun enableVideoCalleePreview(enable: Boolean) = apply {
+            this.enableVideoCalleePreview = enable
+        }
+
+        fun enableVirtualBlur(enable: Boolean) = apply {
+            this.enableVirtualBlur = enable
+        }
+
         fun build(): P2PUIConfig {
             return P2PUIConfig(
-                showAudio2VideoSwitchOnTheCall,
-                showVideo2AudioSwitchOnTheCall,
-                closeVideoLocalUrl,
-                closeVideoLocalTip,
-                closeVideoRemoteUrl,
-                closeVideoRemoteTip,
-                closeVideoType,
-                enableCanvasSwitch,
-                overlayViewOnTheCall,
-                enableTextDefaultAvatar,
-                enableForegroundService,
-                foregroundNotificationConfig,
-                customCallFragmentMap
+                showAudio2VideoSwitchOnTheCall = showAudio2VideoSwitchOnTheCall,
+                showVideo2AudioSwitchOnTheCall = showVideo2AudioSwitchOnTheCall,
+                closeVideoLocalUrl = closeVideoLocalUrl,
+                closeVideoLocalTip = closeVideoLocalTip,
+                closeVideoRemoteUrl = closeVideoRemoteUrl,
+                closeVideoRemoteTip = closeVideoRemoteTip,
+                closeVideoType = closeVideoType,
+                enableCanvasSwitch = enableCanvasSwitch,
+                overlayViewOnTheCall = overlayViewOnTheCall,
+                enableTextDefaultAvatar = enableTextDefaultAvatar,
+                enableForegroundService = enableForegroundService,
+                foregroundNotificationConfig = foregroundNotificationConfig,
+                customCallFragmentMap = customCallFragmentMap,
+                enableFloatingWindow = enableFloatingWindow,
+                enableAutoFloatingWindowWhenHome = enableAutoFloatingWindowWhenHome,
+                enableVideoCalleePreview = enableVideoCalleePreview,
+                enableVirtualBlur = enableVirtualBlur
             )
         }
     }

@@ -19,7 +19,7 @@ import com.netease.yunxin.nertc.ui.R
 /**
  * 底部弹窗基类，子类需要实现 顶部view，以及底部view 的渲染即可
  */
-class PermissionTipDialog(activity: Activity, private val clickListener: View.OnClickListener) :
+open class PermissionTipDialog(activity: Activity, private val clickListener: View.OnClickListener) :
     Dialog(
         activity,
         R.style.BottomDialogTheme
