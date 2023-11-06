@@ -45,6 +45,11 @@
     <string name="ui_dialog_switch_call_type_positive">同意</string>
     <string name="ui_dialog_switch_call_type_negative">拒绝</string>
     <string name="ui_dialog_permission_positive">确定</string>
+    <string name="ui_dialog_overlay_permission_title">浮窗权限未获取</string>
+    <string name="ui_dialog_overlay_permission_content">你的手机没有授权浮窗权限，音视频通话最小化不能正常使用</string>
+    <string name="ui_dialog_overlay_permission_positive">开启</string>
+    <string name="ui_floating_window_audio_call">呼叫中</string>
+    <string name="ui_floating_window_audio_invited">待接听</string>
     <string name="ui_switch_call_type_request_tip">正在等待对方响应…</string>
     <string name="ui_switch_call_type_reject_tip">对方拒绝了您的请求</string>
     <string name="ui_switch_to_audio">切换到语音通话</string>
@@ -58,6 +63,8 @@
     <string name="ui_tip_close_camera_by_self">我方关闭了摄像头</string>
     <string name="ui_tip_waiting_to_accept_for_audio">正在等待对方接受邀请…</string>
     <string name="ui_tip_waiting_to_accept_for_video">等待对方接听…</string>
+    <string name="ui_tip_virtual_blur_success">虚化开启</string>
+    <string name="ui_tip_virtual_blur_device_not_supported">该设备不支持虚化功能</string>
     <string name="ui_tip_accepting">正在接通中…</string>
     <string name="ui_group_call_title">视频通话</string>
     <string name="tip_group_wait_to_accept">待接听</string>

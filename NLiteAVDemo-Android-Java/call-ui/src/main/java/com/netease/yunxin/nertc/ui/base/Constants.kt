@@ -43,8 +43,16 @@ object Constants {
      */
     const val CLOSE_TYPE_COMPAT = 3
 
+    /**
+     * 是否来自浮窗
+     */
+    const val PARAM_KEY_FLAG_IS_FROM_FLOATING_WINDOW = "is_from_floating_window"
+
     // path for single callkit
     const val PATH_CALL_SINGLE_PAGE = "imkit://call/single.page"
+
+    // path for current is idle state.
+    const val PATH_IS_CALL_IDLE = "imkit://call/state/isIdle"
 
     const val KEY_CALLER_ACC_ID = "caller_accid"
 

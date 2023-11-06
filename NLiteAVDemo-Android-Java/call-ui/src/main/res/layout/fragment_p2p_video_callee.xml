@@ -18,6 +18,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <!--视频通话本地用户预览大视频画面-->
+    <com.netease.lava.nertc.sdk.video.NERtcVideoView
+        android:id="@+id/videoViewPreview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <!-- 视频呼叫页面顶部用户信息 start -->
     <FrameLayout
         android:id="@+id/flUserAvatar"

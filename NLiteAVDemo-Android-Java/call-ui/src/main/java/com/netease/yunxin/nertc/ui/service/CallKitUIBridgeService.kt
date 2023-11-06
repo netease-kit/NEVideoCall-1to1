@@ -99,7 +99,7 @@ open class CallKitUIBridgeService @JvmOverloads constructor(
     /**
      * 点对点本地行为监听
      */
-    private val localActionObserver = NECallLocalActionObserver { actionId, resultCode ->
+    private val localActionObserver = NECallLocalActionObserver { actionId, resultCode, _ ->
         this@CallKitUIBridgeService.onLocalAction(actionId, resultCode)
     }
 
@@ -214,6 +214,7 @@ open class CallKitUIBridgeService @JvmOverloads constructor(
             AVChatSoundPlayer.play(context, AVChatSoundPlayer.RingerTypeEnum.CONNECTING)
         } else if (canStopAudioPlay && callerAccId != null &&
             actionId != CallLocalAction.ACTION_BEFORE_RESET &&
+            actionId != CallLocalAction.ACTION_SWITCH &&
             (resultCode == CallErrorCode.SUCCESS || resultCode == ResponseCode.RES_SUCCESS.toInt())
         ) {
             AVChatSoundPlayer.stop(context)
@@ -229,7 +230,7 @@ open class CallKitUIBridgeService @JvmOverloads constructor(
      * 点对点通话行为监听
      */
     open fun onReceiveInvited(info: NEInviteInfo) {
-        ALog.dApi(logTag, ParameterMap("onInvited").append("info", info))
+        ALog.dApi(logTag, ParameterMap("onReceiveInvited").append("info", info))
         // 检查参数合理性
         if (!isValidParam(info)) {
             ALog.d(logTag, "onIncomingCall, param is invalid.")

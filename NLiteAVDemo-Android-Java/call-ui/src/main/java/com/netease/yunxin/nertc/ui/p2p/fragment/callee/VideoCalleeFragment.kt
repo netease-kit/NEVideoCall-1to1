@@ -14,12 +14,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import com.netease.yunxin.kit.alog.ALog
-import com.netease.yunxin.kit.call.NEResultObserver
+import com.netease.lava.nertc.sdk.video.NERtcVideoView
+import com.netease.yunxin.kit.call.p2p.model.NECallEndInfo
+import com.netease.yunxin.kit.call.p2p.model.NECallInitRtcMode
 import com.netease.yunxin.kit.call.p2p.model.NECallType
-import com.netease.yunxin.kit.call.p2p.model.NECallTypeChangeInfo
-import com.netease.yunxin.nertc.nertcvideocall.bean.CommonResult
-import com.netease.yunxin.nertc.nertcvideocall.model.SwitchCallState
 import com.netease.yunxin.nertc.nertcvideocall.utils.NetworkUtils
 import com.netease.yunxin.nertc.ui.CallKitUI
 import com.netease.yunxin.nertc.ui.R
@@ -29,9 +27,6 @@ import com.netease.yunxin.nertc.ui.base.loadAvatarByAccId
 import com.netease.yunxin.nertc.ui.databinding.FragmentP2pVideoCalleeBinding
 import com.netease.yunxin.nertc.ui.p2p.P2PUIConfig
 import com.netease.yunxin.nertc.ui.p2p.fragment.BaseP2pCallFragment
-import com.netease.yunxin.nertc.ui.utils.ClickUtils
-import com.netease.yunxin.nertc.ui.utils.isGranted
-import com.netease.yunxin.nertc.ui.utils.requestPermission
 import com.netease.yunxin.nertc.ui.utils.toastShort
 
 /**
@@ -43,22 +38,6 @@ open class VideoCalleeFragment : BaseP2pCallFragment() {
 
     protected lateinit var binding: FragmentP2pVideoCalleeBinding
 
-    protected val switchObserver = object : NEResultObserver<CommonResult<Void>> {
-        override fun onResult(result: CommonResult<Void>?) {
-            if (result?.isSuccessful != true) {
-                context?.run { getString(R.string.tip_switch_call_type_failed).toastShort(this) }
-                ALog.e(
-                    logTag,
-                    "doSwitchCallType to ${NECallType.AUDIO} error, result is $result."
-                )
-                return
-            }
-            getView<View>(viewKeySwitchTypeTipGroup)?.run {
-                visibility = View.VISIBLE
-            }
-        }
-    }
-
     override fun toCreateRootView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View = FragmentP2pVideoCalleeBinding.inflate(inflater, container, false).run {
@@ -68,6 +47,7 @@ open class VideoCalleeFragment : BaseP2pCallFragment() {
 
     override fun toBindView() {
         bindView(viewKeyImageBigBackground, binding.ivBg)
+        bindView(viewKeyVideoViewPreview, binding.videoViewPreview)
 
         bindView(viewKeyTextUserInnerAvatar, binding.tvUserInnerAvatar)
         bindView(viewKeyImageUserInnerAvatar, binding.ivUserInnerAvatar)
@@ -113,8 +93,8 @@ open class VideoCalleeFragment : BaseP2pCallFragment() {
     }
 
     protected open fun renderOperations(uiConfig: P2PUIConfig?) {
-        getView<View>(viewKeyImageCancel)?.setOnClickListener {
-            bridge.doHangup()
+        getView<NERtcVideoView>(viewKeyVideoViewPreview)?.run {
+            visibility = if (isEnableVideoCalleePreview()) View.VISIBLE else View.GONE
         }
 
         val enableAutoJoinWhenCalled = CallKitUI.options?.enableAutoJoinWhenCalled == true
@@ -123,27 +103,24 @@ open class VideoCalleeFragment : BaseP2pCallFragment() {
         }
         getView<View>(viewKeyImageSwitchType)?.run {
             visibility = if (enableAutoJoinWhenCalled) View.VISIBLE else View.GONE
-            setOnClickListener {
-                if (ClickUtils.isFastClick()) {
-                    return@setOnClickListener
-                }
+            bindClick(viewKeyImageSwitchType) {
                 if (!NetworkUtils.isConnected()) {
                     context?.run { getString(R.string.tip_network_error).toastShort(this) }
-                    return@setOnClickListener
+                    return@bindClick
                 }
-                bridge.doSwitchCallType(NECallType.AUDIO, SwitchCallState.INVITE, switchObserver)
+                switchCallType(NECallType.AUDIO)
             }
         }
         getView<View>(viewKeyTextSwitchTypeDesc)?.visibility =
             if (enableAutoJoinWhenCalled) View.VISIBLE else View.GONE
 
         getView<ImageView>(viewKeyImageReject)?.run {
-            setOnClickListener {
+            bindClick(viewKeyImageReject) {
                 bridge.doHangup()
             }
         }
         getView<ImageView>(viewKeyImageAccept)?.run {
-            setOnClickListener {
+            bindClick(viewKeyImageAccept) {
                 getView<View>(viewKeyTextConnectingTip)?.visibility = View.VISIBLE
                 bridge.doAccept {
                     if (!it.isSuccessful) {
@@ -155,7 +132,7 @@ open class VideoCalleeFragment : BaseP2pCallFragment() {
             }
         }
         getView<View>(viewKeyImageSwitchTipClose)?.run {
-            setOnClickListener {
+            bindClick(viewKeyImageSwitchTipClose) {
                 getView<View>(viewKeySwitchTypeTipGroup)?.run {
                     visibility = View.GONE
                 }
@@ -163,41 +140,50 @@ open class VideoCalleeFragment : BaseP2pCallFragment() {
         }
     }
 
-    override fun onCreateAction() {
-        val dialog = if (context?.isGranted(RECORD_AUDIO, CAMERA) == true) {
-            return
-        } else {
-            bridge.showPermissionDialog {
-                bridge.doHangup()
+    override fun actionForPermissionGranted() {
+        if (isEnableVideoCalleePreview()) {
+            getView<NERtcVideoView>(viewKeyVideoViewPreview)?.run {
+                bridge.setupLocalView(this)
             }
+            bridge.startVideoPreview()
         }
-        requestPermission(
-            onGranted = {
-                if (it.containsAll(listOf(RECORD_AUDIO, CAMERA))) {
-                    dialog.dismiss()
-                } else {
-                    context?.run {
-                        getString(R.string.tip_permission_request_failed).toastShort(this)
-                    }
-                }
-            },
-            onDenied = { _, _ ->
-                context?.run { getString(R.string.tip_permission_request_failed).toastShort(this) }
-            },
-            RECORD_AUDIO,
-            CAMERA
-        )
+    }
+
+    override fun permissionList(): List<String> {
+        return listOf(RECORD_AUDIO, CAMERA)
     }
 
     override fun toUpdateUIState(type: Int) {
         bridge.doConfigSpeaker(true)
     }
 
-    override fun onCallTypeChange(info: NECallTypeChangeInfo) {
-        if (info.state == SwitchCallState.REJECT) {
-            getView<View>(viewKeySwitchTypeTipGroup)?.run {
-                visibility = View.GONE
+    override fun onHiddenChanged(hidden: Boolean) {
+        if (isEnableVideoCalleePreview()) {
+            if (hidden) {
+                getView<NERtcVideoView>(viewKeyVideoViewPreview)?.run {
+                    visibility = View.GONE
+                }
+                bridge.stopVideoPreview()
+            } else {
+                getView<NERtcVideoView>(viewKeyVideoViewPreview)?.run {
+                    visibility = View.VISIBLE
+                }
+                bridge.startVideoPreview()
             }
         }
+    }
+
+    override fun onCallEnd(info: NECallEndInfo) {
+        if (isEnableVideoCalleePreview()) {
+            bridge.stopVideoPreview()
+        }
+    }
+
+    protected open fun isEnableVideoCalleePreview(): Boolean {
+        return (
+            CallKitUI.options?.initRtcMode == NECallInitRtcMode.GLOBAL ||
+                CallKitUI.options?.initRtcMode == NECallInitRtcMode.IN_NEED
+            ) &&
+            bridge.uiConfig?.enableVideoCalleePreview == true
     }
 }

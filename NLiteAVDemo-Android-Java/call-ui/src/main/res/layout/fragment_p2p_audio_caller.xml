@@ -194,4 +194,16 @@
         android:layout_width="wrap_content"
         app:constraint_referenced_ids="tvSwitchTip,ivSwitchTipClose"
         android:layout_height="wrap_content"/>
+
+    <ImageView
+        android:id="@+id/ivFloatingWindow"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="12dp"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:src="@drawable/icon_call_floating_window"
+        android:layout_height="wrap_content"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

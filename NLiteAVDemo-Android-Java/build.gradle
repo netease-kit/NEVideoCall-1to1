@@ -44,6 +44,7 @@ ext {
     AppKey = ''
     BaseUrl = ''
     libs = new Libs()
+    libs.nertc = new Libs.Nertc()
 }
 
 class Libs{
@@ -60,9 +61,16 @@ class Libs{
     static def alog = "com.netease.yunxin.kit:alog:1.1.0"
     static def kotlinxCoroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
     static def kotlinxCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
-    static def call = "com.netease.yunxin.kit.call:call:2.1.0"
+    static def call = "com.netease.yunxin.kit.call:call:2.2.0"
     static def okhttp = "com.squareup.okhttp3:okhttp:4.9.3"
     static def okhttpLoggingInterceptor = "com.squareup.okhttp3:logging-interceptor:4.9.3"
     static def retrofitCore = "com.squareup.retrofit2:retrofit:2.9.0"
     static def retrofitConverterGson = "com.squareup.retrofit2:converter-gson:2.9.0"
+
+    static class Nertc {
+        def nenn = "com.netease.yunxin:nertc-nenn:5.5.2"
+        def segment = "com.netease.yunxin:nertc-segment:5.5.2"
+    }
+
+    static def nertc
 }

@@ -1,7 +1,8 @@
 package com.netease.yunxin.app.videocall;
 
 import android.content.Context;
-import android.widget.ImageView;
+
+import androidx.annotation.NonNull;
 
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallbackWrapper;
@@ -18,6 +19,7 @@ import java.util.List;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
+import kotlin.jvm.functions.Function2;
 
 class SelfUserInfoHelper implements UserInfoHelper {
     @Override
@@ -41,12 +43,7 @@ class SelfUserInfoHelper implements UserInfoHelper {
     }
 
     @Override
-    public boolean fetchNicknameByTeam(@NotNull String s, @NotNull String s1, @NotNull Function1<? super String, Unit> function1) {
-        return false;
-    }
-
-    @Override
-    public boolean loadAvatar(@NotNull Context context, @NotNull String s, @NotNull ImageView imageView) {
+    public boolean fetchAvatar(@NonNull Context context, @NonNull String accId, @NonNull Function2<? super String, ? super Integer, Unit> notify) {
         return false;
     }
 }

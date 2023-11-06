@@ -21,7 +21,6 @@ import com.netease.yunxin.app.videocall.nertc.biz.CallOrderManager;
 import com.netease.yunxin.app.videocall.nertc.ui.NERTCSelectCallUserActivity;
 import com.netease.yunxin.nertc.ui.CallKitUI;
 import com.netease.yunxin.nertc.ui.CallKitUIOptions;
-import com.netease.yunxin.nertc.ui.p2p.P2PCallActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -69,8 +68,8 @@ public class MainActivity extends AppCompatActivity {
             // 设置用户信息
             .userInfoHelper(new SelfUserInfoHelper())
             // 自定义通话页面
-            .p2pAudioActivity(P2PCallActivity.class)
-            .p2pVideoActivity(P2PCallActivity.class)
+            .p2pAudioActivity(TestActivity.class)
+            .p2pVideoActivity(TestActivity.class)
             .build();
         // 若重复初始化会销毁之前的初始化实例，重新初始化
         CallKitUI.init(getApplicationContext(), options);
