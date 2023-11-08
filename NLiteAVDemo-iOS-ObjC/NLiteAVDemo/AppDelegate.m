@@ -76,6 +76,8 @@ NSLog(@"class instance : %@", controller);
   config.uiConfig.showCallingSwitchCallType = YES;
   config.uiConfig.enableVideoToAudio = YES;
   config.uiConfig.enableAudioToVideo = YES;
+    config.uiConfig.enableFloatingWindow = YES;
+    config.uiConfig.enableFloatingWindowOutOfApp = YES;
   [[NERtcCallUIKit sharedInstance] setupWithConfig:config];
   [NERtcCallUIKit sharedInstance].delegate = self;
 

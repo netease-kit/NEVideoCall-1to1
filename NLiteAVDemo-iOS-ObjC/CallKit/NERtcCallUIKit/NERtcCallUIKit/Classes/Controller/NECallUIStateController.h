@@ -60,8 +60,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, assign, readonly) CGFloat factor;
 /// 通话前按钮大小(挂断 接听 取消)
 @property(nonatomic, assign, readonly) CGSize buttonSize;
-/// 当前通话类型
-//@property(nonatomic, assign) NERtcCallType callType;
 
 @property(nonatomic, weak) NECallViewController *mainController;
 
@@ -84,6 +82,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)refreshUI;
 
 - (void)refreshVideoView;
+
+- (NSString *)localizableWithKey:(NSString *)key;
 
 @end
 

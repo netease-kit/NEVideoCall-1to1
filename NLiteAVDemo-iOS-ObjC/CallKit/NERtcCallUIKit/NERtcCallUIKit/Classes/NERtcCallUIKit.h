@@ -5,6 +5,7 @@
 #ifndef NERtcCallUIKit_h
 #define NERtcCallUIKit_h
 
+#import <AVKit/AVKit.h>
 #import "NECallUIKitConfig.h"
 #import "NECallViewController.h"
 #import "NECustomButton.h"
@@ -18,6 +19,7 @@
 #import "NEAudioInCallController.h"
 #import "NECallViewBaseController.h"
 #import "NECalledViewController.h"
+#import "NERingFile.h"
 #import "NEVideoCallingController.h"
 #import "NEVideoInCallController.h"
 
@@ -35,6 +37,12 @@ extern NSString *_Nonnull kCalledState;
 #endif /* NERtcCallUIKit_h */
 
 NS_ASSUME_NONNULL_BEGIN
+
+@protocol NETranscodingDelegate <NSObject>
+
+- (void)renderFrame:(NERtcVideoFrame *)frame withLayer:(AVSampleBufferDisplayLayer *)layer;
+
+@end
 
 @protocol NECallUIKitDelegate <NSObject>
 
@@ -54,6 +62,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 传入的类型要继承自 NECallViewBaseController 类
 @property(nonatomic, strong, nullable) Class customControllerClass;
 
+/// 铃声文件配置，默认初始化内部资源路径，如果需要替换再初始化之后修改对应路径，如果想禁止铃声播放，对应路径置空即可
+@property(nonatomic, strong) NERingFile *ringFile;
+
 ///  UI Kit 代理回调
 @property(nonatomic, weak) id<NECallUIKitDelegate> delegate;
 
@@ -69,6 +80,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 设置自定义UI类
 - (void)setCustomCallClass:(NSMutableDictionary<NSString *, Class> *)customDic;
+
+///  转为小窗模式
+- (void)changeSmallModeWithTyple:(NECallType)callType;
+
+/// 回复为非小窗模式
+- (void)restoreNormalMode;
 
 /// 版本号
 + (NSString *)version;
