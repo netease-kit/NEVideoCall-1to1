@@ -11,22 +11,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - 必要参数
 
-// 被叫accid
+/// 被叫accid
 @property(nonatomic, strong) NSString *remoteUserAccid;
 
-// 主叫accid
+/// 主叫accid
 @property(nonatomic, strong) NSString *currentUserAccid;
 
-// 通话页面被叫显示名称
+/// 通话页面被叫显示名称
 @property(nonatomic, strong) NSString *remoteShowName;
 
-// 被叫头像链接
+/// 被叫头像链接
 @property(nonatomic, strong) NSString *remoteAvatar;
 
-// 呼叫类型
+/// 呼叫类型
 @property(assign, nonatomic) NECallType callType;
 
-// 是否是主叫 YES 表示主叫
+/// 是否是主叫 YES 表示主叫
 @property(nonatomic, assign) BOOL isCaller;
 
 #pragma mark - 可选自定义参数
@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// 呼叫扩展参数
 @property(nonatomic, strong) NSString *attachment;
 
-// 自定义参数扩展
+/// 自定义参数扩展
 @property(nonatomic, strong) id customObject;
 
 #pragma mark - UI配置参数
@@ -66,6 +66,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 是否开启内部话单弹框话单toast
 @property(nonatomic, assign) BOOL enableShowRecorderToast;
+
+/// 是否开启虚化功能，默认NO， 不开启
+@property(nonatomic, assign) BOOL enableVirtualBackground;
+
+/// 是否开启被叫预览，默认NO，不开启
+@property(nonatomic, assign) BOOL enableCalleePreview;
+
+/// 是否开启小窗功能，默认不开启
+@property(nonatomic, assign) BOOL enableFloatingWindow;
+
+/// 是否开启应用外小窗功能，默认不开启，开启后内部会使用 NECallEngine engineDelegate
+/// 属性监听Rtc回调，如果已经使用，存在影响，请在外部根据画中画方案实现应用外小窗
+@property(nonatomic, assign) BOOL enableFloatingWindowOutOfApp;
 
 @end
 

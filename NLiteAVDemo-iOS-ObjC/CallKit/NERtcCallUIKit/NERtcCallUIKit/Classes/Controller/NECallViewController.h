@@ -28,9 +28,6 @@ extern NSString *const kCallKitDismissNoti;
 // 当前用户视频显示位置
 @property(nonatomic, assign) BOOL showMyBigView;
 
-// 远端是否mute
-@property(nonatomic, assign) BOOL isRemoteMute;
-
 - (void)changeDefaultImage:(BOOL)mute;
 
 - (void)changeRemoteMute:(BOOL)mute videoView:(NEVideoView *)remoteVideo;

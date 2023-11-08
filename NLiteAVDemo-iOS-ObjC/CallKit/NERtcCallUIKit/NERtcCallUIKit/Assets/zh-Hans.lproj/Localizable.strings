@@ -36,3 +36,7 @@
 "cancel_failed"="邀请已接受无法取消";
 
 "operation_failed"="操作失败";
+
+"device_not_support"="当前设备不支持虚化";
+
+"connecting"="正在接通中…";
