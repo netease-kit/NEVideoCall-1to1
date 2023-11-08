@@ -294,6 +294,11 @@
     [self.view ne_makeToast:@"网络连接异常，请稍后再试"];
     return;
   }
+  
+  if ([NECallEngine sharedInstance].callStatus != NECallStatusIdle) {
+    [self.view ne_makeToast:@"正在通话中"];
+    return;
+  }
 
   NECallUIKitConfig *config = [[NERtcCallUIKit sharedInstance] valueForKey:@"config"];
   if (config.uiConfig.disableShowCalleeView == YES) {
