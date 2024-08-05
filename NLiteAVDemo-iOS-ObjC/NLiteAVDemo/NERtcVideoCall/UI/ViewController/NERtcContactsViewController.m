@@ -316,8 +316,6 @@
   }
 
   NEUICallParam *callParam = [[NEUICallParam alloc] init];
-  NEUser *localUser = [NEAccount shared].userModel;
-  callParam.currentUserAccid = localUser.imAccid;
   callParam.remoteUserAccid = user.imAccid;
   callParam.remoteShowName = user.mobile;
   callParam.remoteAvatar = user.avatar;
