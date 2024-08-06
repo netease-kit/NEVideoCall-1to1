@@ -1,12 +1,12 @@
 # Uncomment the next line to define a global platform for your project
- platform :ios, '11.0'
+ platform :ios, '12.0'
 
 source 'https://github.com/CocoaPods/Specs.git'
 target 'NLiteAVDemo' do
   use_frameworks!
   # 云信基础SDK
   pod 'NERtcSDK', '5.5.2'
-  pod 'NIMSDK_LITE', '9.14.0'
+  pod 'NIMSDK_LITE', '9.16.1'
   
   pod 'NECallKitPstn', :path => 'CallKit/NECallKitPstn/NECallKitPstn.podspec'
 
@@ -14,10 +14,10 @@ target 'NLiteAVDemo' do
   pod 'Masonry'
   
   #呼叫组件API组件
-  pod 'NERtcCallKit', '2.2.2'
+  pod 'NERtcCallKit', '2.5.0'
   
   #呼叫组件UI组件
-  pod 'NERtcCallUIKit', '2.2.2'
+  pod 'NERtcCallUIKit', '2.5.0'
   
   pod 'NETranscodingKit'
   
@@ -25,4 +25,12 @@ target 'NLiteAVDemo' do
   #pod 'NERtcCallUIKit', :path => 'CallKit/NERtcCallUIKit/NERtcCallUIKit.podspec'
 
 
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+    end
+  end
 end
