@@ -18,6 +18,7 @@ import com.netease.yunxin.kit.call.p2p.model.NECallInitRtcMode
 import com.netease.yunxin.kit.call.p2p.model.NEInviteInfo
 import com.netease.yunxin.nertc.nertcvideocall.model.CallExtension
 import com.netease.yunxin.nertc.nertcvideocall.utils.InfoFilterUtils.subInfo
+import com.netease.yunxin.nertc.ui.base.LanguageType
 import com.netease.yunxin.nertc.ui.base.SoundHelper
 import com.netease.yunxin.nertc.ui.base.UserInfoHelper
 import com.netease.yunxin.nertc.ui.group.GroupCallActivity
@@ -38,7 +39,6 @@ class CallKitUIOptions constructor(
     val userInfoHelper: UserInfoHelper? = null,
     val incomingCallEx: IncomingCallEx? = null,
     val callKitUIBridgeService: CallKitUIBridgeService? = null,
-    val enableReport: Boolean = true,
     val pushConfigProviderForGroup: PushConfigProviderForGroup? = null,
     val callExtension: CallExtension? = null,
     val soundHelper: SoundHelper? = SoundHelper(),
@@ -48,7 +48,10 @@ class CallKitUIOptions constructor(
     val joinRtcWhenCall: Boolean = false,
     val audio2Video: Boolean = false,
     val video2Audio: Boolean = false,
-    val enableGroup: Boolean = false
+    val enableGroup: Boolean = false,
+    val language: NECallUILanguage = NECallUILanguage.AUTO,
+    var framework: String? = null,
+    var channel: String? = null
 ) {
 
     class Builder {
@@ -69,8 +72,6 @@ class CallKitUIOptions constructor(
         private var incomingCallEx: IncomingCallEx? = null
 
         private var callKitUIBridgeService: CallKitUIBridgeService? = null
-
-        private var enableReport: Boolean = true
 
         private var pushConfigProviderForGroup: PushConfigProviderForGroup? = null
 
@@ -101,9 +102,16 @@ class CallKitUIOptions constructor(
         private var enableGroup: Boolean = false
 
         private var audio2Video: Boolean = false
+
         private var video2Audio: Boolean = false
 
         private var joinRtcWhenCall: Boolean = false
+
+        private var language: NECallUILanguage = NECallUILanguage.AUTO
+
+        private var framework: String? = null
+
+        private var channel: String? = null
 
         fun rtcSdkOption(option: NERtcOption) = apply {
             this.rtcSdkOption = option
@@ -159,10 +167,6 @@ class CallKitUIOptions constructor(
 
         fun callKitUIBridgeService(callKitUIBridgeService: CallKitUIBridgeService) = apply {
             this.callKitUIBridgeService = callKitUIBridgeService
-        }
-
-        fun enableReport(enable: Boolean) = apply {
-            this.enableReport = enable
         }
 
         fun pushConfigProviderForGroup(providerForGroup: PushConfigProviderForGroup) = apply {
@@ -224,6 +228,18 @@ class CallKitUIOptions constructor(
             this.joinRtcWhenCall = joinRtcWhenCall
         }
 
+        fun language(language: NECallUILanguage) = apply {
+            this.language = language
+        }
+
+        fun framework(framework: String) = apply {
+            this.framework = framework
+        }
+
+        fun channel(channel: String) = apply {
+            this.channel = channel
+        }
+
         fun build(): CallKitUIOptions {
             val rtcConfig =
                 CallKitUIRtcConfig(rtcAppKey, rtcSdkOption)
@@ -244,7 +260,6 @@ class CallKitUIOptions constructor(
                 userInfoHelper = userInfoHelper,
                 incomingCallEx = incomingCallEx,
                 callKitUIBridgeService = callKitUIBridgeService,
-                enableReport = enableReport,
                 pushConfigProviderForGroup = pushConfigProviderForGroup,
                 callExtension = callExtension,
                 soundHelper = soundHelper,
@@ -254,13 +269,16 @@ class CallKitUIOptions constructor(
                 joinRtcWhenCall = joinRtcWhenCall,
                 audio2Video = audio2Video,
                 video2Audio = video2Audio,
-                enableGroup = enableGroup
+                enableGroup = enableGroup,
+                language = language,
+                framework = framework,
+                channel = channel
             )
         }
     }
 
     override fun toString(): String {
-        return "CallKitUIOptions(currentUserAccId='$currentUserAccId', currentUserRtcUId=$currentUserRtcUId, timeOutMillisecond=$timeOutMillisecond, resumeBGInvitation=$resumeBGInvitation, rtcConfig=$rtcConfig, activityConfig=$activityConfig, uiHelper=$uiHelper, notificationConfigFetcher=$notificationConfigFetcher, notificationConfigFetcherForGroup=$notificationConfigFetcherForGroup, userInfoHelper=$userInfoHelper, incomingCallEx=$incomingCallEx, callKitUIBridgeService=$callKitUIBridgeService, enableReport=$enableReport, pushConfigProviderForGroup=$pushConfigProviderForGroup, callExtension=$callExtension, soundHelper=$soundHelper, enableOrder=$enableOrder, enableAutoJoinWhenCalled=$enableAutoJoinWhenCalled, initRtcMode=$initRtcMode, joinRtcWhenCall=$joinRtcWhenCall, audio2Video=$audio2Video, video2Audio=$video2Audio, enableGroup=$enableGroup)"
+        return "CallKitUIOptions(currentUserAccId='$currentUserAccId', currentUserRtcUId=$currentUserRtcUId, timeOutMillisecond=$timeOutMillisecond, resumeBGInvitation=$resumeBGInvitation, rtcConfig=$rtcConfig, activityConfig=$activityConfig, uiHelper=$uiHelper, notificationConfigFetcher=$notificationConfigFetcher, notificationConfigFetcherForGroup=$notificationConfigFetcherForGroup, userInfoHelper=$userInfoHelper, incomingCallEx=$incomingCallEx, callKitUIBridgeService=$callKitUIBridgeService, pushConfigProviderForGroup=$pushConfigProviderForGroup, callExtension=$callExtension, soundHelper=$soundHelper, enableOrder=$enableOrder, enableAutoJoinWhenCalled=$enableAutoJoinWhenCalled, initRtcMode=$initRtcMode, joinRtcWhenCall=$joinRtcWhenCall, audio2Video=$audio2Video, video2Audio=$video2Audio, enableGroup=$enableGroup, language=$language, framework=$framework, channel=$channel)"
     }
 }
 
@@ -309,4 +327,10 @@ class CallKitNotificationConfig @JvmOverloads constructor(
     override fun toString(): String {
         return "CallKitNotificationConfig(notificationIconRes=$notificationIconRes, channelId=$channelId, title=$title, content=$content)"
     }
+}
+
+enum class NECallUILanguage(val language: String) {
+    AUTO(LanguageType.LANGUAGE_SYSTEM),
+    ZH_HANS(LanguageType.LANGUAGE_ZH_CN),
+    EN(LanguageType.LANGUAGE_EN)
 }

@@ -29,10 +29,10 @@ import com.netease.yunxin.kit.call.p2p.model.NECallType
 import com.netease.yunxin.kit.call.p2p.model.NEInviteInfo
 import com.netease.yunxin.kit.call.p2p.model.NESetupConfig
 import com.netease.yunxin.nertc.nertcvideocall.utils.CallOrderHelper
-import com.netease.yunxin.nertc.nertcvideocall.utils.EventReporter
 import com.netease.yunxin.nertc.ui.base.AVChatSoundPlayer
 import com.netease.yunxin.nertc.ui.base.CallParam
 import com.netease.yunxin.nertc.ui.base.Constants
+import com.netease.yunxin.nertc.ui.base.MultiLanguageHelper
 import com.netease.yunxin.nertc.ui.base.UserInfoExtensionHelper
 import com.netease.yunxin.nertc.ui.p2p.CallUIOperationsMgr
 import com.netease.yunxin.nertc.ui.service.CallKitUIBridgeService
@@ -123,7 +123,6 @@ object CallKitUI {
             wrapperUncaughtExceptionHandler()
             this@CallKitUI.currentUserAccId = currentUserAccId
             this@CallKitUI.currentUserRtcUid = currentUserRtcUId
-            EventReporter.canReport = enableReport
             UserInfoExtensionHelper.userInfoHelper = userInfoHelper
             val uiService = object : UIService {
                 override fun getOneToOneAudioChat(): Class<out Activity>? =
@@ -191,13 +190,15 @@ object CallKitUI {
             // rtc 扩展
             val extension = callExtension ?: NECallExtensionMgr.getInstance().callExtension
             // 组件初始化配置
-            val setupConfig = NESetupConfig.Builder(rtcConfig.appKey, currentUserAccId)
+            val setupConfig = NESetupConfig.Builder(rtcConfig.appKey)
                 .currentUserRtcUid(currentUserRtcUId)
                 .initRtcMode(initRtcMode)
                 .rtcCallExtension(extension)
                 .enableAutoJoinSignalChannel(enableAutoJoinWhenCalled)
                 .enableJoinRtcWhenCall(joinRtcWhenCall)
                 .rtcOption(rtcConfig.rtcSdkOption)
+                .framework(framework)
+                .channel(channel)
                 .build()
             // 初始化
             NECallEngine.sharedInstance().setup(context.applicationContext, setupConfig)
@@ -217,6 +218,7 @@ object CallKitUI {
                 )
             }
             CallUIOperationsMgr.load(context)
+            MultiLanguageHelper.changeLanguage(context, language.language)
             init = true
             ALog.d(TAG, "CallKitUI init completed. Init with options $this.")
         }

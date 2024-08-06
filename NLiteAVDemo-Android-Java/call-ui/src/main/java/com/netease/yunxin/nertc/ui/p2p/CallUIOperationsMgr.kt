@@ -407,7 +407,10 @@ object CallUIOperationsMgr {
             action.invoke()
             return
         }
-        ALog.dApi(TAG, ParameterMap("doConfigSpeaker").append("enableSpeaker", enableSpeaker))
+        ALog.d(
+            TAG,
+            ParameterMap("doConfigSpeaker").append("enableSpeaker", enableSpeaker).toString()
+        )
         (context.getSystemService(Context.AUDIO_SERVICE) as AudioManager).run {
             @Suppress("DEPRECATION")
             if (isBluetoothA2dpOn) {
@@ -415,24 +418,34 @@ object CallUIOperationsMgr {
                 return
             }
         }
-        if (!callInfoWithUIState.callParam.isCalled && CallKitUI.options?.joinRtcWhenCall != true && currentCallState() != CallState.STATE_DIALOG) {
-            (context.getSystemService(Context.AUDIO_SERVICE) as AudioManager).run {
-                if (enableSpeaker) {
-                    mode = AudioManager.MODE_NORMAL
-                    isSpeakerphoneOn = true
-                } else {
-                    // 兼容高版本 sdk
-                    @SuppressLint("ObsoleteSdkInt")
-                    mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                        AudioManager.MODE_IN_COMMUNICATION
-                    } else {
-                        AudioManager.MODE_IN_CALL
-                    }
-                    isSpeakerphoneOn = false
-                }
-            }
+
+        if (CallKitUI.options?.joinRtcWhenCall != true) {
+            enableSystemSpeaker(enableSpeaker)
         }
         action.invoke()
+    }
+
+    private fun enableSystemSpeaker(enableSpeaker: Boolean) {
+        ALog.d(
+            TAG,
+            ParameterMap("enableSystemSpeaker").append("enableSpeaker", enableSpeaker).toString()
+        )
+        (context.getSystemService(Context.AUDIO_SERVICE) as AudioManager).run {
+            if (enableSpeaker) {
+                mode = AudioManager.MODE_NORMAL
+                isSpeakerphoneOn = true
+            } else {
+                // 兼容高版本 sdk
+                @SuppressLint("ObsoleteSdkInt")
+                mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    AudioManager.MODE_IN_COMMUNICATION
+                } else {
+                    AudioManager.MODE_IN_CALL
+                }
+                isSpeakerphoneOn = false
+            }
+            callInfoWithUIState.isLocalMuteSpeaker = !enableSpeaker
+        }
     }
 
     /**
@@ -608,15 +621,18 @@ object CallUIOperationsMgr {
         var isRemoteMuteVideo: Boolean = false,
         var isLocalMuteVideo: Boolean = false,
         var isLocalMuteAudio: Boolean = false,
-        var isLocalMuteSpeaker: Boolean = (
-            CallKitUI.baseContext()
-                ?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
-            )?.isSpeakerphoneOn
-            ?: !NERtcEx.getInstance().isSpeakerphoneOn,
+        var isLocalMuteSpeaker: Boolean = initializeSpeakerphoneStatus(),
         var cameraDeviceStatus: Int = NERtcConstants.VideoDeviceState.OPENED,
         var isLocalSmallVideo: Boolean = true,
         var isVirtualBlur: Boolean = false
     ) {
+        companion object {
+            private fun initializeSpeakerphoneStatus(): Boolean {
+                val audioManager = CallKitUI.baseContext()?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+                return audioManager?.isSpeakerphoneOn?.not() ?: !NERtcEx.getInstance().isSpeakerphoneOn
+            }
+        }
+
         val callState: Int
             get() = callEngine.callInfo.callStatus
 

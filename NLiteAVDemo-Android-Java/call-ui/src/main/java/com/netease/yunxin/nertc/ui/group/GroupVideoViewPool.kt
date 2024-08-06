@@ -76,7 +76,7 @@ class GroupVideoViewPool {
             videoView1 = queue.poll()
         }
         if (videoView1 == null) {
-            videoView1 = NERtcVideoView(context).apply {
+            videoView1 = NERtcVideoView(context!!).apply {
                 setZOrderMediaOverlay(true)
                 layoutParams = ViewGroup.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
