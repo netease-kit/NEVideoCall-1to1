@@ -153,6 +153,6 @@ open class AudioCalleeFragment : BaseP2pCallFragment() {
     }
 
     override fun toUpdateUIState(type: Int) {
-        bridge.doConfigSpeaker(false)
+        bridge.doConfigSpeaker(true)
     }
 }

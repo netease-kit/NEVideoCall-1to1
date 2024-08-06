@@ -1,12 +1,12 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     repositories {
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
         google()
-        jcenter()
+        mavenCentral()
+        maven { url 'https://maven.faceunity.com/repository/maven-public/' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.1'
+        classpath 'com.android.tools.build:gradle:7.4.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21"
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -16,12 +16,9 @@ buildscript {
 
 allprojects {
     repositories {
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
         google()
         mavenCentral()
-        maven { url 'http://developer.huawei.com/repo/' }
-        maven { url "https://jitpack.io" }
-        jcenter()
+        maven { url 'https://maven.faceunity.com/repository/maven-public/' }
     }
 }
 
@@ -61,7 +58,7 @@ class Libs{
     static def alog = "com.netease.yunxin.kit:alog:1.1.0"
     static def kotlinxCoroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
     static def kotlinxCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
-    static def call = "com.netease.yunxin.kit.call:call:2.2.2"
+    static def call = "com.netease.yunxin.kit.call:call:2.5.1"
     static def okhttp = "com.squareup.okhttp3:okhttp:4.9.3"
     static def okhttpLoggingInterceptor = "com.squareup.okhttp3:logging-interceptor:4.9.3"
     static def retrofitCore = "com.squareup.retrofit2:retrofit:2.9.0"

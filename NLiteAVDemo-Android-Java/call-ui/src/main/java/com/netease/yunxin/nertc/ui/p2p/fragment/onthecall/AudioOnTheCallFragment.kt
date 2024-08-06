@@ -180,7 +180,7 @@ open class AudioOnTheCallFragment : BaseP2pCallFragment() {
     override fun toUpdateUIState(type: Int) {
         when (type) {
             INIT -> {
-                bridge.doConfigSpeaker(!bridge.isLocalMuteSpeaker)
+                bridge.doConfigSpeaker(false)
                 getView<ImageView>(viewKeyImageSpeaker)?.run {
                     setImageResource(
                         if (bridge.isSpeakerOn()) R.drawable.speaker_on else R.drawable.speaker_off

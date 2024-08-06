@@ -179,7 +179,7 @@ class DefaultFloatingTouchEventStrategy(
          * 属性动画更新监听
          */
         private val updateListener = object : ValueAnimator.AnimatorUpdateListener {
-            override fun onAnimationUpdate(animation: ValueAnimator?) {
+            override fun onAnimationUpdate(animation: ValueAnimator) {
                 animation ?: return
                 (animation.animatedValue as? Int)?.run {
                     windowWrapper?.updateWindowParamsPos(xPos = this)
@@ -191,20 +191,20 @@ class DefaultFloatingTouchEventStrategy(
          * 动画状态监听
          */
         private val animatorListener = object : Animator.AnimatorListener {
-            override fun onAnimationStart(animation: Animator?) {
+            override fun onAnimationStart(animation: Animator) {
             }
 
-            override fun onAnimationEnd(animation: Animator?) {
+            override fun onAnimationEnd(animation: Animator) {
                 ALog.d(logTag, "onAnimationEnd")
                 finish()
             }
 
-            override fun onAnimationCancel(animation: Animator?) {
+            override fun onAnimationCancel(animation: Animator) {
                 ALog.d(logTag, "onAnimationCancel")
                 finish()
             }
 
-            override fun onAnimationRepeat(animation: Animator?) {
+            override fun onAnimationRepeat(animation: Animator) {
             }
         }
 

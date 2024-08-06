@@ -32,10 +32,10 @@ jobs:
       with:
         java-version: 1.8
 
-    - name: Setup Python 2.7
+    - name: Setup Python 3.12.4
       uses: actions/setup-python@v2
       with:
-          python-version: '2.7'
+          python-version: '3.12.4'
 
     - name: Config Stub
       run: 
