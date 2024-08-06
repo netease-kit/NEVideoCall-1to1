@@ -1,0 +1,72 @@
+<!--
+  ~ Copyright (c) 2022 NetEase, Inc. All rights reserved.
+  ~ Use of this source code is governed by a MIT license that can be
+  ~ found in the LICENSE file.
+  -->
+
+<resources>
+    <string name="tip_new_incoming_call">You have a new call</string>
+    <string name="tip_notification_channel_name">Audio and video call invitation notification</string>
+    <string name="tip_notification_channel_description">Prompt when receiving audio and video call invitations.</string>
+    <string name="tip_notification_foreground_channel_name">In-call status notification</string>
+    <string name="tip_notification_foreground_channel_description">Used for "in-call" status prompt.</string>
+    <string name="tip_notification_foreground_content_info">Call ongoing…</string>
+    <string name="tip_reject_by_other">The user has declined your  call invitation</string>
+    <string name="tip_hangup_by_other">The other party has hung up</string>
+    <string name="tip_accept_by_other">The other party has answered the call.</string>
+    <string name="tip_join_by_other">The other party  has joined the call</string>
+    <string name="tip_busy_by_other">The subscriber you dialed is busy</string>
+    <string name="tip_cancel_by_other">The call was canceled</string>
+    <string name="tip_timeout_by_other">Timeout and no response</string>
+    <string name="tip_join_failed">Failed to join the call</string>
+    <string name="tip_invite_was_sending">The call was not made successfully</string>
+    <string name="tip_permission_request_failed">Failed to apply for permission, unable to use temporarily!</string>
+    <string name="tip_dialog_finish_call_title">End the call</string>
+    <string name="tip_dialog_finish_call_content">Do you want to end the call?</string>
+    <string name="tip_dialog_finish_call_positive">Yes</string>
+    <string name="tip_dialog_finish_call_negative">No</string>
+    <string name="tip_start_call_failed">Failed to initiate call</string>
+    <string name="tip_accept_failed">Answer failed.</string>
+    <string name="tip_network_error">Network exception, please try again later.</string>
+    <string name="tip_switch_call_type_failed">Failed to switch</string>
+    <string name="tip_switch_to_video">Switch to Video</string>
+    <string name="tip_switch_to_audio">Switch to Voice</string>
+    <string name="tip_invite_to_audio_call">invite you to voice call…</string>
+    <string name="tip_invite_to_video_call">invite you to video call…</string>
+    <string name="tip_on_the_call">On a call…</string>
+    <string name="tip_call_was_finished">Call ended</string>
+    <string name="tip_other_client_other_accept">The other client has answered the call</string>
+    <string name="tip_other_client_other_reject">The other client has rejected the call</string>
+
+    <string name="ui_dialog_permission_title">Prompt</string>
+    <string name="ui_dialog_permission_content">Please make sure that the camera and microphone are authorized, set them and try again.</string>
+    <string name="ui_dialog_switch_call_type_content_video">The other party requests to convert audio to video, which requires turning on your camera</string>
+    <string name="ui_dialog_switch_call_type_content_audio">A request to convert video to audio will turn off your camera directly.</string>
+    <string name="ui_dialog_switch_call_type_positive">Agree</string>
+    <string name="ui_dialog_switch_call_type_negative">Reject</string>
+    <string name="ui_dialog_permission_positive">OK</string>
+    <string name="ui_dialog_overlay_permission_title">Floating window permission not obtained</string>
+    <string name="ui_dialog_overlay_permission_content">Your phone is not authorized floating window permissions, audio and video call minimization can not be used normally</string>
+    <string name="ui_dialog_overlay_permission_positive">Turn On</string>
+    <string name="ui_floating_window_audio_call">Calling</string>
+    <string name="ui_floating_window_audio_invited">Ringing</string>
+    <string name="ui_switch_call_type_request_tip">Awaiting response…</string>
+    <string name="ui_switch_call_type_reject_tip">The invitation was rejected.</string>
+    <string name="ui_switch_to_audio">Switch to Voice</string>
+    <string name="ui_switch_to_video">Switch to Video</string>
+    <string name="ui_accept">Answer</string>
+    <string name="ui_reject">Reject</string>
+    <string name="ui_cancel">Cancel</string>
+    <string name="ui_microphone">Mic</string>
+    <string name="ui_speaker">Speaker</string>
+    <string name="ui_tip_close_camera_by_other">The other side turned off the camera.</string>
+    <string name="ui_tip_close_camera_by_self">The camera is turned off.</string>
+    <string name="ui_tip_waiting_to_accept_for_audio">Waiting for the invitation…</string>
+    <string name="ui_tip_waiting_to_accept_for_video">Waiting for the call…</string>
+    <string name="ui_tip_virtual_blur_success">Blurring enabled</string>
+    <string name="ui_tip_virtual_blur_device_not_supported">This device does not support the blurring feature</string>
+    <string name="ui_tip_accepting">Connecting…</string>
+    <string name="ui_group_call_title">Video call</string>
+    <string name="tip_group_wait_to_accept">Ringing</string>
+    <string name="user_join_group_call_with_user_count">There are %d people participating in the call.</string>
+</resources>
