@@ -87,7 +87,7 @@ jobs:
         xcodebuild -exportArchive -archivePath $XC_ARCHIVE_DIR/$XC_PROJECT_NAME.xcarchive -exportPath $XC_IPA_DIR -exportOptionsPlist $XC_EXPORT_OPTIONS_PATH;
 
     - name: Upload Artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: NLiteAVDemo-iOS-ObjC
         path: ./NLiteAVDemo-iOS-ObjC/product/ipa/NLiteAVDemo-iOS-ObjC.ipa
