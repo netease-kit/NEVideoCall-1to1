@@ -148,7 +148,7 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
               });
             }
             weakSelf.videoCallingController.bigVideoView.userID =
-                NIMSDK.sharedSDK.loginManager.currentAccount;
+                [[NIMSDK sharedSDK].v2LoginService getLoginUser];
           }
 
           if (error) {
@@ -540,7 +540,7 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
     [[NECallEngine sharedInstance] muteLocalVideo:button.selected];
   }
   [self changeDefaultImage:button.selected];
-  [self cameraAvailble:!button.selected userId:NIMSDK.sharedSDK.loginManager.currentAccount];
+  [self cameraAvailble:!button.selected userId:[[NIMSDK sharedSDK].v2LoginService getLoginUser]];
 }
 
 - (void)hangupBtnClick:(UIButton *)button {

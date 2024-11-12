@@ -140,7 +140,7 @@ static const NSUInteger kNERtcCallKitPstnPhoneError = 30004;  // 手机号为空
     [self.pstnDelegate pstnWillStart];
   }
   [self setCallKitStatusCalling];
-  NSString *accid = [[NIMSDK sharedSDK].loginManager currentAccount];
+  NSString *accid = [[NIMSDK sharedSDK].v2LoginService getLoginUser];
   if (accid.length <= 0) {
     [self callKitErrorWithMsg:@"get im accid is empty" withCode:kNERtcCallKitPstnAccidError];
     return;
