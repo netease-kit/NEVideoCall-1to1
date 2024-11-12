@@ -139,7 +139,7 @@
                                          forUserID:user.uid
                                         streamType:kNERtcRemoteVideoStreamTypeHigh];
   } else {
-    if ([NIMSDK.sharedSDK.loginManager.currentAccount isEqualToString:user.imAccid]) {
+    if ([[NIMSDK.sharedSDK.v2LoginService getLoginUser] isEqualToString:user.imAccid]) {
       [NERtcEngine.sharedEngine setupLocalVideoCanvas:nil];
       [NERtcEngine.sharedEngine stopPreview];
       self.preview.hidden = YES;

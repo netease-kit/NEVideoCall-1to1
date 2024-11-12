@@ -3,12 +3,12 @@
 // found in the LICENSE file.
 
 #import "NEGroupCallViewController.h"
-#import <NERtcCallUIKit/NECustomButton.h>
+#import "NECustomButton.h"
 #import "NEGroupCalledViewController.h"
 #import "NEGroupContactsController.h"
 #import "NEGroupInCallViewController.h"
 #import "NEGroupUserController.h"
-#import <NERtcCallUIKit/NEVideoOperationView.h>
+#import "NEVideoOperationView.h"
 
 @interface NEGroupCallViewController () <NEGroupCalledDelegate, NEGroupCallKitDelegate>
 
@@ -69,6 +69,7 @@
     make.centerX.equalTo(self.view);
     make.top.equalTo(self.view).offset(60 * self.factor);
   }];
+    
   if (self.isCalled == YES) {
     [self setupCalledMaskUI];
   } else {
@@ -229,7 +230,7 @@
   for (int i = 0; i < self.datas.count; i++) {
     NEUser *user = [self.datas objectAtIndex:i];
     if (user.imAccid.length > 0 &&
-        [user.imAccid isEqualToString:NIMSDK.sharedSDK.loginManager.currentAccount]) {
+        [user.imAccid isEqualToString:[NIMSDK.sharedSDK.v2LoginService getLoginUser]]) {
       user.isOpenVideo = enable;
       user.isShowLocalVideo = enable;
       NSLog(@"setLocalVideoEnable %d", enable);
@@ -459,7 +460,7 @@ navigation
                 completion:^(NSError *_Nullable error, NSArray<NEUser *> *_Nonnull users) {
                   for (NEUser *user in users) {
                     if ([user.imAccid
-                            isEqualToString:NIMSDK.sharedSDK.loginManager.currentAccount]) {
+                            isEqualToString:[NIMSDK.sharedSDK.v2LoginService getLoginUser]]) {
                       user.isShowLocalVideo = !self.operationView.cameraBtn.isSelected;
                       user.isOpenVideo = !self.operationView.cameraBtn.isSelected;
                     }
@@ -470,7 +471,7 @@ navigation
                 }];
 }
 
-- (void)onGroupEndCallWithReason:(NSInteger)reason withCallId:(NSString *)callId {
+- (void)onGroupEndCallWithReason:(NSString *)reason withCallId:(NSString *)callId{
   NSLog(@"controller onGroupEndCallWithReason :%@  parameter call id : %@", self.callId, callId);
   if ([self.callId isEqualToString:callId]) {
     [self didBack];

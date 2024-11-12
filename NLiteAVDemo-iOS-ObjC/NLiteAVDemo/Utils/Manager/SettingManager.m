@@ -56,6 +56,8 @@ NSString *const kShowCName = @"kShowCName";
 - (void)setAutoJoin:(BOOL)autoJoin {
   [[NECallEngine sharedInstance] setValue:[NSNumber numberWithBool:autoJoin]
                                forKeyPath:@"context.supportAutoJoinWhenCalled"];
+  [[NERtcCallUIKit sharedInstance] setValue:[NSNumber numberWithInt:autoJoin]
+                                 forKeyPath:@"config.uiConfig.showCallingSwitchCallType"];
   self.supportAutoJoinWhenCalled = autoJoin;
 }
 
@@ -75,7 +77,7 @@ NSString *const kShowCName = @"kShowCName";
     if (showCname != nil) {
       self.incallShowCName = [showCname boolValue];
     }
-    NSLog(@"current accid : %@", NIMSDK.sharedSDK.loginManager.currentAccount);
+    NSLog(@"current accid : %@", [NIMSDK.sharedSDK.v2LoginService getLoginUser]);
   }
   return self;
 }
