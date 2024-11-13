@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.netease.yunxin.app.videocall">
+<!-- Copyright (c) 2022 NetEase, Inc. All rights reserved. -->
+<!-- Use of this source code is governed by a MIT license that can be -->
+<!-- found in the LICENSE file. -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- 访问网络状态-->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -16,7 +19,6 @@
     <!-- 多媒体相关 -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <!-- 控制呼吸灯，振动器等，用于新消息提醒 -->
@@ -34,12 +36,10 @@
 
     <!-- 下面的 uses-permission 一起加入到你的 AndroidManifest 文件中。 -->
     <permission
-        android:name="com.netease.yunxin.app.videocall.permission.RECEIVE_MSG"
+        android:name="${applicationId}.permission.RECEIVE_MSG"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="com.netease.yunxin.app.videocall.permission.RECEIVE_MSG" />
-
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="${applicationId}.permission.RECEIVE_MSG" />
 
     <application
         android:name="com.netease.yunxin.app.videocall.DemoApplication"
@@ -50,6 +50,9 @@
         android:supportsRtl="true"
         android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/AppTheme">
+
+        <!--如果 Android targetSdkVersion 大于等于 31，需要添加以下标签，否则虚拟背景功能无法使用-->
+        <uses-native-library android:name="libOpenCL.so" android:required="false"/>
 
         <activity
             android:name="com.netease.yunxin.app.videocall.SplashActivity"
@@ -68,7 +71,7 @@
             android:name="com.netease.yunxin.app.videocall.MainActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:screenOrientation="portrait"
-            android:exported="false"
+            android:exported="true"
             android:launchMode="singleTask">
 
             <intent-filter>
@@ -94,13 +97,32 @@
             android:name="com.netease.yunxin.app.videocall.nertc.ui.NERTCSelectCallUserActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing"
             android:theme="@style/Theme.AppCompat.NoActionBar"/>
 
         <activity
             android:name=".TestActivity"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
+
+        <activity
+            android:name="com.netease.yunxin.app.videocall.nertc.ui.SettingActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
+
+        <activity
+            android:name="com.netease.yunxin.app.videocall.nertc.ui.SelfSignalActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
+
+        <activity
+            android:name="com.netease.yunxin.app.videocall.nertc.ui.GroupSettingActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
 
         <!-- 云信后台服务，请使用独立进程。 -->
         <service
@@ -136,13 +158,10 @@
         <!-- 云信进程间通信service -->
         <service android:name="com.netease.nimlib.service.ResponseService" />
 
-        <!-- 云信进程间通信provider -->
-        <!-- android:authorities="{包名}.ipc.provider", 请将com.netease.nim.demo替换为自己的包名 -->
-        <provider
-            android:name="com.netease.nimlib.ipc.NIMContentProvider"
-            android:authorities="com.netease.yunxin.app.videocall.ipc.provider"
+        <service android:name="com.netease.lava.nertc.foreground.ForegroundService"
+            android:enabled="true"
             android:exported="false"
-            android:process=":core" />
+            />
     </application>
 
 </manifest>

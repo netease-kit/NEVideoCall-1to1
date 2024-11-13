@@ -5,9 +5,7 @@
 package com.netease.yunxin.app.videocall.nertc.utils;
 
 import android.annotation.SuppressLint;
-
 import androidx.annotation.NonNull;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;

@@ -10,7 +10,7 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
 
-
+    namespace "com.netease.yunxin.nertc.ui"
     buildFeatures {
         viewBinding = true
     }

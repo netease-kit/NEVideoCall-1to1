@@ -1,0 +1,779 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2022 NetEase, Inc. All rights reserved. -->
+<!-- Use of this source code is governed by a MIT license that can be -->
+<!-- found in the LICENSE file. -->
+
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/video_call_bg"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/video_call_bg"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:padding="15dp">
+
+            <TextView
+                android:id="@+id/tv_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp"
+                android:text="@string/cancel" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorWhite"
+                android:textSize="17sp"
+                android:text="@string/title_setting"
+                android:layout_centerHorizontal="true" />
+
+            <TextView
+                android:id="@+id/tv_done"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp"
+                android:layout_alignParentEnd="true"
+                android:text="@string/done" />
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/restart_tip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/color_f5455e"
+            android:padding="10dp"
+            android:gravity="center"
+            android:text="当前设置需要重启应用生效！"
+            android:textColor="@color/white"
+            android:visibility="gone" />
+
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/edt_time"
+                android:layout_width="100dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="30dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_toEndOf="@+id/tv_tip"
+                android:inputType="number"
+                android:textSize="16sp"
+                android:maxLength="5"
+                android:text="30"
+                android:gravity="center"
+                android:textColor="@color/colorWhite"
+                android:background="@drawable/et_search_bg" />
+
+            <TextView
+                android:id="@+id/tv_tip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@id/edt_time"
+                android:layout_alignBottom="@id/edt_time"
+                android:layout_marginStart="20dp"
+                android:gravity="center_vertical"
+                android:text="设置RTC呼叫超时时间（秒）：\n 融合呼叫场景下为转换时间"
+                android:textColor="@color/colorWhite" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/swEnableJoinRtcWhenCall"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:layout_marginEnd="30dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_toEndOf="@+id/tv_join_rtc_when_call_tip"
+                android:textSize="16sp"
+                android:maxLength="5"
+                android:gravity="center"
+                android:textColor="@color/colorWhite" />
+
+            <TextView
+                android:id="@+id/tv_join_rtc_when_call_tip"
+                android:layout_alignTop="@id/swEnableJoinRtcWhenCall"
+                android:layout_alignBottom="@id/swEnableJoinRtcWhenCall"
+                android:layout_width="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="开启呼叫时加入Rtc ：           "
+                android:gravity="center_vertical"
+                android:textColor="@color/colorWhite"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/swEnableAutoJoin"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:layout_marginEnd="30dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_toEndOf="@+id/tv_auto_join_tip"
+                android:textSize="16sp"
+                android:maxLength="5"
+                android:gravity="center"
+                android:textColor="@color/colorWhite" />
+
+            <TextView
+                android:id="@+id/tv_auto_join_tip"
+                android:layout_alignTop="@id/swEnableAutoJoin"
+                android:layout_alignBottom="@id/swEnableAutoJoin"
+                android:layout_width="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="开启自动加入信令通道 ：           "
+                android:gravity="center_vertical"
+                android:textColor="@color/colorWhite"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sw_for_support_foreground_service"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="30dp"
+                android:layout_toEndOf="@+id/support_foreground_service"
+                android:gravity="center"
+                android:maxLength="5"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp" />
+
+
+            <TextView
+                android:id="@+id/support_foreground_service"
+                android:layout_alignTop="@id/sw_for_support_foreground_service"
+                android:layout_alignBottom="@id/sw_for_support_foreground_service"
+                android:layout_width="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="是否开启通话前台服务 ：                    "
+                android:gravity="center_vertical"
+                android:textColor="@color/colorWhite"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/et_input_global_extra"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:layout_marginEnd="30dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_toEndOf="@+id/global_extra_copy"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:textColor="@color/colorWhite" />
+
+            <TextView
+                android:id="@+id/global_extra_copy"
+                android:layout_alignTop="@id/et_input_global_extra"
+                android:layout_alignBottom="@id/et_input_global_extra"
+                android:layout_width="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="全局抄送参数 ："
+                android:gravity="center_vertical"
+                android:textColor="@color/colorWhite"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/et_input_custom_channel_name"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:layout_marginEnd="30dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_toEndOf="@+id/custom_channel_name"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:textColor="@color/colorWhite" />
+
+            <TextView
+                android:id="@+id/custom_channel_name"
+                android:layout_alignTop="@id/et_input_custom_channel_name"
+                android:layout_alignBottom="@id/et_input_custom_channel_name"
+                android:layout_width="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="自定义channelName："
+                android:gravity="center_vertical"
+                android:textColor="@color/colorWhite"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/et_input_rtc_init_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:layout_marginEnd="30dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_toEndOf="@+id/rtc_init_mode"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:inputType="numberDecimal"
+                android:maxLength="1"
+                android:textColor="@color/colorWhite" />
+
+            <TextView
+                android:id="@+id/rtc_init_mode"
+                android:layout_alignTop="@id/et_input_rtc_init_mode"
+                android:layout_alignBottom="@id/et_input_rtc_init_mode"
+                android:layout_width="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="Rtc 初始化模式(重启生效)\n仅支持1:全局,2:通话初始化,3:被叫接听初始化"
+                android:gravity="center_vertical"
+                android:textColor="@color/colorWhite"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/et_input_rtc_uid"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:layout_marginEnd="30dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_toEndOf="@+id/custom_rtc_uid"
+                android:textSize="16sp"
+                android:inputType="numberDecimal"
+                android:gravity="center"
+                android:textColor="@color/colorWhite" />
+
+            <TextView
+                android:id="@+id/custom_rtc_uid"
+                android:layout_alignTop="@id/et_input_rtc_uid"
+                android:layout_alignBottom="@id/et_input_rtc_uid"
+                android:layout_width="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="自定义RtcUId：\n重启生效"
+                android:gravity="center_vertical"
+                android:textColor="@color/colorWhite"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sw_enable_audio_call"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="30dp"
+                android:layout_toEndOf="@+id/enable_audio_call"
+                android:checked="true"
+                android:gravity="center"
+                android:maxLength="5"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/enable_audio_call"
+                android:layout_alignTop="@id/sw_enable_audio_call"
+                android:layout_alignBottom="@id/sw_enable_audio_call"
+                android:layout_width="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="呼叫类型为音频："
+                android:gravity="center_vertical"
+                android:textColor="@color/colorWhite"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sw_enable_floating_window"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="30dp"
+                android:layout_toEndOf="@+id/enable_floating_window"
+                android:checked="false"
+                android:gravity="center"
+                android:maxLength="5"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/enable_floating_window"
+                android:layout_alignTop="@id/sw_enable_floating_window"
+                android:layout_alignBottom="@id/sw_enable_floating_window"
+                android:layout_width="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="开启浮窗："
+                android:gravity="center_vertical"
+                android:textColor="@color/colorWhite"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sw_enable_home_floating_window"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="30dp"
+                android:layout_toEndOf="@+id/enable_home_to_floating_window"
+                android:checked="false"
+                android:gravity="center"
+                android:maxLength="5"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/enable_home_to_floating_window"
+                android:layout_alignTop="@id/sw_enable_home_floating_window"
+                android:layout_alignBottom="@id/sw_enable_home_floating_window"
+                android:layout_width="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="home展示浮窗："
+                android:gravity="center_vertical"
+                android:textColor="@color/colorWhite"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sw_enable_callee_video_preview"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="30dp"
+                android:layout_toEndOf="@+id/enable_callee_video_preview"
+                android:checked="false"
+                android:gravity="center"
+                android:maxLength="5"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/enable_callee_video_preview"
+                android:layout_alignTop="@id/sw_enable_callee_video_preview"
+                android:layout_alignBottom="@id/sw_enable_callee_video_preview"
+                android:layout_width="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="开启被叫视频预览："
+                android:gravity="center_vertical"
+                android:textColor="@color/colorWhite"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sw_enable_virtual_blur"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="30dp"
+                android:layout_toEndOf="@+id/enable_virtual_blur"
+                android:checked="false"
+                android:gravity="center"
+                android:maxLength="5"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/enable_virtual_blur"
+                android:layout_alignTop="@id/sw_enable_virtual_blur"
+                android:layout_alignBottom="@id/sw_enable_virtual_blur"
+                android:layout_width="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="开启视频通话虚化功能："
+                android:gravity="center_vertical"
+                android:textColor="@color/colorWhite"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sw_support_audio_to_video"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="30dp"
+                android:layout_toEndOf="@+id/support_audio_to_video"
+                android:checked="true"
+                android:gravity="center"
+                android:maxLength="5"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/support_audio_to_video"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@id/sw_support_audio_to_video"
+                android:layout_alignBottom="@id/sw_support_audio_to_video"
+                android:layout_marginStart="20dp"
+                android:gravity="center_vertical"
+                android:text="是否支持音频转视频"
+                android:textColor="@color/colorWhite" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sw_support_video_to_audio"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="30dp"
+                android:layout_toEndOf="@+id/support_video_to_audio"
+                android:checked="true"
+                android:gravity="center"
+                android:maxLength="5"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/support_video_to_audio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@id/sw_support_video_to_audio"
+                android:layout_alignBottom="@id/sw_support_video_to_audio"
+                android:layout_marginStart="20dp"
+                android:gravity="center_vertical"
+                android:text="是否支持视频转音频"
+                android:textColor="@color/colorWhite" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sw_enable_switch_canvas"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="30dp"
+                android:layout_toEndOf="@+id/enable_switch_canvas"
+                android:checked="true"
+                android:gravity="center"
+                android:maxLength="5"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/enable_switch_canvas"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@id/sw_enable_switch_canvas"
+                android:layout_alignBottom="@id/sw_enable_switch_canvas"
+                android:layout_marginStart="20dp"
+                android:gravity="center_vertical"
+                android:text="是否支持点击切换远/近画布"
+                android:textColor="@color/colorWhite" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sw_audio_to_video_confirm"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="30dp"
+                android:checked="false"
+                android:gravity="center"
+                android:maxLength="5"
+                android:layout_toEndOf="@+id/audio_to_video_confirm_tip"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/audio_to_video_confirm_tip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_alignTop="@id/sw_audio_to_video_confirm"
+                android:layout_alignBottom="@id/sw_audio_to_video_confirm"
+                android:gravity="center_vertical"
+                android:text="音频转视频是否需要确认"
+                android:textColor="@color/colorWhite" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sw_video_to_audio_confirm"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="30dp"
+                android:checked="false"
+                android:layout_toEndOf="@+id/video_to_audio_confirm_tip"
+                android:gravity="center"
+                android:maxLength="5"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/video_to_audio_confirm_tip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_alignTop="@id/sw_video_to_audio_confirm"
+                android:layout_alignBottom="@id/sw_video_to_audio_confirm"
+                android:gravity="center_vertical"
+                android:text="视频转音频是否需要确认"
+                android:textColor="@color/colorWhite" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/et_close_video_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:inputType="number"
+                android:layout_toEndOf="@+id/close_video_type_tip"
+                android:maxLength="1"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/close_video_type_tip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_alignTop="@id/et_close_video_type"
+                android:layout_alignBottom="@id/et_close_video_type"
+                android:gravity="center_vertical"
+                android:text="关闭视频模式\n1:不发布,2:关闭设备,3:同时兼容1和2"
+                android:textColor="@color/colorWhite" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/et_close_video_local_url"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_toEndOf="@+id/close_video_local_url_tip"
+                android:hint="图片url地址"
+                android:textColor="@color/colorWhite"
+                android:textColorHint="@color/red"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/close_video_local_url_tip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_alignTop="@id/et_close_video_local_url"
+                android:layout_alignBottom="@id/et_close_video_local_url"
+                android:gravity="center_vertical"
+                android:text="本端关闭摄像头展示图片"
+                android:textColor="@color/colorWhite" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/et_close_video_remote_url"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:hint="图片url地址"
+                android:textColorHint="@color/red"
+                android:layout_toEndOf="@+id/close_video_remote_url_tip"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/close_video_remote_url_tip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_alignTop="@id/et_close_video_remote_url"
+                android:layout_alignBottom="@id/et_close_video_remote_url"
+                android:gravity="center_vertical"
+                android:text="远端关闭摄像头展示图片"
+                android:textColor="@color/colorWhite" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/et_close_video_remote_tip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_toEndOf="@+id/close_video_remote_tip"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/close_video_remote_tip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_alignTop="@id/et_close_video_remote_tip"
+                android:layout_alignBottom="@id/et_close_video_remote_tip"
+                android:gravity="center_vertical"
+                android:text="远端关闭摄像头文字提示"
+                android:textColor="@color/colorWhite" />
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/et_close_video_local_tip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_toEndOf="@+id/close_video_local_tip"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/close_video_local_tip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_alignTop="@id/et_close_video_local_tip"
+                android:layout_alignBottom="@id/et_close_video_local_tip"
+                android:gravity="center_vertical"
+                android:text="本端关闭摄像头文字提示"
+                android:textColor="@color/colorWhite" />
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_marginTop="20dp"
+            android:textSize="18dp"
+            android:textColor="#4cffffff"
+            android:padding="20dp"
+            android:text="请注意，不同设备通信需设置相同的超时时间。"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/bt_self_signal"
+            android:text="自定义信令"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/bt_upload_rtc_log"
+            android:text="上传 rtc 日志"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>
