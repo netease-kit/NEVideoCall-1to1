@@ -8,29 +8,22 @@ import android.util.Log;
 import androidx.lifecycle.MutableLiveData;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.netease.nimlib.sdk.v2.message.V2NIMClearHistoryNotification;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessage;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessageDeletedNotification;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessageListener;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessagePinNotification;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessageQuickCommentNotification;
-import com.netease.nimlib.sdk.v2.message.V2NIMMessageRevokeNotification;
-import com.netease.nimlib.sdk.v2.message.V2NIMP2PMessageReadReceipt;
-import com.netease.nimlib.sdk.v2.message.V2NIMTeamMessageReadReceipt;
-import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageAttachment;
-import com.netease.nimlib.sdk.v2.message.attachment.V2NIMMessageCallAttachment;
-import com.netease.nimlib.sdk.v2.message.enums.V2NIMMessageSendingState;
-import com.netease.nimlib.sdk.v2.message.model.V2NIMMessageCallDuration;
-import com.netease.nimlib.sdk.v2.utils.V2NIMConversationIdUtil;
-import com.netease.yunxin.app.videocall.login.model.AuthManager;
-import com.netease.yunxin.app.videocall.login.model.LoginModel;
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.Observer;
+import com.netease.nimlib.sdk.RequestCallbackWrapper;
+import com.netease.nimlib.sdk.ResponseCode;
+import com.netease.nimlib.sdk.msg.MsgServiceObserve;
+import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
+import com.netease.nimlib.sdk.msg.attachment.NetCallAttachment;
+import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
+import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nimlib.sdk.uinfo.UserService;
+import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
+import com.netease.yunxin.app.videocall.login.model.ProfileManager;
+import com.netease.yunxin.app.videocall.login.model.UserModel;
 import com.netease.yunxin.app.videocall.nertc.model.CallOrder;
 import com.netease.yunxin.app.videocall.nertc.utils.SPUtils;
-import com.netease.yunxin.app.videocall.user.UserManager;
-import com.netease.yunxin.app.videocall.user.UserModel;
 import com.netease.yunxin.kit.alog.ALog;
-import com.netease.yunxin.kit.call.common.NimMessageWrapper;
-import com.netease.yunxin.kit.call.common.callback.Callback2;
 import com.netease.yunxin.nertc.nertcvideocall.utils.GsonUtils;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -41,221 +34,163 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class CallOrderManager {
-  private final String TAG = "CallOrderManager";
-  public static final int MAX_ORDER = 3;
 
-  private static final String RECENTLY_CALL_ORDERS = "recently_call_orders";
+    private CallOrderManager() {}
 
-  private static final String ORDER_LIST = "call_orders";
+    public static final int MAX_ORDER = 3;
 
-  MutableLiveData<List<CallOrder>> ordersLiveData = new MutableLiveData<>();
+    private static final String RECENTLY_CALL_ORDERS = "recently_call_orders";
 
-  List<CallOrder> orders = new ArrayList<>();
+    private static final String ORDER_LIST = "call_orders";
 
-  private static volatile CallOrderManager mInstance;
+    MutableLiveData<List<CallOrder>> ordersLiveData = new MutableLiveData<>();
 
-  private CallOrderManager() {}
+    List<CallOrder> orders = new ArrayList<>();
 
-  public static CallOrderManager getInstance() {
-    if (null == mInstance) {
-      synchronized (CallOrderManager.class) {
-        if (mInstance == null) {
-          mInstance = new CallOrderManager();
-        }
-      }
-    }
-    return mInstance;
-  }
-
-  public void init() {
-    register(true);
-    orders.clear();
-    readWriteLock = new ReentrantReadWriteLock();
-    loadOrders();
-  }
-
-  private ReentrantReadWriteLock readWriteLock;
-
-  public List<CallOrder> getOrders() {
-    return orders;
-  }
-
-  private void loadOrders() {
-    ExecutorService executorService = Executors.newSingleThreadExecutor();
-    executorService.submit(
-        () -> {
-          try {
-            readWriteLock.writeLock().lock();
-            LoginModel currentUser = AuthManager.getInstance().getUserModel();
-            ALog.i("CallOrderManager", "loadOrders currentUser mobile:" + currentUser.mobile);
-            String orderStr =
-                SPUtils.getInstance(RECENTLY_CALL_ORDERS + currentUser.mobile)
-                    .getString(ORDER_LIST);
-            Type type = TypeToken.getParameterized(List.class, CallOrder.class).getType();
-            List<CallOrder> orderList = new Gson().fromJson(orderStr, type);
-            if (orderList != null && !orderList.isEmpty()) {
-              int len = orderList.size() - orders.size();
-              orders.addAll(orderList.subList(0, len));
-              ordersLiveData.postValue(orders);
-            }
-          } catch (Exception exception) {
-            ALog.e("CallOrderManager", "loadOrders", exception);
-          } finally {
-            readWriteLock.writeLock().unlock();
-          }
-        });
-  }
-
-  public MutableLiveData<List<CallOrder>> getOrdersLiveData() {
-    return ordersLiveData;
-  }
-
-  V2NIMMessageListener messageListener =
-      new V2NIMMessageListener() {
-        @Override
-        public void onReceiveMessages(List<V2NIMMessage> messages) {
-          if (messages != null) {
-            for (V2NIMMessage msg : messages) {
-              ALog.i(TAG, "onReceiveMessages message = " + msg);
-              V2NIMMessageAttachment attachment = msg.getAttachment();
-              if (attachment instanceof V2NIMMessageCallAttachment) {
-                handleNetCallAttachment(msg, (V2NIMMessageCallAttachment) attachment);
-              }
-            }
-          }
-        }
-
-        @Override
-        public void onReceiveP2PMessageReadReceipts(
-            List<V2NIMP2PMessageReadReceipt> readReceipts) {}
-
-        @Override
-        public void onReceiveTeamMessageReadReceipts(
-            List<V2NIMTeamMessageReadReceipt> readReceipts) {}
-
-        @Override
-        public void onMessageRevokeNotifications(
-            List<V2NIMMessageRevokeNotification> revokeNotifications) {}
-
-        @Override
-        public void onMessagePinNotification(V2NIMMessagePinNotification pinNotification) {}
-
-        @Override
-        public void onMessageQuickCommentNotification(
-            V2NIMMessageQuickCommentNotification quickCommentNotification) {}
-
-        @Override
-        public void onMessageDeletedNotifications(
-            List<V2NIMMessageDeletedNotification> messageDeletedNotifications) {}
-
-        @Override
-        public void onClearHistoryNotifications(
-            List<V2NIMClearHistoryNotification> clearHistoryNotifications) {}
-
-        @Override
-        public void onSendMessage(V2NIMMessage message) {
-          ALog.i(TAG, "onSendMessage message = " + message);
-
-          if (message.getSendingState()
-              == V2NIMMessageSendingState.V2NIM_MESSAGE_SENDING_STATE_SUCCEEDED) {
-            V2NIMMessageAttachment attachment = message.getAttachment();
-            if (attachment instanceof V2NIMMessageCallAttachment) {
-              handleNetCallAttachment(message, (V2NIMMessageCallAttachment) attachment);
-            }
-          }
-        }
-
-        @Override
-        public void onReceiveMessagesModified(List<V2NIMMessage> messages) {
-          ALog.i(TAG, "onReceiveMessagesModified messages = " + messages);
-        }
-      };
-
-  private void handleNetCallAttachment(
-      V2NIMMessage message, V2NIMMessageCallAttachment attachment) {
-    ALog.i(TAG, "handleNetCallAttachment attachment = " + attachment);
-    if (message == null) {
-      ALog.e(TAG, "handleNetCallAttachment message is null");
-      return;
+    public static CallOrderManager getInstance() {
+        return ManagerHolder.manager;
     }
 
-    if (attachment == null) {
-      ALog.e(TAG, "handleNetCallAttachment attachment is null");
-      return;
+    private static final class ManagerHolder {
+        public static final CallOrderManager manager = new CallOrderManager();
     }
 
-    String targetId = V2NIMConversationIdUtil.conversationTargetId(message.getConversationId());
+    public void init() {
+        register(true);
+        orders.clear();
+        readWriteLock = new ReentrantReadWriteLock();
+        loadOrders();
+    }
 
-    UserManager.getInstance()
-        .getUserList(
-            Collections.singletonList(targetId),
-            new Callback2<List<UserModel>>() {
-              @Override
-              public void onSuccess(List<UserModel> userModels) {
-                if (userModels == null || userModels.isEmpty()) {
-                  Log.e(TAG, "fetchUserInfo success but list is empty. ");
-                  return;
+    private ReentrantReadWriteLock readWriteLock;
+
+    public List<CallOrder> getOrders() {
+        return orders;
+    }
+
+    private void loadOrders() {
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.submit(
+            () -> {
+                try {
+                    readWriteLock.writeLock().lock();
+                    UserModel currentUser = ProfileManager.getInstance().getUserModel();
+                    ALog.i("GeorgeTest", "loadOrders currentUser mobile:" + currentUser.mobile);
+                    String orderStr =
+                        SPUtils.getInstance(RECENTLY_CALL_ORDERS + currentUser.mobile)
+                            .getString(ORDER_LIST);
+                    Type type = TypeToken.getParameterized(List.class, CallOrder.class).getType();
+                    List<CallOrder> orderList = new Gson().fromJson(orderStr, type);
+                    if (orderList != null && !orderList.isEmpty()) {
+                        int len = orderList.size() - orders.size();
+                        orders.addAll(orderList.subList(0, len));
+                        ordersLiveData.postValue(orders);
+                    }
+                } catch (Exception exception) {
+                    ALog.e("CallOrderManager", "loadOrders", exception);
+                } finally {
+                    readWriteLock.writeLock().unlock();
                 }
-                UserModel userModel = userModels.get(0);
-
-                List<CallOrder.CallDuration> callDurationList = new ArrayList<>();
-                for (V2NIMMessageCallDuration duration : attachment.getDurations()) {
-                  if (duration != null) {
-                    CallOrder.CallDuration callDuration =
-                        new CallOrder.CallDuration(duration.getAccountId(), duration.getDuration());
-                    callDurationList.add(callDuration);
-                  }
-                }
-
-                CallOrder callOrder =
-                    new CallOrder(
-                        targetId,
-                        message.getCreateTime(),
-                        message.isSelf(),
-                        userModel.getMobile(),
-                        attachment.getType(),
-                        attachment.getChannelId(),
-                        attachment.getStatus(),
-                        callDurationList);
-                addOrder(callOrder);
-              }
-
-              @Override
-              public void onFailure(int code, String msg) {
-                ALog.e(TAG, "fetchUserInfo failed code is " + code + ", msg is " + msg);
-              }
             });
-  }
-
-  private void addOrder(CallOrder order) {
-    ALog.i(TAG, "addOrder order:" + order);
-    try {
-      readWriteLock.writeLock().lock();
-      if (orders.size() >= MAX_ORDER) {
-        orders.remove(0);
-      }
-      orders.add(order);
-      ordersLiveData.postValue(orders);
-    } catch (Exception exception) {
-      ALog.e("CallOrderManager", "addOrder", exception);
-    } finally {
-      readWriteLock.writeLock().unlock();
     }
-    uploadOrder();
-  }
 
-  private void uploadOrder() {
-    String orderStr = GsonUtils.toJson(orders);
-    LoginModel currentUser = AuthManager.getInstance().getUserModel();
-    ALog.i("CallOrderManager", "uploadOrder currentUser mobile:" + currentUser.mobile);
-    SPUtils.getInstance(RECENTLY_CALL_ORDERS + currentUser.mobile).put(ORDER_LIST, orderStr);
-  }
-
-  private void register(boolean register) {
-    if (register) {
-      NimMessageWrapper.addMessageListener(messageListener);
-    } else {
-      NimMessageWrapper.removeMessageListener(messageListener);
+    public MutableLiveData<List<CallOrder>> getOrdersLiveData() {
+        return ordersLiveData;
     }
-  }
+
+    Observer<List<IMMessage>> incomingMessageObserver =
+        messages -> {
+            for (IMMessage msg : messages) {
+                MsgAttachment attachment = msg.getAttachment();
+                if (attachment instanceof NetCallAttachment) {
+                    handleNetCallAttachment(msg, (NetCallAttachment) attachment);
+                }
+            }
+        };
+
+    Observer<IMMessage> statusMessage =
+        message -> {
+            if (message.getDirect() == MsgDirectionEnum.Out) {
+                MsgAttachment attachment = message.getAttachment();
+                if (attachment instanceof NetCallAttachment) {
+                    handleNetCallAttachment(message, (NetCallAttachment) attachment);
+                }
+            }
+        };
+
+    private void handleNetCallAttachment(IMMessage message, NetCallAttachment attachment) {
+        if (message == null) {
+            Log.e("CallOrderManager", "handleNetCallAttachment message is null");
+            return;
+        }
+        String id = message.getSessionId();
+        NimUserInfo userInfo = NIMClient.getService(UserService.class).getUserInfo(id);
+        if (userInfo != null) {
+            CallOrder callOrder =
+                new CallOrder(
+                    message.getSessionId(),
+                    message.getTime(),
+                    message.getDirect(),
+                    attachment,
+                    userInfo.getMobile());
+            addOrder(callOrder);
+            return;
+        }
+        NIMClient.getService(UserService.class)
+            .fetchUserInfo(Collections.singletonList(id))
+            .setCallback(
+                new RequestCallbackWrapper<List<NimUserInfo>>() {
+                    @Override
+                    public void onResult(int code, List<NimUserInfo> result, Throwable exception) {
+                        if (code == ResponseCode.RES_SUCCESS) {
+                            if (result == null || result.isEmpty()) {
+                                Log.e("CallOrderManager", "fetchUserInfo success but list is empty. ");
+                                return;
+                            }
+                            NimUserInfo userInfoRemote = result.get(0);
+                            CallOrder callOrder =
+                                new CallOrder(
+                                    message.getSessionId(),
+                                    message.getTime(),
+                                    message.getDirect(),
+                                    attachment,
+                                    userInfoRemote.getMobile());
+                            addOrder(callOrder);
+                        } else {
+                            Log.e(
+                                "CallOrderManager",
+                                "fetchUserInfo failed code is " + code + ", exception is " + exception);
+                        }
+                    }
+                });
+    }
+
+    private void addOrder(CallOrder order) {
+        try {
+            readWriteLock.writeLock().lock();
+            if (orders.size() >= MAX_ORDER) {
+                orders.remove(0);
+            }
+            orders.add(order);
+            ordersLiveData.postValue(orders);
+        } catch (Exception exception) {
+            ALog.e("CallOrderManager", "addOrder", exception);
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
+        uploadOrder();
+    }
+
+    private void uploadOrder() {
+        String orderStr = GsonUtils.toJson(orders);
+        UserModel currentUser = ProfileManager.getInstance().getUserModel();
+        ALog.i("GeorgeTest", "uploadOrder currentUser mobile:" + currentUser.mobile);
+        SPUtils.getInstance(RECENTLY_CALL_ORDERS + currentUser.mobile).put(ORDER_LIST, orderStr);
+    }
+
+    private void register(boolean register) {
+        NIMClient.getService(MsgServiceObserve.class)
+            .observeReceiveMessage(incomingMessageObserver, register);
+        NIMClient.getService(MsgServiceObserve.class).observeMsgStatus(statusMessage, register);
+    }
 }

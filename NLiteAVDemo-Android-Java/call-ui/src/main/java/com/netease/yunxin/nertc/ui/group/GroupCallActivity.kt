@@ -49,9 +49,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 open class GroupCallActivity : CommonGroupCallActivity() {
-    companion object {
-        const val TAG = "GroupCallActivity"
-    }
+    private val tag = "GroupCallActivity"
 
     protected val timer = SecondsTimer()
     protected var tvCountDown: TextView? = null
@@ -71,7 +69,7 @@ open class GroupCallActivity : CommonGroupCallActivity() {
         if (userList.isEmpty()) {
             return
         }
-        ALog.d(TAG, "onMemberChanged, callId is $callId, userList is $userList.")
+        ALog.d(tag, "onMemberChanged, callId is $callId, userList is $userList.")
         userList.forEach {
             if (currentUserAccId == it.accId) {
                 return@forEach
@@ -169,7 +167,6 @@ open class GroupCallActivity : CommonGroupCallActivity() {
     }
 
     override fun onUserVideoStart(uid: Long, maxProfile: Int) {
-        ALog.d(TAG, "onUserVideoMute, uid is $uid, maxProfile is $maxProfile.")
         if (isFinishing) {
             return
         }
@@ -179,19 +176,7 @@ open class GroupCallActivity : CommonGroupCallActivity() {
         }
     }
 
-    override fun onUserVideoStop(uid: Long) {
-        ALog.d(TAG, "onUserVideoStop, uid is $uid")
-        if (isFinishing) {
-            return
-        }
-        videoEnableList.remove(uid)
-        CoroutineScope(Dispatchers.Main).launch {
-            pageAdapter?.updateState(uid, enableVideo = false)
-        }
-    }
-
     override fun onUserVideoMute(uid: Long, mute: Boolean) {
-        ALog.d(TAG, "onUserVideoMute, uid is $uid, mute is $mute.")
         if (isFinishing) {
             return
         }
@@ -264,7 +249,7 @@ open class GroupCallActivity : CommonGroupCallActivity() {
                             R.string.tip_join_failed,
                             Toast.LENGTH_SHORT
                         ).show()
-                        ALog.w(TAG, "result is error $it.")
+                        ALog.w(tag, "result is error $it.")
                         finish()
                         return@groupJoin
                     }
@@ -343,7 +328,7 @@ open class GroupCallActivity : CommonGroupCallActivity() {
                     it ?: return@startContactSelector
                     val inviteParam = GroupInviteParam(callInfo!!.callId, it)
                     NEGroupCall.instance().groupInvite(inviteParam) { result ->
-                        ALog.d(TAG, "invite result is $result.")
+                        ALog.d(tag, "invite result is $result.")
                     }
                 }
             }
@@ -463,7 +448,7 @@ open class GroupCallActivity : CommonGroupCallActivity() {
                     )
                 ) {
                     if (!it.isSuccessful || it.groupCallInfo == null) {
-                        ALog.w(TAG, "result is error $it.")
+                        ALog.w(tag, "result is error $it.")
                         Toast.makeText(
                             applicationContext,
                             R.string.tip_accept_failed,
@@ -482,7 +467,7 @@ open class GroupCallActivity : CommonGroupCallActivity() {
                     calleeLayout.visibility = View.GONE
                 }
             } ?: run {
-                ALog.e(TAG, "callInfo is null. accept failed.")
+                ALog.e(tag, "callInfo is null. accept failed.")
             }
         }
     }

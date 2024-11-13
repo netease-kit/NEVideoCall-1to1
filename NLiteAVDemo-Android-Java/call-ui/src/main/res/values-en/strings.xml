@@ -47,7 +47,6 @@
     <string name="ui_dialog_permission_positive">OK</string>
     <string name="ui_dialog_overlay_permission_title">Floating window permission not obtained</string>
     <string name="ui_dialog_overlay_permission_content">Your phone is not authorized floating window permissions, audio and video call minimization can not be used normally</string>
-    <string name="ui_dialog_overlay_permission_content_background">Your phone is not authorized display pop-up windows while running in the background permissions, audio and video call minimization can not be used normally</string>
     <string name="ui_dialog_overlay_permission_positive">Turn On</string>
     <string name="ui_floating_window_audio_call">Calling</string>
     <string name="ui_floating_window_audio_invited">Ringing</string>

@@ -17,9 +17,6 @@ import com.netease.yunxin.kit.alog.ParameterMap
 import java.util.*
 
 class GroupVideoViewPool {
-    companion object {
-        const val TAG = "GroupVideoViewPool"
-    }
     private val maxSize = 8
     private val rtcVideoMap = mutableMapOf<Long, NERtcVideoView?>()
     private val queue = LinkedList<NERtcVideoView>()
@@ -43,7 +40,10 @@ class GroupVideoViewPool {
     }
 
     fun obtainRtcVideo(rtcUid: Long, isSelf: Boolean): NERtcVideoView {
-        ALog.i(TAG, "obtainRtcVideo rtcUid is $rtcUid isSelf is $isSelf")
+        ALog.d(
+            "GroupVideoViewPool",
+            ParameterMap("obtainRtcVideo").append("rtcUid", rtcUid).toValue()
+        )
         var videoView = rtcVideoMap[rtcUid]
         videoView = pickVideoView(videoView)
         rtcVideoMap[rtcUid] = videoView

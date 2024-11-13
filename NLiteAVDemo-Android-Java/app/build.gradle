@@ -4,9 +4,9 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
 
-    namespace "com.netease.yunxin.app.videocall"
     defaultConfig {
         applicationId "com.netease.yunxin.app.videocall"
+
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode Integer.parseInt(VERSION_CODE)
@@ -64,9 +64,5 @@ dependencies {
     implementation(libs.retrofitConverterGson)
     implementation(libs.nertc.nenn)
     implementation(libs.nertc.segment)
-    implementation(libs.im.basesdk)
-    implementation(libs.im.chatroom)
-    implementation(libs.im.push)
-    implementation(libs.im.avsignalling)
     implementation project(':call-ui')
 }

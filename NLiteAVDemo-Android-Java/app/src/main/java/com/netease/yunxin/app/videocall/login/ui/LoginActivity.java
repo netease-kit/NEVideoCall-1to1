@@ -21,67 +21,67 @@ import com.netease.yunxin.nertc.nertcvideocall.utils.NetworkUtils;
 
 public class LoginActivity extends AppCompatActivity {
 
-  private EditText mEdtPhoneNumber;
-  private Button mBtnSendMessage;
-  private static final int PHONE_NUMBER_MAX_LENGTH = 11;
+    private EditText mEdtPhoneNumber;
+    private Button mBtnSendMessage;
+    private static final int PHONE_NUMBER_MAX_LENGTH = 11;
 
-  public static void startLogin(Context context) {
-    Intent intent = new Intent();
-    intent.setClass(context, LoginActivity.class);
-    context.startActivity(intent);
-  }
-
-  @Override
-  protected void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.login_activity);
-    initView();
-  }
-
-  private void initView() {
-    mEdtPhoneNumber = findViewById(R.id.edt_phone_number);
-    mBtnSendMessage = findViewById(R.id.btn_send);
-    mBtnSendMessage.setOnClickListener(v -> sendMsm());
-  }
-
-  private void sendMsm() {
-    String phoneNumber = mEdtPhoneNumber.getText().toString().trim();
-    if (!TextUtils.isEmpty(phoneNumber)) {
-      if (phoneNumber.length() < PHONE_NUMBER_MAX_LENGTH) {
-        Toast.makeText(
-                LoginActivity.this,
-                R.string.login_phone_number_cant_less_than_eleven,
-                Toast.LENGTH_SHORT)
-            .show();
-        return;
-      }
-      if (!NetworkUtils.isConnected()) {
-        Toast.makeText(
-                LoginActivity.this,
-                R.string.network_connect_error_please_try_again,
-                Toast.LENGTH_SHORT)
-            .show();
-        return;
-      }
-      LoginServiceManager.getInstance()
-          .sendMessage(
-              phoneNumber,
-              new BaseService.ResponseCallBack<Void>() {
-
-                @Override
-                public void onSuccess(Void response) {
-                  VerifyCodeActivity.startVerifyCode(LoginActivity.this, phoneNumber);
-                }
-
-                @Override
-                public void onFail(int code) {
-                  Log.e("LoginActivity", "login failed" + code);
-                }
-              });
-      VerifyCodeActivity.startVerifyCode(LoginActivity.this, phoneNumber);
-    } else {
-      Toast.makeText(LoginActivity.this, R.string.login_phone_number_cant_null, Toast.LENGTH_SHORT)
-          .show();
+    public static void startLogin(Context context) {
+        Intent intent = new Intent();
+        intent.setClass(context, LoginActivity.class);
+        context.startActivity(intent);
     }
-  }
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.login_activity);
+        initView();
+    }
+
+    private void initView() {
+        mEdtPhoneNumber = findViewById(R.id.edt_phone_number);
+        mBtnSendMessage = findViewById(R.id.btn_send);
+        mBtnSendMessage.setOnClickListener(v -> sendMsm());
+    }
+
+    private void sendMsm() {
+        String phoneNumber = mEdtPhoneNumber.getText().toString().trim();
+        if (!TextUtils.isEmpty(phoneNumber)) {
+            if (phoneNumber.length() < PHONE_NUMBER_MAX_LENGTH) {
+                Toast.makeText(
+                        LoginActivity.this,
+                        R.string.login_phone_number_cant_less_than_eleven,
+                        Toast.LENGTH_SHORT)
+                    .show();
+                return;
+            }
+            if (!NetworkUtils.isConnected()) {
+                Toast.makeText(
+                        LoginActivity.this,
+                        R.string.network_connect_error_please_try_again,
+                        Toast.LENGTH_SHORT)
+                    .show();
+                return;
+            }
+            LoginServiceManager.getInstance()
+                .sendMessage(
+                    phoneNumber,
+                    new BaseService.ResponseCallBack<Void>() {
+
+                        @Override
+                        public void onSuccess(Void response) {
+                            VerifyCodeActivity.startVerifyCode(LoginActivity.this, phoneNumber);
+                        }
+
+                        @Override
+                        public void onFail(int code) {
+                            Log.e("LoginActivity", "login failed" + code);
+                        }
+                    });
+            VerifyCodeActivity.startVerifyCode(LoginActivity.this, phoneNumber);
+        } else {
+            Toast.makeText(LoginActivity.this, R.string.login_phone_number_cant_null, Toast.LENGTH_SHORT)
+                .show();
+        }
+    }
 }

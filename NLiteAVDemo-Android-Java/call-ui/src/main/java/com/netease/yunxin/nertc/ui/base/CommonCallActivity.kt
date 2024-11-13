@@ -6,7 +6,6 @@
 
 package com.netease.yunxin.nertc.ui.base
 
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.Window
@@ -381,16 +380,6 @@ abstract class CommonCallActivity : AppCompatActivity(), NECallEngineDelegate {
             }
             return
         }
-
-        if (!FloatingPermission.miuiBackgroundStartAllowed(this)) {
-            if (overLayPermissionDialog?.isShowing != true) {
-                showOverlayPermissionDialog {
-                    FloatingPermission.startToPermissionSetting(this)
-                }
-            }
-            return
-        }
-
         if (!CallUIFloatingWindowMgr.isFloating()) {
             CallUIFloatingWindowMgr.showFloat(this.applicationContext)
         }
@@ -436,9 +425,5 @@ abstract class CommonCallActivity : AppCompatActivity(), NECallEngineDelegate {
             ALog.e(tag, "CallParam is null. Then finish this activity.")
             CallParam(true)
         }
-    }
-
-    override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(MultiLanguageHelper.changeContextLocale(newBase))
     }
 }
