@@ -119,6 +119,10 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
       self.transcodingDelegate = instance;
     }
   }
+
+  self.bundle = [NSBundle bundleForClass:NERtcCallUIKit.class];
+  self.ringFile = [[NERingFile alloc] initWithBundle:self.bundle language:config.uiConfig.language];
+  [NECallKitUtil setLanguage:config.uiConfig.language];
 }
 
 - (instancetype)init {
@@ -136,10 +140,11 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
     [self.uiConfigDic setObject:NEVideoCallingController.class forKey:kVideoCalling];
     [self.uiConfigDic setObject:NEVideoInCallController.class forKey:kVideoInCall];
     [self registerRouter];
-    [NERtcCallKit sharedInstance].recordHandler = ^(NIMMessage *message) {
+
+    [NERtcCallKit sharedInstance].recordHandler = ^(V2NIMMessage *message) {
       if ([[NetManager shareInstance] isClose] == YES) {
-        NIMRtcCallRecordObject *object = (NIMRtcCallRecordObject *)message.messageObject;
-        object.callStatus = NIMRtcCallStatusCanceled;
+        V2NIMMessageCallAttachment *recordObject = (V2NIMMessageCallAttachment *)message.attachment;
+        recordObject.status = 2;  // 表示取消
       }
     };
 
@@ -152,17 +157,10 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
                                              selector:@selector(appDidEnterForeground)
                                                  name:UIApplicationWillEnterForegroundNotification
                                                object:nil];
-
-    self.bundle = [NSBundle bundleForClass:NERtcCallUIKit.class];
-    self.ringFile = [[NERingFile alloc] initWithBundle:self.bundle];
     self.smallVideoSize = CGSizeMake(90, 160);
     self.smallAudioSize = CGSizeMake(70, 70);
   }
   return self;
-}
-
-- (NSString *)localizableWithKey:(NSString *)key {
-  return [self.bundle localizedStringForKey:key value:nil table:@"Localizable"];
 }
 
 - (void)registerRouter {
@@ -170,11 +168,10 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
                     closure:^(NSDictionary<NSString *, id> *_Nonnull param) {
                       if ([[NetManager shareInstance] isClose] == YES) {
                         [UIApplication.sharedApplication.keyWindow
-                            ne_makeToast:[self localizableWithKey:@"network_error"]];
+                            ne_makeToast:[NECallKitUtil localizableWithKey:@"network_error"]];
                         return;
                       }
                       NEUICallParam *callParam = [[NEUICallParam alloc] init];
-                      callParam.currentUserAccid = [param objectForKey:@"currentUserAccid"];
                       callParam.remoteUserAccid = [param objectForKey:@"remoteUserAccid"];
                       callParam.remoteShowName = [param objectForKey:@"remoteShowName"];
                       callParam.remoteAvatar = [param objectForKey:@"remoteAvatar"];
@@ -323,7 +320,6 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
                                              ? imUser.userInfo.mobile
                                              : imUser.userInfo.nickName;
               callParam.remoteAvatar = imUser.userInfo.avatarUrl;
-              callParam.currentUserAccid = NIMSDK.sharedSDK.loginManager.currentAccount;
               callParam.enableAudioToVideo = self.config.uiConfig.enableAudioToVideo;
               callParam.enableVideoToAudio = self.config.uiConfig.enableVideoToAudio;
               callParam.enableVirtualBackground = self.config.uiConfig.enableVirtualBackground;
@@ -361,7 +357,7 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
                                              withCallParam:callParam
                                             withCompletion:^(BOOL success) {
                                               if (success) {
-                                                [self showCustomClassController:callParam];
+                                                [self showCallView:callVC];
                                               }
                                             }];
                 return;
@@ -380,7 +376,6 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
   callParam.remoteUserAccid = imUser.userId;
   callParam.remoteShowName = imUser.userInfo.mobile;
   callParam.remoteAvatar = imUser.userInfo.avatarUrl;
-  callParam.currentUserAccid = NIMSDK.sharedSDK.loginManager.currentAccount;
   callParam.enableVideoToAudio = self.config.uiConfig.enableVideoToAudio;
   callParam.enableAudioToVideo = self.config.uiConfig.enableAudioToVideo;
   callParam.callType = type;
@@ -432,6 +427,7 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
     }
     window.frame = [[UIScreen mainScreen] bounds];
     window.windowLevel = UIWindowLevelStatusBar - 1;
+    window.backgroundColor = [UIColor clearColor];
     self.keywindow = window;
     self.preiousKeywindow = UIApplication.sharedApplication.keyWindow;
     YXAlogInfo(@"create new window %@", self.keywindow);
@@ -445,7 +441,7 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
   nav.view.backgroundColor = [UIColor clearColor];
   [nav.navigationBar setHidden:YES];
   self.keywindow.rootViewController = nav;
-  self.keywindow.window.backgroundColor = [UIColor clearColor];
+  self.keywindow.backgroundColor = [UIColor clearColor];
   [self.keywindow makeKeyAndVisible];
   return nav;
 }
@@ -776,7 +772,7 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
 #pragma mark - Version
 
 + (NSString *)version {
-  return @"2.2.0";
+  return @"3.0.0";
 }
 
 @end

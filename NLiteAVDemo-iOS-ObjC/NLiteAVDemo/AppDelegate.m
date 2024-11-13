@@ -41,7 +41,6 @@
   self.window.rootViewController = nav;
   [NENavigator shared].navigationController = nav;
   [self.window makeKeyAndVisible];
-
   /*
 // 外部注册自定义UI示例代码
 NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSString *> *> *stateConfigDic =
@@ -62,11 +61,40 @@ NSLog(@"class instance : %@", controller);
    */
 }
 
-- (void)setupSDK {
+/*
+- (void)setupCallKit {
 
+    // 美颜设置
+    NERtcEngine *coreEngine = [NERtcEngine sharedEngine];
+    NSDictionary *params = @{
+        kNERtcKeyPublishSelfStreamEnabled: @YES,    // 打开推流
+        kNERtcKeyVideoCaptureObserverEnabled: @YES  // 将摄像头采集的数据回调给用户
+    };
+    [coreEngine setParameters:params];
+
+    // 呼叫组件初始化
+    NERtcCallOptions *option = [NERtcCallOptions new];
+    option.APNSCerName = @"your apns cer name";
+    NERtcCallKit *callkit = [NERtcCallKit sharedInstance];
+    [callkit setupAppKey:@"your app key" options:option];
+
+    //呼叫组件设置rtc代理中转
+    callkit.engineDelegate = self;
+}
+
+// 在代理方法中对视频数据进行处理
+- (void)onNERtcEngineVideoFrameCaptured:(CVPixelBufferRef)bufferRef
+rotation:(NERtcVideoRotationType)rotation
+{
+    // 对视频数据 bufferRef 进行处理, 务必保证 CVPixelBufferRef 的地址值不变，分辨率不变
+}*/
+
+- (void)setupSDK {
   NIMSDKOption *option = [NIMSDKOption optionWithAppKey:kAppKey];
   option.apnsCername = kAPNSCerName;
-  [NIMSDK.sharedSDK registerWithOption:option];
+  option.v2 = YES;
+
+  [NIMSDK.sharedSDK registerWithOptionV2:option v2Option:nil];
 
   NESetupConfig *setupConfig = [[NESetupConfig alloc] initWithAppkey:kAppKey];
   [[NECallEngine sharedInstance] setup:setupConfig];
@@ -74,10 +102,9 @@ NSLog(@"class instance : %@", controller);
 
   NECallUIKitConfig *config = [[NECallUIKitConfig alloc] init];
   config.uiConfig.showCallingSwitchCallType = YES;
-  config.uiConfig.enableVideoToAudio = YES;
-  config.uiConfig.enableAudioToVideo = YES;
-    config.uiConfig.enableFloatingWindow = YES;
-    config.uiConfig.enableFloatingWindowOutOfApp = YES;
+  config.uiConfig.enableFloatingWindow = YES;
+  config.uiConfig.enableFloatingWindowOutOfApp = YES;
+  config.uiConfig.language = NECallUILanguageAuto;
   [[NERtcCallUIKit sharedInstance] setupWithConfig:config];
   [NERtcCallUIKit sharedInstance].delegate = self;
 
@@ -92,7 +119,6 @@ NSLog(@"class instance : %@", controller);
   param.appid = kAppKey;
   param.rtcSafeMode = YES;
   [[NEGroupCallKit sharedInstance] setupGroupCall:param];
-
 }
 
 - (void)didCallComingWithInviteInfo:(NEInviteInfo *)inviteInfo
@@ -116,8 +142,6 @@ NSLog(@"class instance : %@", controller);
                             [UIApplication.sharedApplication.keyWindow
                                 ne_makeToast:@"请到设置中开启推送功能"];
                           });
-                          //[UIApplication.sharedApplication.keyWindow
-                          // ne_makeToast:@"请到设置中开启推送功能"];
                         }
                       }];
   } else {
@@ -137,19 +161,12 @@ NSLog(@"class instance : %@", controller);
     didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
   [[NERtcCallKit sharedInstance] updateApnsToken:deviceToken];
   [[NSUserDefaults standardUserDefaults] setObject:deviceToken forKey:deviceTokenKey];
-  //    [self.window ne_makeToast:@"注册devicetoken成功"];
 }
+
 - (void)application:(UIApplication *)application
     didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
   [self.window ne_makeToast:[NSString stringWithFormat:@"注册devicetoken失败，Error%@", error]];
 }
-
-// 4.接收通知
-// iOS 10.0 在前台收到通知
-//- (void)userNotificationCenter:(UNUserNotificationCenter *)center
-// willPresentNotification:(UNNotification *)notification withCompletionHandler:(void
-//(^)(UNNotificationPresentationOptions options))completionHandler {
-//}
 
 // 在后收到通知
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
@@ -167,6 +184,5 @@ NSLog(@"class instance : %@", controller);
     didReceiveLocalNotification:(UILocalNotification *)notification {
   [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
 }
-
 
 @end

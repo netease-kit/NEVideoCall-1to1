@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #import "NEGroupCalledViewController.h"
-#import <NERtcCallUIKit/NECustomButton.h>
+#import "NECustomButton.h"
 #import "NEGroupUserController.h"
 
 @interface NEGroupCalledViewController ()
