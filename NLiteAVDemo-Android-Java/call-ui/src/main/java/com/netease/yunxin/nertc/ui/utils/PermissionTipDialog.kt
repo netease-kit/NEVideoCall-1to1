@@ -31,7 +31,7 @@ open class PermissionTipDialog(activity: Activity, private val clickListener: Vi
         if (window != null) {
             window.decorView.setPadding(20.dip2Px(context), 0, 20.dip2Px(context), 0)
             val wlp = window.attributes
-            wlp.gravity = Gravity.CENTER
+            wlp.gravity = Gravity.TOP
             wlp.width = WindowManager.LayoutParams.MATCH_PARENT
             wlp.height = WindowManager.LayoutParams.WRAP_CONTENT
             window.attributes = wlp
