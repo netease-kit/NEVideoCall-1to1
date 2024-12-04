@@ -9,12 +9,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:padding="5dp"
     android:background="@drawable/shape_permission_dialog_bg">
 
     <TextView
         android:id="@+id/tv_tip_title"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="wrap_content"
         android:gravity="center"
         android:text="@string/ui_dialog_permission_title"
         android:textColor="#000000"
@@ -29,7 +30,7 @@
         android:id="@+id/tv_tip_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
+        android:gravity="start"
         android:paddingEnd="20dp"
         android:paddingStart="20dp"
         android:text="@string/ui_dialog_permission_content"

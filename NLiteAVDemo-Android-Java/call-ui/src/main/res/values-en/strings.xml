@@ -10,6 +10,8 @@
     <string name="tip_notification_channel_description">Prompt when receiving audio and video call invitations.</string>
     <string name="tip_notification_foreground_channel_name">In-call status notification</string>
     <string name="tip_notification_foreground_channel_description">Used for "in-call" status prompt.</string>
+    <string name="tip_notification_other_channel_name">Other notifications</string>
+    <string name="tip_notification_other_channel_description">Notification types used for status during calls, etc.</string>
     <string name="tip_notification_foreground_content_info">Call ongoing…</string>
     <string name="tip_reject_by_other">The user has declined your  call invitation</string>
     <string name="tip_hangup_by_other">The other party has hung up</string>
