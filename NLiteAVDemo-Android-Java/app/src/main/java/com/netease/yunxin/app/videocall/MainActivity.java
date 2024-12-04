@@ -4,7 +4,10 @@
 
 package com.netease.yunxin.app.videocall;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -16,6 +19,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.netease.lava.nertc.foreground.ForegroundKit;
 import com.netease.lava.nertc.sdk.NERtc;
 import com.netease.lava.nertc.sdk.NERtcEx;
@@ -42,6 +48,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+  private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1001;
   private static final int CODE_REQUEST_INVITE_USERS = 9101;
 
   private TextView tvVersion;
@@ -50,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+    checkAndRequestNotificationPermission(this);
     initView();
     checkLogin();
     initG2();
@@ -311,5 +319,19 @@ public class MainActivity extends AppCompatActivity {
     confirmDialog.setNegativeButton("否", (dialog, which) -> {});
 
     confirmDialog.show();
+  }
+
+  private void checkAndRequestNotificationPermission(Context context) {
+    // 检查是否需要请求通知权限
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS)
+          != PackageManager.PERMISSION_GRANTED) {
+        // 请求权限
+        ActivityCompat.requestPermissions(
+            this,
+            new String[] {Manifest.permission.POST_NOTIFICATIONS},
+            NOTIFICATION_PERMISSION_REQUEST_CODE);
+      }
+    }
   }
 }
