@@ -7,6 +7,7 @@ package com.netease.yunxin.nertc.ui.service
 
 import android.content.Context
 import android.text.TextUtils
+import com.netease.nimlib.sdk.NIMClient
 import com.netease.nimlib.sdk.ResponseCode
 import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.kit.alog.ParameterMap
@@ -35,7 +36,6 @@ import com.netease.yunxin.nertc.nertcvideocall.model.CallErrorCode
 import com.netease.yunxin.nertc.nertcvideocall.model.CallLocalAction
 import com.netease.yunxin.nertc.nertcvideocall.model.SwitchCallState
 import com.netease.yunxin.nertc.nertcvideocall.model.impl.state.CallState
-import com.netease.yunxin.nertc.ui.CallKitUI
 import com.netease.yunxin.nertc.ui.base.AVChatSoundPlayer
 
 /**
@@ -161,7 +161,7 @@ open class CallKitUIBridgeService @JvmOverloads constructor(
                 bgGroupInvitedInfo!!.callId
             ) && userList != null
         ) {
-            val index = userList.indexOf(GroupCallMember(CallKitUI.currentUserAccId))
+            val index = userList.indexOf(GroupCallMember(NIMClient.getCurrentAccount()))
             if (index < 0) {
                 return
             }
@@ -209,7 +209,7 @@ open class CallKitUIBridgeService @JvmOverloads constructor(
     open fun onLocalAction(actionId: Int, resultCode: Int) {
         ALog.d(logTag, "onLocalAction actionId is $actionId, resultCode is $resultCode.")
         if (actionId == CallLocalAction.ACTION_CALL && NECallEngine.sharedInstance().callInfo.callStatus == CallState.STATE_CALL_OUT) {
-            callerAccId = CallKitUI.currentUserAccId
+            callerAccId = NIMClient.getCurrentAccount()
             canStopAudioPlay = true
             AVChatSoundPlayer.play(context, AVChatSoundPlayer.RingerTypeEnum.CONNECTING)
         } else if (canStopAudioPlay && callerAccId != null &&
@@ -275,19 +275,19 @@ open class CallKitUIBridgeService @JvmOverloads constructor(
         ALog.dApi(logTag, ParameterMap("onCallEnd").append("info", info))
         incomingCallEx.onIncomingCallInvalid(bgInvitedInfo)
         when (info.reasonCode) {
-            NEHangupReasonCode.CALLER_REJECTED -> if (callerAccId == CallKitUI.currentUserAccId) {
+            NEHangupReasonCode.CALLER_REJECTED -> if (callerAccId == NIMClient.getCurrentAccount()) {
                 playStopAudio(AVChatSoundPlayer.RingerTypeEnum.PEER_REJECT)
             } else {
                 AVChatSoundPlayer.stop(context)
             }
 
-            NEHangupReasonCode.BUSY -> if (callerAccId == CallKitUI.currentUserAccId) {
+            NEHangupReasonCode.BUSY -> if (callerAccId == NIMClient.getCurrentAccount()) {
                 playStopAudio(AVChatSoundPlayer.RingerTypeEnum.PEER_BUSY)
             } else {
                 AVChatSoundPlayer.stop(context)
             }
 
-            NEHangupReasonCode.TIME_OUT -> if (callerAccId == CallKitUI.currentUserAccId) {
+            NEHangupReasonCode.TIME_OUT -> if (callerAccId == NIMClient.getCurrentAccount()) {
                 playStopAudio(AVChatSoundPlayer.RingerTypeEnum.NO_RESPONSE)
             } else {
                 AVChatSoundPlayer.stop(context)
@@ -342,7 +342,7 @@ open class CallKitUIBridgeService @JvmOverloads constructor(
         ) {
             return false
         }
-        val index = invitedInfo.memberList.indexOf(GroupCallMember(CallKitUI.currentUserAccId))
+        val index = invitedInfo.memberList.indexOf(GroupCallMember(NIMClient.getCurrentAccount()))
         if (index < 0) {
             return false
         }
