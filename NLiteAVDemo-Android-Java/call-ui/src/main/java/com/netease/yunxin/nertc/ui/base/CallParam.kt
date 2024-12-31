@@ -8,9 +8,9 @@ package com.netease.yunxin.nertc.ui.base
 
 import android.os.Parcel
 import android.os.Parcelable
+import com.netease.nimlib.sdk.NIMClient
 import com.netease.yunxin.kit.call.p2p.model.NECallPushConfig
 import com.netease.yunxin.kit.call.p2p.model.NECallType
-import com.netease.yunxin.nertc.ui.CallKitUI
 
 /**
  * 呼叫参数，用户群组呼叫/P2P 呼叫
@@ -18,7 +18,6 @@ import com.netease.yunxin.nertc.ui.CallKitUI
 class CallParam @JvmOverloads constructor(
     val isCalled: Boolean,
     var callType: Int = NECallType.AUDIO,
-    val callerAccId: String? = null,
     val calledAccId: String? = null,
     val callExtraInfo: String? = null,
     val globalExtraCopy: String? = null,
@@ -27,14 +26,13 @@ class CallParam @JvmOverloads constructor(
     var extras: MutableMap<String?, Any?>? = null
 ) : Parcelable {
 
-    val currentAccId: String? = CallKitUI.currentUserAccId
+    val currentAccId: String? = NIMClient.getCurrentAccount()
 
     val otherAccId: String?
-        get() = if (isCalled) callerAccId else calledAccId
+        get() = if (isCalled) currentAccId else calledAccId
 
     constructor(
         callType: Int,
-        callerAccId: String? = null,
         calledAccId: String? = null,
         callExtraInfo: String? = null,
         globalExtraCopy: String? = null,
@@ -44,7 +42,6 @@ class CallParam @JvmOverloads constructor(
     ) : this(
         false,
         callType,
-        callerAccId,
         calledAccId,
         callExtraInfo = callExtraInfo,
         globalExtraCopy = globalExtraCopy,
@@ -60,7 +57,6 @@ class CallParam @JvmOverloads constructor(
         parcel.readString(),
         parcel.readString(),
         parcel.readString(),
-        parcel.readString(),
         parcel.readParcelable(NECallPushConfig::class.java.classLoader),
         HashMap<String?, Any?>().apply {
             parcel.readMap(this, javaClass.classLoader)
@@ -70,7 +66,6 @@ class CallParam @JvmOverloads constructor(
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeByte(if (isCalled) 1 else 0)
         parcel.writeInt(callType)
-        parcel.writeString(callerAccId)
         parcel.writeString(calledAccId)
         parcel.writeString(callExtraInfo)
         parcel.writeString(globalExtraCopy)
@@ -84,7 +79,7 @@ class CallParam @JvmOverloads constructor(
     }
 
     override fun toString(): String {
-        return "CallParam(isCalled=$isCalled, callType=$callType, callerAccId=$callerAccId, calledAccId=$calledAccId, callExtraInfo=$callExtraInfo, globalExtraCopy=$globalExtraCopy, rtcChannelName=$rtcChannelName, pushConfig=$pushConfig, extras=$extras, currentAccId=$currentAccId, otherAccId=$otherAccId)"
+        return "CallParam(isCalled=$isCalled, callType=$callType, calledAccId=$calledAccId, callExtraInfo=$callExtraInfo, globalExtraCopy=$globalExtraCopy, rtcChannelName=$rtcChannelName, pushConfig=$pushConfig, extras=$extras, currentAccId=$currentAccId, otherAccId=$otherAccId)"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -95,7 +90,6 @@ class CallParam @JvmOverloads constructor(
 
         if (isCalled != other.isCalled) return false
         if (callType != other.callType) return false
-        if (callerAccId != other.callerAccId) return false
         if (calledAccId != other.calledAccId) return false
         if (callExtraInfo != other.callExtraInfo) return false
         if (globalExtraCopy != other.globalExtraCopy) return false
@@ -109,7 +103,6 @@ class CallParam @JvmOverloads constructor(
     override fun hashCode(): Int {
         var result = isCalled.hashCode()
         result = 31 * result + callType
-        result = 31 * result + (callerAccId?.hashCode() ?: 0)
         result = 31 * result + (calledAccId?.hashCode() ?: 0)
         result = 31 * result + (callExtraInfo?.hashCode() ?: 0)
         result = 31 * result + (globalExtraCopy?.hashCode() ?: 0)
@@ -132,7 +125,6 @@ class CallParam @JvmOverloads constructor(
     class Builder {
         private var callType: Int = NECallType.AUDIO
         private var isCalled: Boolean = false
-        private var callerAccId: String? = CallKitUI.currentUserAccId
         private var calledAccId: String? = null
         private var callExtraInfo: String? = null
         private var globalExtraCopy: String? = null
@@ -143,8 +135,6 @@ class CallParam @JvmOverloads constructor(
         fun callType(type: Int) = apply { this.callType = type }
 
         fun isCalled(called: Boolean) = apply { this.isCalled = called }
-
-        fun callerAccId(accId: String) = apply { this.callerAccId = accId }
 
         fun calledAccId(accId: String) = apply { this.calledAccId = accId }
 
@@ -172,7 +162,6 @@ class CallParam @JvmOverloads constructor(
             return CallParam(
                 isCalled,
                 callType,
-                callerAccId,
                 calledAccId,
                 callExtraInfo,
                 globalExtraCopy,

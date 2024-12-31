@@ -7,8 +7,8 @@
 package com.netease.yunxin.nertc.ui.p2p
 
 import com.netease.nimlib.sdk.util.Entry
-import com.netease.nimlib.sdk.v2.avsignalling.enums.V2NIMSignallingChannelType
 import com.netease.yunxin.kit.alog.ALog
+import com.netease.yunxin.kit.call.p2p.model.NECallTypeChangeInfo
 import com.netease.yunxin.nertc.nertcvideocall.bean.InvitedInfo
 import com.netease.yunxin.nertc.nertcvideocall.model.AbsNERtcCallingDelegate
 
@@ -83,7 +83,7 @@ open class NERtcCallDelegateForP2P : AbsNERtcCallingDelegate() {
     override fun onUserNetworkQuality(stats: Array<out Entry<String, Int>>?) {
     }
 
-    override fun onCallTypeChange(type: V2NIMSignallingChannelType?, switchCallState: Int) {
+    override fun onCallTypeChange(info: NECallTypeChangeInfo) {
     }
 
     override fun timeOut() {

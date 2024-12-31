@@ -6,7 +6,6 @@ package com.netease.yunxin.app.videocall;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,7 +20,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
 import com.netease.lava.nertc.foreground.ForegroundKit;
 import com.netease.lava.nertc.sdk.NERtc;
 import com.netease.lava.nertc.sdk.NERtcEx;
@@ -40,17 +38,11 @@ import com.netease.yunxin.app.videocall.nertc.ui.CallModeType;
 import com.netease.yunxin.app.videocall.nertc.ui.NERTCSelectCallUserActivity;
 import com.netease.yunxin.app.videocall.nertc.ui.SettingActivity;
 import com.netease.yunxin.nertc.ui.CallKitUI;
-import com.netease.yunxin.nertc.ui.CallKitUIOptions;
-import com.netease.yunxin.nertc.ui.NECallUILanguage;
-import com.netease.yunxin.nertc.ui.base.TransHelper;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
   private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1001;
-  private static final int CODE_REQUEST_INVITE_USERS = 9101;
-
   private TextView tvVersion;
 
   @Override
@@ -108,74 +100,10 @@ public class MainActivity extends AppCompatActivity {
                 if (status == V2NIMLoginStatus.V2NIM_LOGIN_STATUS_LOGINED) {
                   if (TextUtils.equals(
                       AuthManager.getInstance().getUserModel().imAccid,
-                      CallKitUI.INSTANCE.getCurrentUserAccId())) {
+                      NIMClient.getCurrentAccount())) {
                     return;
                   }
                   Log.e("======", "init " + AuthManager.getInstance().getUserModel().imAccid);
-                  CallKitUIOptions options =
-                      new CallKitUIOptions.Builder()
-                          // 音视频通话 sdk appKey，用于通话中使用
-                          .rtcAppKey(BuildConfig.APP_KEY)
-                          // 当前用户 accId
-                          .currentUserAccId(AuthManager.getInstance().getUserModel().imAccid)
-                          .currentUserRtcUId(SettingActivity.RTC_CHANNEL_UID)
-                          // 通话接听成功的超时时间单位 毫秒，默认30s
-                          .timeOutMillisecond(30 * 1000L)
-                          // 当系统版本为 Android Q及以上时，若应用在后台系统限制不直接展示页面
-                          // 而是展示 notification，通过点击 notification 跳转呼叫页面
-                          // 此处为 notification 相关配置，如图标，提示语等。
-                          .notificationConfigFetcher(new DemoSelfNotificationConfigFetcher<>())
-                          .notificationConfigFetcherForGroup(
-                              new DemoSelfNotificationConfigFetcher<>())
-                          // 收到被叫时若 app 在后台，在恢复到前台时是否自动唤起被叫页面，默认为 true
-                          .resumeBGInvitation(true)
-                          .enableGroup(true)
-                          .enableAutoJoinWhenCalled(SettingActivity.ENABLE_AUTO_JOIN)
-                          // 设置用户信息
-                          .userInfoHelper(new SelfUserInfoHelper())
-                          // rtc 初始化模式
-                          .initRtcMode(SettingActivity.RTC_INIT_MODE)
-                          // 注册自定义通话页面
-                          .p2pVideoActivity(TestActivity.class)
-                          .p2pAudioActivity(TestActivity.class)
-                          // 主叫加入 rtc 的时机
-                          .joinRtcWhenCall(SettingActivity.ENABLE_JOIN_RTC_WHEN_CALL)
-                          .contactSelector(
-                              (context, groupId, strings, listNEResultObserver) -> {
-                                if (listNEResultObserver == null) {
-                                  return null;
-                                }
-                                TransHelper.launchTask(
-                                    context,
-                                    CODE_REQUEST_INVITE_USERS,
-                                    (innerContext, code) -> {
-                                      NERTCSelectCallUserActivity.startSelectUser(
-                                          innerContext,
-                                          CODE_REQUEST_INVITE_USERS,
-                                          CallModeType.RTC_GROUP_INVITE,
-                                          strings);
-                                      return null;
-                                    },
-                                    intentResultInfo -> {
-                                      if (intentResultInfo == null
-                                          || intentResultInfo.getValue() == null) {
-                                        return null;
-                                      }
-                                      Intent data = intentResultInfo.getValue();
-                                      if (intentResultInfo.getSuccess()) {
-                                        ArrayList<String> selectorList =
-                                            data.getStringArrayListExtra(
-                                                NERTCSelectCallUserActivity.KEY_CALL_USER_LIST);
-                                        listNEResultObserver.onResult(selectorList);
-                                      }
-                                      return null;
-                                    });
-                                return null;
-                              })
-                          .language(NECallUILanguage.AUTO)
-                          .build();
-                  // 初始化
-                  CallKitUI.init(getApplicationContext(), options);
                   SettingActivity.toInit();
                 }
               }

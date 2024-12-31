@@ -22,10 +22,10 @@ import com.bumptech.glide.Glide
 import com.netease.lava.nertc.sdk.NERtcConstants
 import com.netease.lava.nertc.sdk.NERtcConstants.ErrorCode.ENGINE_ERROR_DEVICE_PREVIEW_ALREADY_STARTED
 import com.netease.lava.nertc.sdk.NERtcEx
+import com.netease.nimlib.sdk.NIMClient
 import com.netease.nimlib.sdk.ResponseCode
 import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.kit.call.NEResultObserver
-import com.netease.yunxin.kit.call.p2p.internal.NECallEngineImpl
 import com.netease.yunxin.kit.call.p2p.model.NECallEndInfo
 import com.netease.yunxin.kit.call.p2p.model.NECallInfo
 import com.netease.yunxin.kit.call.p2p.model.NECallInitRtcMode
@@ -488,10 +488,8 @@ open class P2PCallActivity : CommonCallActivity() {
             binding.tvSwitchTipClose.setOnClickListener {
                 binding.switchTypeTipGroup.visibility = View.GONE
             }
-            val enableAutoJoinWhenCalled = (callEngine as? NECallEngineImpl)?.recorder?.isEnableAutoJoinWhenCalled == true
             binding.calledSwitchGroup.visibility = View.GONE
-            binding.callerSwitchGroup.visibility =
-                if (enableAutoJoinWhenCalled) View.VISIBLE else View.GONE
+            binding.callerSwitchGroup.visibility = View.GONE
         }
 
         open fun renderForCalled() {
@@ -499,12 +497,7 @@ open class P2PCallActivity : CommonCallActivity() {
                 binding.switchTypeTipGroup.visibility = View.GONE
             }
             binding.callerSwitchGroup.visibility = View.GONE
-            val enableAutoJoinWhenCalled = (callEngine as? NECallEngineImpl)?.recorder?.isEnableAutoJoinWhenCalled == true
-            if (enableAutoJoinWhenCalled) {
-                binding.calledSwitchGroup.visibility = View.VISIBLE
-            } else {
-                binding.calledSwitchGroup.visibility = View.GONE
-            }
+            binding.calledSwitchGroup.visibility = View.GONE
         }
 
         open fun renderForOnTheCall(userAccId: String? = null) {
@@ -576,7 +569,7 @@ open class P2PCallActivity : CommonCallActivity() {
 
         override fun renderForCalled() {
             super.renderForCalled()
-            forUserInfoUI(NECallType.AUDIO, callParam.callerAccId)
+            forUserInfoUI(NECallType.AUDIO, NIMClient.getCurrentAccount())
 
             binding.ivAccept.setImageResource(R.drawable.icon_call_audio_accept)
             binding.ivSwitchType.setImageResource(R.drawable.icon_call_tip_audio_to_video)
@@ -677,7 +670,7 @@ open class P2PCallActivity : CommonCallActivity() {
         override fun renderForCalled() {
             super.renderForCalled()
 
-            forUserInfoUI(NECallType.VIDEO, callParam.callerAccId)
+            forUserInfoUI(NECallType.VIDEO, NIMClient.getCurrentAccount())
 
             binding.videoViewPreview.visibility = View.GONE
             binding.videoViewBig.visibility = View.GONE

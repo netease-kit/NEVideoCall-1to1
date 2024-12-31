@@ -22,6 +22,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.netease.lava.nertc.sdk.NERtcConstants
 import com.netease.lava.nertc.sdk.NERtcEx
+import com.netease.nimlib.sdk.NIMClient
 import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.kit.call.NEResultObserver
 import com.netease.yunxin.kit.call.group.GroupCallMember
@@ -240,13 +241,13 @@ open class GroupCallActivity : CommonGroupCallActivity() {
             initCalleeUI()
         } else if (callParam != null) { // 发起呼叫
             val list = mutableListOf<String>().apply {
-                add(CallKitUI.currentUserAccId!!)
+                add(NIMClient.getCurrentAccount())
                 callParam?.calleeList?.let {
                     addAll(it)
                 }
             }
             callInfo = GroupHelperUtils.generateGroupCallInfo(
-                CallKitUI.currentUserAccId,
+                NIMClient.getCurrentAccount(),
                 CallKitUI.currentUserRtcUid,
                 callParam,
                 null
@@ -501,7 +502,7 @@ open class GroupCallActivity : CommonGroupCallActivity() {
                 return@groupCall
             }
             callInfo = GroupHelperUtils.generateGroupCallInfo(
-                CallKitUI.currentUserAccId,
+                NIMClient.getCurrentAccount(),
                 CallKitUI.currentUserRtcUid,
                 param,
                 result

@@ -27,7 +27,6 @@ import com.netease.yunxin.nertc.ui.service.CallKitUIBridgeService
 import com.netease.yunxin.nertc.ui.service.IncomingCallEx
 
 class CallKitUIOptions constructor(
-    val currentUserAccId: String,
     val currentUserRtcUId: Long = 0L,
     val timeOutMillisecond: Long = 30 * 1000L,
     val resumeBGInvitation: Boolean = true,
@@ -55,7 +54,6 @@ class CallKitUIOptions constructor(
 ) {
 
     class Builder {
-        private var currentUserAccId: String = ""
         private var currentUserRtcUId: Long = 0L
         private var timeOutMillisecond: Long = 30 * 1000L
         private var resumeBGInvitation: Boolean = true
@@ -119,10 +117,6 @@ class CallKitUIOptions constructor(
 
         fun timeOutMillisecond(time: Long): Builder = apply {
             this.timeOutMillisecond = time
-        }
-
-        fun currentUserAccId(accId: String) = apply {
-            this.currentUserAccId = accId
         }
 
         fun currentUserRtcUId(uId: Long) = apply {
@@ -248,7 +242,6 @@ class CallKitUIOptions constructor(
             val uiHelper = CallKitUIHelper(contactSelector)
 
             return CallKitUIOptions(
-                currentUserAccId = currentUserAccId,
                 currentUserRtcUId = currentUserRtcUId,
                 timeOutMillisecond = timeOutMillisecond,
                 resumeBGInvitation = resumeBGInvitation,
@@ -278,7 +271,7 @@ class CallKitUIOptions constructor(
     }
 
     override fun toString(): String {
-        return "CallKitUIOptions(currentUserAccId='$currentUserAccId', currentUserRtcUId=$currentUserRtcUId, timeOutMillisecond=$timeOutMillisecond, resumeBGInvitation=$resumeBGInvitation, rtcConfig=$rtcConfig, activityConfig=$activityConfig, uiHelper=$uiHelper, notificationConfigFetcher=$notificationConfigFetcher, notificationConfigFetcherForGroup=$notificationConfigFetcherForGroup, userInfoHelper=$userInfoHelper, incomingCallEx=$incomingCallEx, callKitUIBridgeService=$callKitUIBridgeService, pushConfigProviderForGroup=$pushConfigProviderForGroup, callExtension=$callExtension, soundHelper=$soundHelper, enableOrder=$enableOrder, enableAutoJoinWhenCalled=$enableAutoJoinWhenCalled, initRtcMode=$initRtcMode, joinRtcWhenCall=$joinRtcWhenCall, audio2Video=$audio2Video, video2Audio=$video2Audio, enableGroup=$enableGroup, language=$language, framework=$framework, channel=$channel)"
+        return "CallKitUIOptions(currentUserRtcUId=$currentUserRtcUId, timeOutMillisecond=$timeOutMillisecond, resumeBGInvitation=$resumeBGInvitation, rtcConfig=$rtcConfig, activityConfig=$activityConfig, uiHelper=$uiHelper, notificationConfigFetcher=$notificationConfigFetcher, notificationConfigFetcherForGroup=$notificationConfigFetcherForGroup, userInfoHelper=$userInfoHelper, incomingCallEx=$incomingCallEx, callKitUIBridgeService=$callKitUIBridgeService, pushConfigProviderForGroup=$pushConfigProviderForGroup, callExtension=$callExtension, soundHelper=$soundHelper, enableOrder=$enableOrder, enableAutoJoinWhenCalled=$enableAutoJoinWhenCalled, initRtcMode=$initRtcMode, joinRtcWhenCall=$joinRtcWhenCall, audio2Video=$audio2Video, video2Audio=$video2Audio, enableGroup=$enableGroup, language=$language, framework=$framework, channel=$channel)"
     }
 }
 
