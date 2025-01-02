@@ -14,7 +14,6 @@
 #import "NERtcContactsViewController.h"
 #import "NEUser.h"
 #import "NSArray+NTES.h"
-#import "NetManager.h"
 
 @interface NEMenuViewController () <UITableViewDelegate,
                                     UITableViewDataSource,

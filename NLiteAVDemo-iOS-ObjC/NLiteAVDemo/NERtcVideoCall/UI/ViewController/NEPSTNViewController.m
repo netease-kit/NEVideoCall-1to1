@@ -3,11 +3,7 @@
 // found in the LICENSE file.
 
 #import "NEPSTNViewController.h"
-#import "NECustomButton.h"
 #import "NERtcCallKit+Demo.h"
-#import "NEVideoOperationView.h"
-#import "NEVideoView.h"
-#import "NetManager.h"
 #import "SettingManager.h"
 
 @interface NEPSTNViewController () <NERtcLinkEngineDelegate, NECallKitPstnDelegate>

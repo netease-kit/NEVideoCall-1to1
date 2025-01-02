@@ -3,12 +3,10 @@
 // found in the LICENSE file.
 
 #import "NEGroupCallViewController.h"
-#import "NECustomButton.h"
 #import "NEGroupCalledViewController.h"
 #import "NEGroupContactsController.h"
 #import "NEGroupInCallViewController.h"
 #import "NEGroupUserController.h"
-#import "NEVideoOperationView.h"
 
 @interface NEGroupCallViewController () <NEGroupCalledDelegate, NEGroupCallKitDelegate>
 
