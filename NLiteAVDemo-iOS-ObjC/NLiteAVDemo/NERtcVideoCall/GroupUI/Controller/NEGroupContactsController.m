@@ -17,7 +17,6 @@
 #import "NESectionHeaderView.h"
 #import "NSArray+NTES.h"
 #import "NSMacro.h"
-#import "NetManager.h"
 
 @interface NEGroupContactsController () <UITextFieldDelegate,
                                          NIMChatManagerDelegate,
