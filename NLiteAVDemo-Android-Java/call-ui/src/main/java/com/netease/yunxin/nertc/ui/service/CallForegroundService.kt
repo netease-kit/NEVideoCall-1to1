@@ -46,10 +46,10 @@ class CallForegroundService : Service() {
         val notificationChannel =
             NotificationChannel(
                 channelId,
-                getString(R.string.tip_notification_foreground_channel_name),
-                NotificationManager.IMPORTANCE_HIGH
+                getString(R.string.tip_notification_other_channel_name),
+                NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = getString(R.string.tip_notification_foreground_channel_description)
+                description = getString(R.string.tip_notification_other_channel_description)
                 enableLights(false)
                 setBypassDnd(true)
                 enableVibration(false)
@@ -73,7 +73,6 @@ class CallForegroundService : Service() {
 
         // 构建 notification
         val notification = NotificationCompat.Builder(this@CallForegroundService, channelId)
-            .setFullScreenIntent(pendingIntent, true)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setContentText(

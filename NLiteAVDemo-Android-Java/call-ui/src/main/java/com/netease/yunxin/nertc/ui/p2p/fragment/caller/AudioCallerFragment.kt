@@ -24,6 +24,7 @@ import com.netease.yunxin.nertc.ui.base.CallParam
 import com.netease.yunxin.nertc.ui.base.fetchNickname
 import com.netease.yunxin.nertc.ui.base.loadAvatarByAccId
 import com.netease.yunxin.nertc.ui.databinding.FragmentP2pAudioCallerBinding
+import com.netease.yunxin.nertc.ui.p2p.CallUIOperationsMgr
 import com.netease.yunxin.nertc.ui.p2p.P2PUIConfig
 import com.netease.yunxin.nertc.ui.p2p.fragment.BaseP2pCallFragment
 import com.netease.yunxin.nertc.ui.p2p.fragment.P2PUIUpdateType.FROM_FLOATING_WINDOW
@@ -177,6 +178,7 @@ open class AudioCallerFragment : BaseP2pCallFragment() {
                 context?.run { getString(R.string.tip_start_call_failed).toastShort(this) }
             }
         }
+        CallUIOperationsMgr.startService()
     }
 
     override fun toUpdateUIState(type: Int) {
