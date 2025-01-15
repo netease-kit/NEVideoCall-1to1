@@ -8,6 +8,8 @@
     <string name="tip_new_incoming_call">您有新的来电</string>
     <string name="tip_notification_channel_name">音视频通话邀请通知</string>
     <string name="tip_notification_channel_description">用于接收音视频通话邀请时提示。</string>
+    <string name="tip_notification_other_channel_name">其他通知</string>
+    <string name="tip_notification_other_channel_description">通话中状态等使用的通知类型</string>
     <string name="tip_notification_foreground_channel_name">通话中状态通知</string>
     <string name="tip_notification_foreground_channel_description">用于通话中状态提示。</string>
     <string name="tip_notification_foreground_content_info">通话进行中....</string>

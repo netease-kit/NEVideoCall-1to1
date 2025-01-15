@@ -187,6 +187,7 @@ public class VerifyCodeActivity extends AppCompatActivity {
 
     private void startMainActivity() {
         Intent intent = new Intent();
+        intent.setPackage(VerifyCodeActivity.this.getPackageName());
         intent.addCategory("android.intent.category.DEFAULT");
         intent.setAction("com.nertc.g2.action.main");
         startActivity(intent);
