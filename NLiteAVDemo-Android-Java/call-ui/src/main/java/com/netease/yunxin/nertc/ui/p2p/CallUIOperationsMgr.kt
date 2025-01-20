@@ -155,8 +155,11 @@ object CallUIOperationsMgr {
         this.callInfoWithUIState = callInfoWithUIState
         this.foregroundServiceConfig = foregroundServiceConfig
         this.toSwitchCallTypeInfo = null
-        this.foregroundServiceConfig?.startService()
         return this.callInfoWithUIState.callParam.getChannelId()
+    }
+
+    fun startService() {
+        this.foregroundServiceConfig?.startService()
     }
 
     /**

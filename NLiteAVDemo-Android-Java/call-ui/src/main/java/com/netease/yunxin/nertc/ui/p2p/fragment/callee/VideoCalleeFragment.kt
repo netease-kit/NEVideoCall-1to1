@@ -25,6 +25,7 @@ import com.netease.yunxin.nertc.ui.base.CallParam
 import com.netease.yunxin.nertc.ui.base.fetchNickname
 import com.netease.yunxin.nertc.ui.base.loadAvatarByAccId
 import com.netease.yunxin.nertc.ui.databinding.FragmentP2pVideoCalleeBinding
+import com.netease.yunxin.nertc.ui.p2p.CallUIOperationsMgr
 import com.netease.yunxin.nertc.ui.p2p.P2PUIConfig
 import com.netease.yunxin.nertc.ui.p2p.fragment.BaseP2pCallFragment
 import com.netease.yunxin.nertc.ui.utils.toastShort
@@ -147,6 +148,7 @@ open class VideoCalleeFragment : BaseP2pCallFragment() {
             }
             bridge.startVideoPreview()
         }
+        CallUIOperationsMgr.startService()
     }
 
     override fun permissionList(): List<String> {

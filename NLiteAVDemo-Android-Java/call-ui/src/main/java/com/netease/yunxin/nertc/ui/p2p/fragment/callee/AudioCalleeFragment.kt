@@ -22,6 +22,7 @@ import com.netease.yunxin.nertc.ui.base.CallParam
 import com.netease.yunxin.nertc.ui.base.fetchNickname
 import com.netease.yunxin.nertc.ui.base.loadAvatarByAccId
 import com.netease.yunxin.nertc.ui.databinding.FragmentP2pAudioCalleeBinding
+import com.netease.yunxin.nertc.ui.p2p.CallUIOperationsMgr
 import com.netease.yunxin.nertc.ui.p2p.P2PUIConfig
 import com.netease.yunxin.nertc.ui.p2p.fragment.BaseP2pCallFragment
 import com.netease.yunxin.nertc.ui.utils.toastShort
@@ -85,6 +86,10 @@ open class AudioCalleeFragment : BaseP2pCallFragment() {
                 uiConfig?.enableTextDefaultAvatar ?: true
             )
         }
+    }
+
+    override fun actionForPermissionGranted() {
+        CallUIOperationsMgr.startService()
     }
 
     protected open fun renderOperations(uiConfig: P2PUIConfig?) {

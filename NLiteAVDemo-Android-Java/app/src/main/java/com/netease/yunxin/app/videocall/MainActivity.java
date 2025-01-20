@@ -1,5 +1,9 @@
 package com.netease.yunxin.app.videocall;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -8,6 +12,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.netease.lava.nertc.sdk.NERtc;
 import com.netease.lava.nertc.sdk.NERtcOption;
@@ -23,13 +29,14 @@ import com.netease.yunxin.nertc.ui.CallKitUI;
 import com.netease.yunxin.nertc.ui.CallKitUIOptions;
 
 public class MainActivity extends AppCompatActivity {
-
+  private final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1001;
   private TextView tvVersion;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+    checkAndRequestNotificationPermission(this);
     initView();
     checkLogin();
     initG2();
@@ -137,5 +144,19 @@ public class MainActivity extends AppCompatActivity {
 
         });
     confirmDialog.show();
+  }
+
+  private void checkAndRequestNotificationPermission(Context context) {
+    // 检查是否需要请求通知权限
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+          != PackageManager.PERMISSION_GRANTED) {
+        // 请求权限
+        ActivityCompat.requestPermissions(
+            this,
+            new String[] {Manifest.permission.POST_NOTIFICATIONS},
+            NOTIFICATION_PERMISSION_REQUEST_CODE);
+      }
+    }
   }
 }
