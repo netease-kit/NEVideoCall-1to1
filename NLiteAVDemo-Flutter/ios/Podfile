@@ -31,8 +31,8 @@ target 'Runner' do
   use_frameworks!
   use_modular_headers!
   
-  pod 'NERtcCallKit', '2.5.0'
-  pod 'NERtcCallUIKit', '2.5.0'
+  pod 'NERtcCallKit', '2.5.2'
+  pod 'NERtcCallUIKit', '2.5.2'
   
   pod 'NERtcSDK', '5.5.21'
   pod 'NECoreKit', '9.7.0'
