@@ -160,6 +160,13 @@ object CallUIOperationsMgr {
     }
 
     /**
+     * 启动前台服务
+     */
+    fun startService() {
+        this.foregroundServiceConfig?.startService()
+    }
+
+    /**
      * 释放呼叫信息及状态
      */
     fun releaseCallInfoAndUIState(force: Boolean = false, channelId: String? = null) {
