@@ -14,10 +14,10 @@ target 'NLiteAVDemo' do
   pod 'Masonry'
   
   #呼叫组件API组件
-  pod 'NERtcCallKit', '2.5.0'
+  pod 'NERtcCallKit', '2.5.2'
   
   #呼叫组件UI组件
-  pod 'NERtcCallUIKit', '2.5.0'
+  pod 'NERtcCallUIKit', '2.5.2'
   
   pod 'NETranscodingKit'
   
