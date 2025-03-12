@@ -7,8 +7,11 @@ package com.netease.yunxin.app.videocall.nertc.utils;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+
 import androidx.annotation.NonNull;
+
 import com.netease.yunxin.app.videocall.DemoApplication;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;

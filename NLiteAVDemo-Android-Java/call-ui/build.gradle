@@ -9,8 +9,10 @@ apply plugin: 'kotlin-android'
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+    }
 
-    namespace "com.netease.yunxin.nertc.ui"
     buildFeatures {
         viewBinding = true
     }

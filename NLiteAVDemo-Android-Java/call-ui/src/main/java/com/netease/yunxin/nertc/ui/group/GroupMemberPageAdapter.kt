@@ -18,9 +18,7 @@ import kotlin.math.min
 class GroupMemberPageAdapter(private val context: Context) :
     RecyclerView.Adapter<GroupMemberPageAdapter.ViewHolder>() {
 
-    companion object {
-        const val TAG = "GroupMemberPageAdapter"
-    }
+    private val tag = "GroupMemberPageAdapter"
 
     /**
      * 最大页数
@@ -67,25 +65,8 @@ class GroupMemberPageAdapter(private val context: Context) :
             return
         }
         val oldData = userList.getClone()
-        ALog.i(TAG, "setData oldData is $oldData")
-        ALog.i(TAG, "setData newData is $itemList")
         onActionForData?.invoke()
         val diffResult = DiffUtil.calculateDiff(DiffUtilCallback(oldData, itemList))
-
-        val hashMap = hashMapOf<String, GroupMemberInfo>()
-
-        for (item in oldData) {
-            hashMap[item.accId] = item
-        }
-
-        for (item in itemList) {
-            item.run {
-                enableVideo = hashMap[item.accId]?.enableVideo ?: false
-                enableAudio = hashMap[item.accId]?.enableAudio ?: false
-                focus = hashMap[item.accId]?.focus ?: false
-                state = hashMap[item.accId]?.state
-            }
-        }
 
         userList.clear()
         userList.addAll(itemList)
@@ -104,7 +85,6 @@ class GroupMemberPageAdapter(private val context: Context) :
         item: GroupHelperMemberInfo?
     ): Int {
         item ?: return -1
-        ALog.i(TAG, "update index is $index, item is $item.")
         return if (index == null || index < 0 || index >= size) {
             val result = find {
                 (it.uid == item.uid || it.accId == item.accId)
@@ -143,12 +123,11 @@ class GroupMemberPageAdapter(private val context: Context) :
         focus: Boolean? = null,
         enableVideo: Boolean? = null
     ) {
-        ALog.i(TAG, "updateState uid is $uid, focus is $focus, enableVideo is $enableVideo.")
         val index = findPosition(uid)
-        ALog.i(TAG, "updateState index is $index, userList is $userList")
         if (index < 0) {
             return
         }
+
         getItemList(index)?.update(
             item = GroupHelperMemberInfo(
                 uid = uid,
@@ -204,7 +183,7 @@ class GroupMemberPageAdapter(private val context: Context) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val pageData = getItemList(position) ?: return
-        ALog.d(TAG, "page data is $pageData.")
+        ALog.d(tag, "page data is $pageData.")
         holder.pageView.refreshData(pageData, videoViewPool, position == currentPageIndex)
     }
 

@@ -1,58 +1,42 @@
-// Copyright (c) 2022 NetEase, Inc. All rights reserved.
-// Use of this source code is governed by a MIT license that can be
-// found in the LICENSE file.
-
 package com.netease.yunxin.app.videocall.base;
+
 
 import com.netease.yunxin.app.videocall.nertc.utils.SPUtils;
 
 public class CommonDataManager {
 
-  private static final CommonDataManager instance = new CommonDataManager();
+    private static final CommonDataManager instance = new CommonDataManager();
 
-  public static CommonDataManager getInstance() {
-    return instance;
-  }
-
-  public static final String PER_DATA = "per_profile_manager";
-  private static final String PER_ACCESS_TOKEN = "per_access_token";
-  private static final String PER_IM_TOKEN = "per_im_token";
-
-  private String token;
-
-  private String imToken;
-
-  private CommonDataManager() {}
-
-  public String getAccessToken() {
-    if (token == null) {
-      loadAccessToken();
+    public static CommonDataManager getInstance() {
+        return instance;
     }
-    return token;
-  }
 
-  public void setAccessToken(String token) {
-    this.token = token;
-    SPUtils.getInstance(PER_DATA).put(PER_ACCESS_TOKEN, this.token);
-  }
+    public final static String PER_DATA = "per_profile_manager";
+    private static final String PER_ACCESS_TOKEN = "per_access_token";
+    private static final String PER_IM_TOKEN = "per_im_token";
 
-  private void loadAccessToken() {
-    token = SPUtils.getInstance(PER_DATA).getString(PER_ACCESS_TOKEN, "");
-  }
+    private String token;
 
-  public String getIMToken() {
-    if (imToken == null) {
-      loadAccessToken();
+    private CommonDataManager() {
     }
-    return imToken;
-  }
 
-  public void setIMToken(String imToken) {
-    this.imToken = imToken;
-    SPUtils.getInstance(PER_DATA).put(PER_IM_TOKEN, this.imToken);
-  }
+    public String getAccessToken() {
+        if (token == null) {
+            loadAccessToken();
+        }
+        return token;
+    }
 
-  private void loadIMToken() {
-    imToken = SPUtils.getInstance(PER_DATA).getString(PER_IM_TOKEN, "");
-  }
+    public void setAccessToken(String token) {
+        this.token = token;
+        SPUtils.getInstance(PER_DATA).put(PER_ACCESS_TOKEN, this.token);
+    }
+
+    private void loadAccessToken() {
+        token = SPUtils.getInstance(PER_DATA).getString(PER_ACCESS_TOKEN, "");
+    }
+
+    public void setIMToken(String imToken) {
+        SPUtils.getInstance(PER_DATA).put(PER_IM_TOKEN, imToken);
+    }
 }
