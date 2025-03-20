@@ -13,8 +13,10 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
+import android.widget.TextView
 import androidx.annotation.LayoutRes
 import com.netease.yunxin.nertc.ui.R
+import com.netease.yunxin.nertc.ui.floating.FloatingPermission
 import com.netease.yunxin.nertc.ui.utils.dip2Px
 
 open class OverLayPermissionDialog(activity: Activity, private val clickListener: View.OnClickListener) :
@@ -52,6 +54,14 @@ open class OverLayPermissionDialog(activity: Activity, private val clickListener
             return
         }
         val button = rootView.findViewById<View>(R.id.tv_tip_ok)
+        val contentTV = rootView.findViewById<TextView>(R.id.tv_tip_content)
+        if (!FloatingPermission.isFloatPermissionValid(context)) {
+            contentTV.text =
+                context.getString(R.string.ui_dialog_overlay_permission_content)
+        } else {
+            contentTV.text =
+                context.getString(R.string.ui_dialog_overlay_permission_content_background)
+        }
         button.setOnClickListener {
             clickListener.onClick(it)
         }

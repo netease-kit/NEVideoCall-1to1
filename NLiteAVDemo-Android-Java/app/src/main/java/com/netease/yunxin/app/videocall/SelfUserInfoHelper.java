@@ -8,7 +8,7 @@ import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallbackWrapper;
 import com.netease.nimlib.sdk.uinfo.UserService;
 import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
-import com.netease.yunxin.app.videocall.login.model.UserModel;
+import com.netease.yunxin.app.videocall.login.model.LoginModel;
 import com.netease.yunxin.app.videocall.nertc.biz.UserCacheManager;
 import com.netease.yunxin.nertc.ui.base.UserInfoHelper;
 
@@ -24,9 +24,9 @@ import kotlin.jvm.functions.Function2;
 class SelfUserInfoHelper implements UserInfoHelper {
     @Override
     public boolean fetchNickname(@NotNull String accId, @NotNull Function1<? super String, Unit> function1) {
-        UserModel userModel = UserCacheManager.getInstance().getUserModelFromAccId(accId);
-        if (userModel != null) {
-            function1.invoke(userModel.mobile + "");
+        LoginModel loginModel = UserCacheManager.getInstance().getUserModelFromAccId(accId);
+        if (loginModel != null) {
+            function1.invoke(loginModel.mobile + "");
         } else {
             NIMClient.getService(UserService.class).fetchUserInfo(Collections.singletonList(accId)).setCallback(new RequestCallbackWrapper<List<NimUserInfo>>() {
                 @Override

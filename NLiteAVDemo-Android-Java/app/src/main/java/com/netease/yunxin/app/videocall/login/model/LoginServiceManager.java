@@ -38,7 +38,7 @@ public class LoginServiceManager {
     private final Api mApi;
 
     private Call<BaseService.ResponseEntity<Void>> sendMessageCall;
-    private Call<BaseService.ResponseEntity<UserModel>> msmLoginCall;
+    private Call<BaseService.ResponseEntity<LoginModel>> msmLoginCall;
 
     public static LoginServiceManager getInstance() {
         return mOurInstance;
@@ -59,7 +59,7 @@ public class LoginServiceManager {
 
         @POST("/auth/loginBySmsCode")
         @Headers("Content-Type: application/json")
-        Call<BaseService.ResponseEntity<UserModel>> loginBySmsCode(@Body RequestBody body);
+        Call<BaseService.ResponseEntity<LoginModel>> loginBySmsCode(@Body RequestBody body);
     }
 
 
@@ -120,15 +120,15 @@ public class LoginServiceManager {
         }
         RequestBody body = RequestBody.create(MediaType.parse("application/json"), result.toString());
         msmLoginCall = mApi.loginBySmsCode(body);
-        msmLoginCall.enqueue(new Callback<BaseService.ResponseEntity<UserModel>>() {
+        msmLoginCall.enqueue(new Callback<BaseService.ResponseEntity<LoginModel>>() {
             @Override
-            public void onResponse(Call<BaseService.ResponseEntity<UserModel>> call, Response<BaseService.ResponseEntity<UserModel>> response) {
+            public void onResponse(Call<BaseService.ResponseEntity<LoginModel>> call, Response<BaseService.ResponseEntity<LoginModel>> response) {
                 if (callBack != null) {
-                    BaseService.ResponseEntity<UserModel> responseEntity = response.body();
+                    BaseService.ResponseEntity<LoginModel> responseEntity = response.body();
                     if (responseEntity.code == 200) {
                         saveUserModel(responseEntity.data);
-                        UserModel userModel = responseEntity.data;
-                        loginNim(userModel, callBack);
+                        LoginModel loginModel = responseEntity.data;
+                        loginNim(loginModel, callBack);
                     } else {
                         callBack.onFail(responseEntity.code);
                     }
@@ -136,7 +136,7 @@ public class LoginServiceManager {
             }
 
             @Override
-            public void onFailure(Call<BaseService.ResponseEntity<UserModel>> call, Throwable t) {
+            public void onFailure(Call<BaseService.ResponseEntity<LoginModel>> call, Throwable t) {
                 if (callBack != null) {
                     callBack.onFail(ERROR_CODE_UNKNOWN);
                 }
@@ -147,16 +147,16 @@ public class LoginServiceManager {
     /**
      * 登录IM
      */
-    private void loginNim(UserModel userModel, BaseService.ResponseCallBack<Void> callBack) {
-        LoginInfo loginInfo = new LoginInfo(String.valueOf(userModel.imAccid), userModel.imToken);
-        ProfileManager.getInstance().login(loginInfo, new RequestCallback<LoginInfo>() {
+    private void loginNim(LoginModel loginModel, BaseService.ResponseCallBack<Void> callBack) {
+        LoginInfo loginInfo = new LoginInfo(String.valueOf(loginModel.imAccid), loginModel.imToken);
+        AuthManager.getInstance().login(loginInfo, new RequestCallback<Void>() {
             @Override
-            public void onSuccess(LoginInfo param) {
+            public void onSuccess(Void param) {
                 callBack.onSuccess(null);
-                ProfileManager.getInstance().setLogin(true);//登录IM成功
-                ProfileManager.getInstance().updateUserInfo(userModel);
+                AuthManager.getInstance().setLogin(true);//登录IM成功
+                AuthManager.getInstance().updateUserInfo(loginModel);
                 Map<UserInfoFieldEnum, Object> fields = new HashMap<>(1);
-                fields.put(UserInfoFieldEnum.Name, userModel.mobile);
+                fields.put(UserInfoFieldEnum.Name, loginModel.mobile);
                 NIMClient.getService(UserService.class).updateUserInfo(fields);
             }
 
@@ -172,14 +172,14 @@ public class LoginServiceManager {
         });
     }
 
-    private void saveUserModel(UserModel userModel) {
-        if (userModel != null) {
-            ProfileManager.getInstance().setUserModel(userModel);
-            if (!TextUtils.isEmpty(userModel.accessToken)) {
-                ProfileManager.getInstance().setAccessToken(userModel.accessToken);
+    private void saveUserModel(LoginModel loginModel) {
+        if (loginModel != null) {
+            AuthManager.getInstance().setUserModel(loginModel);
+            if (!TextUtils.isEmpty(loginModel.accessToken)) {
+                AuthManager.getInstance().setAccessToken(loginModel.accessToken);
             }
-            if (!TextUtils.isEmpty(userModel.imToken)) {
-                CommonDataManager.getInstance().setIMToken(userModel.imToken);
+            if (!TextUtils.isEmpty(loginModel.imToken)) {
+                CommonDataManager.getInstance().setIMToken(loginModel.imToken);
             }
         }
     }

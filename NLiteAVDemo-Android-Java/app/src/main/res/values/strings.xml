@@ -1,6 +1,12 @@
+<!-- Copyright (c) 2022 NetEase, Inc. All rights reserved. -->
+<!-- Use of this source code is governed by a MIT license that can be -->
+<!-- found in the LICENSE file. -->
+
 <resources>
     <string name="app_name">VideoCall</string>
     <string name="video_call">一对一音视频通话</string>
+    <string name="converged_call">融合呼叫语音通话</string>
+    <string name="group_call">多人音视频通话</string>
     <string name="login_btn_login">登录</string>
     <string name="login_phone_number_cant_less_than_eleven">手机号不能少于11位</string>
     <string name="login_phone_number_cant_null">手机号不能为空</string>
@@ -21,13 +27,22 @@
     <string name="nertc_other_line_busy">对方占线</string>
     <string name="nertc_call_is_answer_on_other_device">通话已在其它设备接听</string>
     <string name="call">呼叫</string>
+    <string name="add">添加</string>
+    <string name="remove">取消</string>
+    <string name="connection">连线中</string>
+    <string name="user_to_be_called">待呼叫用户</string>
+    <string name="user_count_is_to_limit">邀请已达上线</string>
+    <string name="user_to_group_call_with_user_count">发起呼叫（%1$d/%2$d）</string>
+    <string name="user_join_group_call_with_user_count">还有%d人参与通话</string>
     <string name="empty">无</string>
     <string name="your_phone_number_is">您的手机号：%s</string>
     <string name="recently_search">最近搜索</string>
     <string name="call_record">通话记录</string>
     <string name="search_result">搜索结果</string>
     <string name="cancel">取消</string>
+    <string name="done">完成</string>
     <string name="start_call">发起呼叫</string>
+    <string name="title_setting">设置</string>
     <string name="please_input_the_number_have_register">输入手机号搜索已注册用户</string>
     <string name="search">搜索</string>
     <string name="network_connect_error_please_try_again">网络异常，请稍后再试</string>

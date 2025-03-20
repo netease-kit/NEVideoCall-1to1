@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Copyright (c) 2022 NetEase, Inc. All rights reserved. -->
+<!-- Use of this source code is governed by a MIT license that can be -->
+<!-- found in the LICENSE file. -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,6 +11,7 @@
     android:orientation="vertical">
 
     <RelativeLayout
+        android:id="@+id/ll_title"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:padding="15dp">
@@ -15,9 +20,9 @@
             android:id="@+id/tv_cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/cancel"
             android:textColor="@color/colorWhite"
             android:textSize="16dp"
-            android:text="@string/cancel"
             tools:ignore="SpUsage" />
 
         <TextView
@@ -34,127 +39,157 @@
             android:id="@+id/iv_setting"
             android:layout_width="20dp"
             android:layout_height="match_parent"
-            android:src="@drawable/seting"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/seting" />
     </RelativeLayout>
 
     <LinearLayout
+        android:id="@+id/ll_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/et_search_bg"
+        android:layout_below="@+id/ll_title"
         android:layout_margin="20dp"
+        android:background="@drawable/et_search_bg"
         android:orientation="horizontal">
 
         <EditText
             android:id="@+id/edt_phone_number"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="@string/please_input_the_number_have_register"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="10dp"
-            android:textColorHint="#80FFFFFF"
-            android:inputType="number"
-            android:textSize="16sp"
-            android:maxLength="11"
+            android:layout_weight="1"
             android:background="@null"
-            android:layout_weight="1" />
+            android:hint="@string/please_input_the_number_have_register"
+            android:inputType="number"
+            android:maxLength="11"
+            android:textColorHint="#80FFFFFF"
+            android:textSize="16sp" />
 
         <ImageView
             android:id="@+id/iv_clear"
             android:layout_width="16dp"
             android:layout_height="16dp"
+            android:layout_gravity="center_vertical"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
-            android:layout_gravity="center_vertical"
-            android:visibility="gone"
-            android:src="@drawable/nim_icon_edit_delete" />
+            android:src="@drawable/nim_icon_edit_delete"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/btn_search"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/btn_search_bg"
             android:layout_margin="7dp"
+            android:background="@drawable/btn_search_bg"
+            android:text="@string/search"
             android:textColor="@color/colorWhite"
-            android:textSize="12sp"
-            android:text="@string/search" />
+            android:textSize="12sp" />
     </LinearLayout>
+
 
     <TextView
         android:id="@+id/tv_self_number"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/white"
-        android:alpha="0.5"
-        android:textSize="16sp"
-        android:layout_marginStart="20dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
         android:layout_marginStart="20dp"
-        android:textColor="@color/colorWhite"
-        android:textSize="14sp"
-        android:text="@string/search_result" />
+        android:alpha="0.5"
+        android:layout_below="@+id/ll_search"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
 
-    <FrameLayout
-        android:layout_width="wrap_content"
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="8dp">
+        android:layout_below="@+id/tv_self_number"
+        android:layout_marginTop="15dp">
 
-        <TextView
-            android:id="@+id/tv_empty"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#CCCCCC"
-            android:layout_marginStart="12dp"
-            android:alpha="0.5"
-            android:text="@string/empty" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_search_result"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp"
-            android:visibility="gone" />
-    </FrameLayout>
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="@string/search_result"
+                android:textColor="@color/colorWhite"
+                android:textSize="14sp" />
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp">
+
+                <TextView
+                    android:id="@+id/tv_empty"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:alpha="0.5"
+                    android:text="@string/empty"
+                    android:textColor="#CCCCCC" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_search_result"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="12dp"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tv_recently_search"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/recently_search"
+                android:textColor="@color/colorWhite"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_recent_user"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:id="@+id/tv_call_order"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/call_record"
+                android:textColor="@color/colorWhite"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_call_order"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <TextView
-        android:id="@+id/tv_recently_search"
+        android:id="@+id/tv_to_group_call"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="20dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="30dp"
+        android:background="@drawable/btn_search_bg"
+        android:padding="15dp"
         android:textColor="@color/colorWhite"
-        android:textSize="14sp"
+        android:textSize="14dp"
         android:visibility="gone"
-        android:text="@string/recently_search" />
+        tools:ignore="SpUsage" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_recent_user"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp" />
-
-    <TextView
-        android:id="@+id/tv_call_order"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="20dp"
-        android:textColor="@color/colorWhite"
-        android:textSize="14sp"
-        android:visibility="gone"
-        android:text="@string/call_record" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_call_order"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp" />
-
-</LinearLayout>
+</RelativeLayout>

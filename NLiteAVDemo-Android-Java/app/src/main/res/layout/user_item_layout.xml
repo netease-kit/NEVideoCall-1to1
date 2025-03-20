@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2022 NetEase, Inc. All rights reserved. -->
+<!-- Use of this source code is governed by a MIT license that can be -->
+<!-- found in the LICENSE file. -->
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -7,7 +11,8 @@
     <ImageView
         android:id="@+id/iv_user"
         android:layout_width="40dp"
-        android:layout_height="40dp" />
+        android:layout_height="40dp"
+        android:scaleType="centerCrop" />
 
     <TextView
         android:id="@+id/tv_nickname"
@@ -21,10 +26,11 @@
         android:id="@+id/tv_call"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
         android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/btn_call_bg"
         android:gravity="center"
         android:text="@string/call"
-        android:background="@drawable/btn_call_bg" />
+        android:textColor="@color/colorWhite" />
 
 </RelativeLayout>

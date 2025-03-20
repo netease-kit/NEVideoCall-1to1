@@ -13,10 +13,14 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Build
 import com.netease.yunxin.kit.alog.ALog
+import com.netease.yunxin.kit.alog.ParameterMap
 import com.netease.yunxin.nertc.ui.CallKitUI
 import com.netease.yunxin.nertc.ui.R
 
 open class SoundHelper {
+    companion object {
+        private const val TAG = "SoundHelper"
+    }
     private val logTag = "SoundHelper"
     private var player: MediaPlayer = MediaPlayer()
     private var ringerTypeEnum: AVChatSoundPlayer.RingerTypeEnum? = null
@@ -137,6 +141,7 @@ open class SoundHelper {
         if (CallKitUI.options?.joinRtcWhenCall == true && type == AVChatSoundPlayer.RingerTypeEnum.CONNECTING) {
             return
         }
+        ALog.d(TAG, ParameterMap("requestAudioFocus").toString())
         (context.getSystemService(Context.AUDIO_SERVICE) as AudioManager).run {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 requestAudioFocus(
@@ -161,6 +166,7 @@ open class SoundHelper {
         if (!isAudioFocus) {
             return
         }
+        ALog.d(TAG, ParameterMap("abandonAudioFocus").toString())
         (context.getSystemService(Context.AUDIO_SERVICE) as AudioManager).run {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 abandonAudioFocusRequest(

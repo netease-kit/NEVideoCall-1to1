@@ -64,5 +64,6 @@ dependencies {
     implementation(libs.retrofitConverterGson)
     implementation(libs.nertc.nenn)
     implementation(libs.nertc.segment)
-    implementation project(':call-ui')
+//    implementation project(':call-ui')
+    implementation ('com.netease.yunxin.kit.call:call-ui:3.5.3')
 }

@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2022 NetEase, Inc. All rights reserved. -->
+<!-- Use of this source code is governed by a MIT license that can be -->
+<!-- found in the LICENSE file. -->
+
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/channel_name"
+                android:layout_width="100dp"
+                android:layout_weight="2"
+                android:hint="频道名字"
+                android:layout_height="wrap_content"/>
+
+            <Button
+                android:id="@+id/btn_create_channel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="创建频道" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/black"
+            android:orientation="horizontal"/>
+
+        <EditText
+            android:id="@+id/account_id"
+            android:layout_width="match_parent"
+            android:hint="对方账号"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/btn_call"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="直接呼叫" />
+
+        <View
+            android:layout_width="match_parent"
+            android:background="@color/black"
+            android:layout_height="1dp"/>
+
+        <EditText
+            android:id="@+id/channel_id"
+            android:hint="频道ID"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/edt_custom_room"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="自定义内容"
+            android:maxLines="1" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_join_channel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="加入频道" />
+
+            <Button
+                android:id="@+id/btn_leave_channel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="退出频道" />
+
+            <Button
+                android:id="@+id/btn_close_channel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="关闭频道" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/black"
+            android:orientation="horizontal"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/edt_other_id"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_weight="2"
+                android:hint="输入对方帐号"
+                android:maxLines="1" />
+
+            <Button
+                android:id="@+id/btn_invite_other"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
+                android:layout_weight="1"
+                android:text="邀请" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/edt_request_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_weight="2"
+            android:hint="请求id"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/edt_custom_invite"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_weight="2"
+            android:hint="自定义内容"
+            android:maxLines="1" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_accept_invite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="接受邀请" />
+
+            <Button
+                android:id="@+id/btn_reject_invite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="拒绝邀请" />
+
+            <Button
+                android:id="@+id/btn_cancel_invite_other"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="取消邀请" />
+
+            <Button
+                android:id="@+id/btn_send_ctrl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="自定义" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/black"
+            android:orientation="horizontal"/>
+
+        <Button
+            android:id="@+id/btn_clear_log"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="清除日志" />
+
+
+        <TextView
+            android:id="@+id/tv_log_print"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="3dp"
+            android:textIsSelectable="true"
+            android:text="日志输出台：" />
+
+    </LinearLayout>
+
+
+</androidx.core.widget.NestedScrollView>
