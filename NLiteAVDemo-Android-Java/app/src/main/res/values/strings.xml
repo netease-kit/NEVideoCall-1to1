@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">VideoCall</string>
     <string name="video_call">一对一音视频通话</string>
+    <string name="group_call">多人音视频通话</string>
     <string name="login_btn_login">登录</string>
     <string name="login_phone_number_cant_less_than_eleven">手机号不能少于11位</string>
     <string name="login_phone_number_cant_null">手机号不能为空</string>

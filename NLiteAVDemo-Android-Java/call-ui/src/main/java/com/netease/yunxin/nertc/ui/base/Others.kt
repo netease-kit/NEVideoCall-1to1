@@ -8,6 +8,7 @@ package com.netease.yunxin.nertc.ui.base
 
 import android.content.Context
 import android.content.Intent
+import com.netease.nimlib.sdk.NIMClient
 import com.netease.yunxin.kit.call.group.NEGroupCallInfo
 import com.netease.yunxin.kit.call.p2p.NECallEngine
 import com.netease.yunxin.kit.call.p2p.model.NECallType
@@ -39,6 +40,7 @@ fun NEInviteInfo.toCallParam(): CallParam {
         true,
         callType,
         callerAccId,
+        NIMClient.getCurrentAccount(),
         callExtraInfo = extraInfo,
         globalExtraCopy = NECallEngine.sharedInstance().callInfo.signalInfo.globalExtraCopy,
         rtcChannelName = NECallEngine.sharedInstance().callInfo.rtcInfo.channelName,

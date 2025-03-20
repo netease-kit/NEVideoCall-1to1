@@ -55,9 +55,9 @@ class P2PUIConfig constructor(
      */
     val enableTextDefaultAvatar: Boolean = true,
     /**
-     * 是否通话中开启前台服务，默认 false
+     * 是否通话中开启前台服务，默认 true
      */
-    val enableForegroundService: Boolean = false,
+    val enableForegroundService: Boolean = true,
     /**
      * 通话中前台服务绑定的通知配置（图标，标题，内容，以及通道 id）
      */
@@ -99,7 +99,7 @@ class P2PUIConfig constructor(
         private var enableCanvasSwitch: Boolean = true
         private var overlayViewOnTheCall: View? = null
         private var enableTextDefaultAvatar: Boolean = true
-        private var enableForegroundService: Boolean = false
+        private var enableForegroundService: Boolean = true
         private var foregroundNotificationConfig: CallKitNotificationConfig? = null
         private var customCallFragmentMap: MutableMap<Int, BaseP2pCallFragment> = mutableMapOf()
         private var enableFloatingWindow: Boolean = true

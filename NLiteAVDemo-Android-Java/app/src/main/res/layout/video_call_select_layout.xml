@@ -84,7 +84,7 @@
         android:id="@+id/tv_self_number"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/white"
+        android:textColor="@color/colorWhite"
         android:alpha="0.5"
         android:textSize="16sp"
         android:layout_marginStart="20dp" />

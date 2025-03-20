@@ -34,10 +34,9 @@ import com.netease.nimlib.sdk.v2.auth.model.V2NIMLoginClient;
 import com.netease.yunxin.app.videocall.login.model.AuthManager;
 import com.netease.yunxin.app.videocall.login.ui.LoginActivity;
 import com.netease.yunxin.app.videocall.nertc.biz.CallOrderManager;
-import com.netease.yunxin.app.videocall.nertc.ui.CallModeType;
 import com.netease.yunxin.app.videocall.nertc.ui.NERTCSelectCallUserActivity;
-import com.netease.yunxin.app.videocall.nertc.ui.SettingActivity;
 import com.netease.yunxin.nertc.ui.CallKitUI;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -53,31 +52,6 @@ public class MainActivity extends AppCompatActivity {
     initView();
     checkLogin();
     initG2();
-    dumpTest();
-  }
-
-  private void dumpTest() {
-    if (BuildConfig.DEBUG) {
-      findViewById(R.id.btn)
-          .setOnClickListener(
-              v -> {
-                Toast.makeText(MainActivity.this, "开始dump音频", Toast.LENGTH_LONG).show();
-                NERtcEx.getInstance().startAudioDump();
-              });
-      findViewById(R.id.btn2)
-          .setOnClickListener(
-              v -> {
-                Toast.makeText(
-                        MainActivity.this,
-                        "dump已结束，请到/sdcard/Android/data/com.netease.videocall.demo/files/dump目录查看dump文件",
-                        Toast.LENGTH_LONG)
-                    .show();
-                NERtcEx.getInstance().stopAudioDump();
-              });
-    } else {
-      findViewById(R.id.btn).setVisibility(View.GONE);
-      findViewById(R.id.btn2).setVisibility(View.GONE);
-    }
   }
 
   @Override
@@ -92,32 +66,6 @@ public class MainActivity extends AppCompatActivity {
 
   private void initG2() {
 
-    NIMClient.getService(V2NIMLoginService.class)
-        .addLoginListener(
-            new V2NIMLoginListener() {
-              @Override
-              public void onLoginStatus(V2NIMLoginStatus status) {
-                if (status == V2NIMLoginStatus.V2NIM_LOGIN_STATUS_LOGINED) {
-                  if (TextUtils.equals(
-                      AuthManager.getInstance().getUserModel().imAccid,
-                      NIMClient.getCurrentAccount())) {
-                    return;
-                  }
-                  Log.e("======", "init " + AuthManager.getInstance().getUserModel().imAccid);
-                  SettingActivity.toInit();
-                }
-              }
-
-              @Override
-              public void onLoginFailed(V2NIMError error) {}
-
-              @Override
-              public void onKickedOffline(V2NIMKickedOfflineDetail detail) {}
-
-              @Override
-              public void onLoginClientChanged(
-                  V2NIMLoginClientChange change, List<V2NIMLoginClient> clients) {}
-            });
   }
 
   private void checkLogin() {
@@ -166,7 +114,6 @@ public class MainActivity extends AppCompatActivity {
   private void initView() {
     ImageView ivAccountIcon = findViewById(R.id.iv_account);
     RelativeLayout rlyVideoCall = findViewById(R.id.rly_video_call);
-    RelativeLayout rlyConvergedCall = findViewById(R.id.rly_converged_call);
     RelativeLayout rlyGroupCall = findViewById(R.id.rly_group_call);
 
     tvVersion = findViewById(R.id.tv_version);
@@ -185,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
           if (!AuthManager.getInstance().isLogin()) {
             LoginActivity.startLogin(this);
           } else {
-            NERTCSelectCallUserActivity.startSelectUser(this, CallModeType.RTC_1V1_VIDEO_CALL);
+            NERTCSelectCallUserActivity.startSelectUser(this);
           }
         });
 
@@ -194,31 +141,13 @@ public class MainActivity extends AppCompatActivity {
           if (!AuthManager.getInstance().isLogin()) {
             LoginActivity.startLogin(this);
           } else {
-            NERTCSelectCallUserActivity.startSelectUser(
-                this,
-                CallModeType.RTC_GROUP_CALL,
-                Collections.singletonList(AuthManager.getInstance().getUserModel().imAccid));
+//            NERTCSelectCallUserActivity.startSelectUser(
+//                this,
+//                CallModeType.RTC_GROUP_CALL,
+//                Collections.singletonList(ProfileManager.getInstance().getUserModel().imAccid));
           }
         });
     rlyGroupCall.setVisibility(View.VISIBLE);
-
-    rlyConvergedCall.setOnClickListener(
-        v -> {
-          if (!AuthManager.getInstance().isLogin()) {
-            LoginActivity.startLogin(this);
-          } else {
-            NERTCSelectCallUserActivity.startSelectUser(this, CallModeType.PSTN_1V1_AUDIO_CALL);
-          }
-        });
-    rlyConvergedCall.setVisibility(View.GONE);
-
-    RelativeLayout rlPermission = findViewById(R.id.rl_goto_permission_setting);
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-      rlPermission.setVisibility(View.VISIBLE);
-    } else {
-      rlPermission.setVisibility(View.GONE);
-    }
-    rlPermission.setOnClickListener(v -> ForegroundKit.getInstance(this).requestFloatPermission());
 
     initVersionInfo();
   }

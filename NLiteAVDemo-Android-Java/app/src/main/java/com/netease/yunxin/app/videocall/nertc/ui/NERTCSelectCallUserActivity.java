@@ -22,11 +22,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.netease.yunxin.app.videocall.R;
 import com.netease.yunxin.app.videocall.base.BaseService;
-import com.netease.yunxin.app.videocall.login.model.ProfileManager;
+import com.netease.yunxin.app.videocall.login.model.AuthManager;
 import com.netease.yunxin.app.videocall.nertc.biz.CallOrderManager;
 import com.netease.yunxin.app.videocall.nertc.biz.CallServiceManager;
 import com.netease.yunxin.app.videocall.nertc.ui.adapter.CallOrderAdapter;
-import com.netease.yunxin.app.videocall.login.model.UserModel;
+import com.netease.yunxin.app.videocall.login.model.LoginModel;
 import com.netease.yunxin.app.videocall.nertc.biz.UserCacheManager;
 import com.netease.yunxin.app.videocall.nertc.model.CallOrder;
 import com.netease.yunxin.app.videocall.nertc.ui.adapter.RecentUserAdapter;
@@ -123,7 +123,7 @@ public class NERTCSelectCallUserActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        UserModel currentUser = ProfileManager.getInstance().getUserModel();
+        LoginModel currentUser = AuthManager.getInstance().getUserModel();
         tvSelfNumber.setText(String.format(getString(R.string.your_phone_number_is), currentUser.mobile));
 
         CallOrderManager.getInstance().getOrdersLiveData().observe(this, orders -> {
@@ -151,10 +151,10 @@ public class NERTCSelectCallUserActivity extends AppCompatActivity {
             }
             String phoneNumber = edtPhoneNumber.getText().toString().trim();
             if (!TextUtils.isEmpty(phoneNumber)) {
-                CallServiceManager.getInstance().searchUserWithPhoneNumber(phoneNumber, new BaseService.ResponseCallBack<UserModel>() {
+                CallServiceManager.getInstance().searchUserWithPhoneNumber(phoneNumber, new BaseService.ResponseCallBack<LoginModel>() {
 
                     @Override
-                    public void onSuccess(UserModel response) {
+                    public void onSuccess(LoginModel response) {
                         hideKeyBoard();
                         if (response != null) {
                             tvEmpty.setVisibility(View.GONE);

@@ -16,8 +16,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.netease.yunxin.app.videocall.R;
-import com.netease.yunxin.app.videocall.login.model.ProfileManager;
-import com.netease.yunxin.app.videocall.login.model.UserModel;
+import com.netease.yunxin.app.videocall.login.model.AuthManager;
+import com.netease.yunxin.app.videocall.login.model.LoginModel;
 import com.netease.yunxin.kit.call.p2p.model.NECallType;
 import com.netease.yunxin.nertc.nertcvideocall.utils.NetworkUtils;
 import com.netease.yunxin.nertc.ui.CallKitUI;
@@ -31,7 +31,7 @@ import java.util.List;
 
 public class RecentUserAdapter extends RecyclerView.Adapter<RecentUserAdapter.ViewHolder> {
 
-    private final List<UserModel> mUsers = new ArrayList<>();
+    private final List<LoginModel> mUsers = new ArrayList<>();
 
     private final Context mContext;
 
@@ -53,7 +53,7 @@ public class RecentUserAdapter extends RecyclerView.Adapter<RecentUserAdapter.Vi
         this.mContext = context;
     }
 
-    public void updateUsers(List<UserModel> users) {
+    public void updateUsers(List<LoginModel> users) {
         if (users == null) {
             return;
         }
@@ -62,7 +62,7 @@ public class RecentUserAdapter extends RecyclerView.Adapter<RecentUserAdapter.Vi
         notifyDataSetChanged();
     }
 
-    public void updateItem(UserModel user) {
+    public void updateItem(LoginModel user) {
         if (user == null) {
             return;
         }
@@ -77,12 +77,12 @@ public class RecentUserAdapter extends RecyclerView.Adapter<RecentUserAdapter.Vi
             holder.tvNickname.setText(mUsers.get(position).mobile);
             Glide.with(mContext).load(mUsers.get(position).avatar).apply(RequestOptions.bitmapTransform(new RoundedCorners(7))).into(holder.ivUser);
             holder.itemView.setOnClickListener(view -> {
-                UserModel currentUser = ProfileManager.getInstance().getUserModel();
+                LoginModel currentUser = AuthManager.getInstance().getUserModel();
                 if (currentUser == null || TextUtils.isEmpty(currentUser.imAccid)) {
                     Toast.makeText(mContext, "当前用户登录存在问题，请注销后重新登录", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                UserModel searchedUser = mUsers.get(position);
+                LoginModel searchedUser = mUsers.get(position);
                 if (currentUser.imAccid.equals(searchedUser.imAccid) || currentUser.mobile.equals(searchedUser.mobile)) {
                     Toast.makeText(mContext, "不能呼叫自己！", Toast.LENGTH_SHORT).show();
                     return;

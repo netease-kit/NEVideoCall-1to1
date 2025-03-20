@@ -352,6 +352,7 @@ open class BaseP2pCallFragment : Fragment(), NECallEngineDelegate {
             },
             onDenied = { _, _ ->
                 actionForPermissionDenied()
+                activity?.finish()
                 logApiInvoke("actionForPermissionDenied")
             },
             permissionList = permissionList

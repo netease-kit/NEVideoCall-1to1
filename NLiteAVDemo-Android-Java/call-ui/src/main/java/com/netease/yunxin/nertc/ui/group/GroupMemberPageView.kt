@@ -22,7 +22,9 @@ import com.netease.yunxin.nertc.ui.utils.dip2Px
 import com.netease.yunxin.nertc.ui.utils.image.RoundedCornersCenterCrop
 
 class GroupMemberPageView(context: Context) : FrameLayout(context) {
-
+    companion object {
+        const val TAG = "GroupMemberPageView"
+    }
     private val viewList = mutableListOf<ItemView>()
 
     init {
@@ -57,12 +59,12 @@ class GroupMemberPageView(context: Context) : FrameLayout(context) {
                 videoViewPool.recycleRtcVideo(data.uid)
                 continue
             }
-            ALog.d("GroupMemberPageView", "current item position is $index, data is $data.")
+            ALog.i(TAG, "current item position is $index, data is $data.")
             if (data.state == NEGroupConstants.UserState.LEAVING) {
                 continue
             }
 
-            ALog.d("GroupMemberPageView", "onBindViewHolder - $data position is $index")
+            ALog.i(TAG, "onBindViewHolder - $data position is $index")
             holder.itemView.visibility = View.VISIBLE
             Glide.with(context).asBitmap().load(data.avatarUrl)
                 .transform(RoundedCornersCenterCrop(4.dip2Px(context))).into(holder.ivUserAvatar)
