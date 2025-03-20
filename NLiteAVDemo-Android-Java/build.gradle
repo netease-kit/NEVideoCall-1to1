@@ -19,6 +19,7 @@ allprojects {
         google()
         mavenCentral()
         maven { url 'https://maven.faceunity.com/repository/maven-public/' }
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     }
 }
 
@@ -59,7 +60,7 @@ class Libs{
     static def alog = "com.netease.yunxin.kit:alog:1.1.0"
     static def kotlinxCoroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
     static def kotlinxCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
-    static def call = "com.netease.yunxin.kit.call:call:3.3.0"
+    static def call = "com.netease.yunxin.kit.call:call:3.5.3"
     static def okhttp = "com.squareup.okhttp3:okhttp:4.9.3"
     static def okhttpLoggingInterceptor = "com.squareup.okhttp3:logging-interceptor:4.9.3"
     static def retrofitCore = "com.squareup.retrofit2:retrofit:2.9.0"
