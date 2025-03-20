@@ -5,13 +5,20 @@
 package com.netease.yunxin.app.videocall;
 
 import android.app.Application;
+import android.content.Intent;
+
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.SDKOptions;
 import com.netease.nimlib.sdk.util.NIMUtil;
+import com.netease.yunxin.app.videocall.nertc.ui.CallModeType;
+import com.netease.yunxin.app.videocall.nertc.ui.NERTCSelectCallUserActivity;
 import com.netease.yunxin.nertc.nertcvideocall.utils.NetworkUtils;
 import com.netease.yunxin.nertc.ui.CallKitUI;
 import com.netease.yunxin.nertc.ui.CallKitUIOptions;
 import com.netease.yunxin.nertc.ui.NECallUILanguage;
+import com.netease.yunxin.nertc.ui.base.TransHelper;
+
+import java.util.ArrayList;
 
 public class DemoApplication extends Application {
   private static final int CODE_REQUEST_INVITE_USERS = 9101;
@@ -58,6 +65,37 @@ public class DemoApplication extends Application {
             // 注册自定义通话页面
             .p2pVideoActivity(TestActivity.class)
             .p2pAudioActivity(TestActivity.class)
+            .contactSelector(
+                (context, groupId, strings, listNEResultObserver) -> {
+                  if (listNEResultObserver == null) {
+                    return null;
+                  }
+                  TransHelper.launchTask(
+                      context,
+                      CODE_REQUEST_INVITE_USERS,
+                      (innerContext, code) -> {
+                        NERTCSelectCallUserActivity.startSelectUser(
+                            innerContext,
+                            CODE_REQUEST_INVITE_USERS,
+                            CallModeType.RTC_GROUP_INVITE,
+                            strings);
+                        return null;
+                      },
+                      intentResultInfo -> {
+                        if (intentResultInfo == null || intentResultInfo.getValue() == null) {
+                          return null;
+                        }
+                        Intent data = intentResultInfo.getValue();
+                        if (intentResultInfo.getSuccess()) {
+                          ArrayList<String> selectorList =
+                              data.getStringArrayListExtra(
+                                  NERTCSelectCallUserActivity.KEY_CALL_USER_LIST);
+                          listNEResultObserver.onResult(selectorList);
+                        }
+                        return null;
+                      });
+                  return null;
+                })
             .language(NECallUILanguage.AUTO)
             .build();
     // 初始化
