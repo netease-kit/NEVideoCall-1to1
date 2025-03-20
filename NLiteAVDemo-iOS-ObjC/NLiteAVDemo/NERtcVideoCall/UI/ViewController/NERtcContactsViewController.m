@@ -6,6 +6,7 @@
 #import <NERtcCallUIKit/NERtcCallUIKit.h>
 #import "NEAccount.h"
 #import "NECallStatusRecordCell.h"
+#import "NECallUISettingViewController.h"
 #import "NEPSTNViewController.h"
 #import "NERtcSettingViewController.h"
 #import "NESearchResultCell.h"
@@ -13,7 +14,6 @@
 #import "NESectionHeaderView.h"
 #import "NSArray+NTES.h"
 #import "NSMacro.h"
-#import <NERtcCallUIKit/NetManager.h>
 
 @interface NERtcContactsViewController () <UITextFieldDelegate,
                                            NIMChatManagerDelegate,
@@ -70,7 +70,7 @@
     self.title = @"发起融合呼叫";
   }
   [self setupContent];
-  //  [self setSetting];
+  [self setSetting];
   [self addObserver];
   //  [[NERingPlayerManager shareInstance] playRingWithRingType:CRTRejectRing isRtcPlay:YES];
 }
@@ -161,13 +161,24 @@
                                       target:self
                                       action:@selector(goToSettingView)];
   [rightItem setTintColor:UIColor.whiteColor];
-  self.navigationItem.rightBarButtonItem = rightItem;
+
+  UIBarButtonItem *setting2 = [[UIBarButtonItem alloc] initWithTitle:@"设置2"
+                                                               style:UIBarButtonItemStylePlain
+                                                              target:self
+                                                              action:@selector(goToUISetting)];
+  [setting2 setTintColor:UIColor.whiteColor];
+  //  self.navigationItem.rightBarButtonItems = @[ rightItem, setting2 ];
 }
 
 #pragma mark - view conroller change
 
 - (void)goToSettingView {
   NERtcSettingViewController *setting = [[NERtcSettingViewController alloc] init];
+  [self.navigationController pushViewController:setting animated:YES];
+}
+
+- (void)goToUISetting {
+  NECallUISettingViewController *setting = [[NECallUISettingViewController alloc] init];
   [self.navigationController pushViewController:setting animated:YES];
 }
 
@@ -294,7 +305,7 @@
     [self.view ne_makeToast:@"网络连接异常，请稍后再试"];
     return;
   }
-  
+
   if ([NECallEngine sharedInstance].callStatus != NECallStatusIdle) {
     [self.view ne_makeToast:@"正在通话中"];
     return;

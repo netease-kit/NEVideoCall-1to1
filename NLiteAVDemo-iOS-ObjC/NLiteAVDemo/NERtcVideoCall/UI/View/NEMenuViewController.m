@@ -14,13 +14,12 @@
 #import "NERtcContactsViewController.h"
 #import "NEUser.h"
 #import "NSArray+NTES.h"
-#import <NERtcCallUIKit/NetManager.h>
 
 @interface NEMenuViewController () <UITableViewDelegate,
                                     UITableViewDataSource,
                                     NERtcCallKitDelegate,
-                                    NIMChatManagerDelegate,
-                                    NEGroupCallKitDelegate>
+                                    NEGroupCallKitDelegate,
+                                    V2NIMMessageListener>
 @property(strong, nonatomic) UITableView *tableView;
 @property(strong, nonatomic) UIImageView *bgImageView;
 @end
@@ -90,7 +89,9 @@ static NSString *cellID = @"menuCellID";
 
 - (void)addObserver {
   [[NERtcCallKit sharedInstance] addDelegate:self];
-  [[NIMSDK sharedSDK].chatManager addDelegate:self];
+  //  [[NIMSDK sharedSDK].chatManager addDelegate:self];
+  [[[NIMSDK sharedSDK] v2MessageService] addMessageListener:self];
+
   [[NEGroupCallKit sharedInstance] addDelegate:self];
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(recordAddNotification:)
@@ -110,7 +111,7 @@ static NSString *cellID = @"menuCellID";
                          if (error) {
                            [self.view
                                ne_makeToast:[NSString stringWithFormat:@"IM登录失败%@",
-                                                                    error.localizedDescription]];
+                                                                       error.localizedDescription]];
                          } else {
                            // 首次登录成功之后上传deviceToken
                            NSData *deviceToken =
@@ -126,22 +127,23 @@ static NSString *cellID = @"menuCellID";
                  }
                }];
 }
+
 - (void)updateUserInfo:(NEUser *)user {
-  NSMutableDictionary *ext = [NSMutableDictionary dictionary];
-  if (user.mobile) {
-    [ext setObject:user.mobile forKey:@(NIMUserInfoUpdateTagMobile)];
-  }
-  if (user.avatar) {
-    [ext setObject:user.avatar forKey:@(NIMUserInfoUpdateTagAvatar)];
-  }
-  [NIMSDK.sharedSDK.userManager updateMyUserInfo:ext.copy
-                                      completion:^(NSError *_Nullable error) {
-                                        if (error) {
-                                          NSLog(@"updateUserInfo error:%@", error);
-                                          return;
-                                        }
-                                      }];
+  V2NIMUserUpdateParams *param = [[V2NIMUserUpdateParams alloc] init];
+  param.avatar = user.avatar;
+  param.mobile = user.mobile;
+
+  [[NIMSDK sharedSDK].v2UserService updateSelfUserProfile:param
+      success:^{
+      }
+      failure:^(V2NIMError *_Nonnull error) {
+        if (error) {
+          NSLog(@"updateUserInfo error:%@", error);
+          return;
+        }
+      }];
 }
+
 - (void)removeObserver {
   [[NERtcCallKit sharedInstance] removeDelegate:self];
   [NEAccount removeObserverForObject:self];
@@ -225,66 +227,71 @@ static NSString *cellID = @"menuCellID";
     NSLog(@"callee view show in call ui kit");
     return;
   }
-  [NIMSDK.sharedSDK.userManager
-      fetchUserInfos:@[ invitor ]
-          completion:^(NSArray<NIMUser *> *_Nullable users, NSError *_Nullable error) {
-            if (error) {
-              [self.view ne_makeToast:error.description];
-              return;
-            } else {
-              NIMUser *imUser = users.firstObject;
 
-              NEUser *remoteUser = [[NEUser alloc] init];
-              remoteUser.imAccid = imUser.userId;
-              remoteUser.mobile = imUser.userInfo.mobile;
-              remoteUser.avatar = imUser.userInfo.avatarUrl;
+  [NIMSDK.sharedSDK.v2UserService getUserListFromCloud:@[ invitor ]
+      success:^(NSArray<V2NIMUser *> *_Nonnull result) {
+        if (result.count < 1) {
+          return;
+        }
 
-              NEPSTNViewController *callVC = [[NEPSTNViewController alloc] init];
-              callVC.localUser = [NEAccount shared].userModel;
-              callVC.remoteUser = remoteUser;
-              callVC.status = NERtcCallStatusCalled;
-              callVC.callType = type;
-              callVC.isCaller = NO;
-              if (type == NERtcCallTypeAudio) {
-                callVC.callKitType = PSTN;
-              } else {
-                callVC.callKitType = CALLKIT;
-              }
-              callVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
-              [self.navigationController presentViewController:callVC animated:YES completion:nil];
+        V2NIMUser *user = result.firstObject;
 
-              /*
-                if (type == NERtcCallTypeAudio) {
-                    NEUser *remoteUser = [[NEUser alloc] init];
-                    remoteUser.imAccid = imUser.userId;
-                    remoteUser.mobile = imUser.userInfo.mobile;
-                    remoteUser.avatar = imUser.userInfo.avatarUrl;
+        NEUser *remoteUser = [[NEUser alloc] init];
+        remoteUser.imAccid = user.accountId;
+        remoteUser.mobile = user.mobile;
+        remoteUser.avatar = user.avatar;
 
-                    NEPSTNViewController *callVC = [[NEPSTNViewController alloc] init];
-                    callVC.localUser = [NEAccount shared].userModel;
-                    callVC.remoteUser = remoteUser;
-                    callVC.status = NERtcCallStatusCalled;
-                    callVC.callType = type;
-                    callVC.isCaller = NO;
-                    callVC.callKitType = PSTN;
-                    callVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
-                    [self.navigationController presentViewController:callVC animated:YES
-                completion:nil]; }else { NECallViewController *callVC = [[NECallViewController
-                alloc] init]; NEUICallParam *callParam = [[NEUICallParam alloc] init];
-                      callParam.remoteUserAccid = imUser.userId;
-                      callParam.remoteShowName = imUser.userInfo.mobile;
-                      callParam.remoteAvatar = imUser.userInfo.avatarUrl;
-                      callParam.currentUserAccid = [NEAccount shared].userModel.imAccid;
-                      callVC.callParam = callParam;
-                      callVC.isCaller = NO;
-                      callVC.status = NERtcCallStatusCalled;
-                      callVC.callType = type;
-                      callVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
-                      [self.navigationController presentViewController:callVC animated:YES
-                completion:nil];
-                }*/
-            }
-          }];
+        NEPSTNViewController *callVC = [[NEPSTNViewController alloc] init];
+        callVC.localUser = [NEAccount shared].userModel;
+        callVC.remoteUser = remoteUser;
+        callVC.status = NERtcCallStatusCalled;
+        callVC.callType = type;
+        callVC.isCaller = NO;
+        if (type == NERtcCallTypeAudio) {
+          callVC.callKitType = PSTN;
+        } else {
+          callVC.callKitType = CALLKIT;
+        }
+        callVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
+        [self.navigationController presentViewController:callVC animated:YES completion:nil];
+      }
+      failure:^(V2NIMError *_Nonnull error) {
+        if (error) {
+          [self.view ne_makeToast:error.description];
+          return;
+        }
+      }];
+
+  /*
+    if (type == NERtcCallTypeAudio) {
+        NEUser *remoteUser = [[NEUser alloc] init];
+        remoteUser.imAccid = imUser.userId;
+        remoteUser.mobile = imUser.userInfo.mobile;
+        remoteUser.avatar = imUser.userInfo.avatarUrl;
+
+        NEPSTNViewController *callVC = [[NEPSTNViewController alloc] init];
+        callVC.localUser = [NEAccount shared].userModel;
+        callVC.remoteUser = remoteUser;
+        callVC.status = NERtcCallStatusCalled;
+        callVC.callType = type;
+        callVC.isCaller = NO;
+        callVC.callKitType = PSTN;
+        callVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
+        [self.navigationController presentViewController:callVC animated:YES
+    completion:nil]; }else { NECallViewController *callVC = [[NECallViewController
+    alloc] init]; NEUICallParam *callParam = [[NEUICallParam alloc] init];
+          callParam.remoteUserAccid = imUser.userId;
+          callParam.remoteShowName = imUser.userInfo.mobile;
+          callParam.remoteAvatar = imUser.userInfo.avatarUrl;
+          callParam.currentUserAccid = [NEAccount shared].userModel.imAccid;
+          callVC.callParam = callParam;
+          callVC.isCaller = NO;
+          callVC.status = NERtcCallStatusCalled;
+          callVC.callType = type;
+          callVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
+          [self.navigationController presentViewController:callVC animated:YES
+    completion:nil];
+    }*/
 }
 
 - (void)onGroupInvitedWithInfo:(NEGroupCallInfo *)info {
@@ -326,7 +333,7 @@ static NSString *cellID = @"menuCellID";
 }
 
 #pragma mark - IM delegate
-
+/* v1
 - (void)willSendMessage:(NIMMessage *)message {
   [self assmebleRecordWithMessage:message withCaller:YES];
 }
@@ -334,8 +341,9 @@ static NSString *cellID = @"menuCellID";
 - (void)sendMessage:(NIMMessage *)message progress:(float)progress {
 }
 
+
 - (void)onRecvMessages:(NSArray<NIMMessage *> *)messages {
-  NSLog(@"onRecvMessages current account : %@", [NIMSDK.sharedSDK.loginManager currentAccount]);
+  NSLog(@"onRecvMessages current account : %@", [NIMSDK.sharedSDK.v2LoginService getLoginUser]);
   for (NIMMessage *message in messages) {
     if ([message.from isEqualToString:[NEAccount shared].userModel.imAccid]) {
       [self assmebleRecordWithMessage:message withCaller:YES];
@@ -344,10 +352,29 @@ static NSString *cellID = @"menuCellID";
     [self assmebleRecordWithMessage:message withCaller:NO];
   }
 }
+*/
+
+- (void)onSendMessage:(V2NIMMessage *)message {
+  if (message.sendingState == V2NIM_MESSAGE_SENDING_STATE_SENDING) {
+    [self assmebleRecordWithV2Message:message withCaller:YES];
+  }
+}
+
+- (void)onReceiveMessages:(NSArray<V2NIMMessage *> *)messages;
+{
+  NSLog(@"onRecvMessages current account : %@", [NIMSDK.sharedSDK.v2LoginService getLoginUser]);
+  for (V2NIMMessage *message in messages) {
+    if ([message.senderId isEqualToString:[NEAccount shared].userModel.imAccid]) {
+      [self assmebleRecordWithV2Message:message withCaller:YES];
+      return;
+    }
+    [self assmebleRecordWithV2Message:message withCaller:NO];
+  }
+}
 
 #pragma mark - UITableViewDelegate
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-  return 1;
+  return 2;
 }
 - (UITableViewCell *)tableView:(UITableView *)tableView
          cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -460,37 +487,85 @@ static NSString *cellID = @"menuCellID";
         option.searchContent = message.from;
       }
 
-      [[[NIMSDK sharedSDK] userManager]
-          fetchUserInfos:@[ record.imAccid ]
-              completion:^(NSArray<NIMUser *> *_Nullable users, NSError *_Nullable error) {
-                NIMUser *user = users.firstObject;
-                NSLog(@"serch user : %lu", (unsigned long)users.count);
-                if (user) {
-                  record.mobile = user.userInfo.mobile;
-                  record.avatar = user.userInfo.avatarUrl;
-                  NSLog(@"on call happen");
-                  [[NSNotificationCenter defaultCenter] postNotificationName:NERECORDADD
-                                                                      object:record];
-                } else {
-                  NSLog(@"search error : %@", error);
-                }
-              }];
+      [NIMSDK.sharedSDK.v2UserService getUserListFromCloud:@[ record.imAccid ]
+          success:^(NSArray<V2NIMUser *> *_Nonnull result) {
+            if (result.count < 1) {
+              return;
+            }
 
-      //            [[[NIMSDK sharedSDK] userManager] searchUserWithOption:option
-      //            completion:^(NSArray<NIMUser *> * _Nullable users, NSError * _Nullable error) {
-      //                NIMUser *user = users.firstObject;
-      //                NSLog(@"serch user : %lu", (unsigned long)users.count);
-      //                if (user) {
-      //                    record.mobile = user.userInfo.mobile;
-      //                    record.avatar = user.userInfo.avatarUrl;
-      //                    NSLog(@"on call happen");
-      //                    [[NSNotificationCenter defaultCenter] postNotificationName:NERECORDADD
-      //                    object:record];
-      //                }else {
-      //                    NSLog(@"search error : %@", error);
-      //                }
-      //            }];
+            V2NIMUser *user = result.firstObject;
+            NSLog(@"serch user : %lu", (unsigned long)result.count);
+            if (user) {
+              record.mobile = user.mobile;
+              record.avatar = user.avatar;
+              NSLog(@"on call happen");
+              [[NSNotificationCenter defaultCenter] postNotificationName:NERECORDADD object:record];
+            }
+          }
+          failure:^(V2NIMError *_Nonnull error) {
+            if (error) {
+              NSLog(@"search error : %@", error);
+            }
+          }];
     }
+  }
+}
+
+- (void)assmebleRecordWithV2Message:(V2NIMMessage *)message withCaller:(BOOL)isCaller {
+  if (message.messageType == V2NIM_MESSAGE_TYPE_CALL) {
+    NECallStatusRecordModel *record = [[NECallStatusRecordModel alloc] init];
+
+    if ([message.attachment isKindOfClass:[V2NIMMessageCallAttachment class]]) {
+      V2NIMMessageCallAttachment *recordObject = (V2NIMMessageCallAttachment *)message.attachment;
+      NSTimeInterval startTime = message.createTime;
+      record.isCaller = isCaller;
+      record.status = recordObject.status;
+      record.isVideoCall = recordObject.type == NIMRtcCallTypeVideo ? YES : NO;
+
+      if (recordObject.durations.count > 0) {
+        for (V2NIMMessageCallDuration *duration in recordObject.durations) {
+          if ([duration.accountId isEqualToString:[NEAccount shared].userModel.imAccid]) {
+            record.duration = duration.duration;
+            startTime = startTime - record.duration;
+          }
+        }
+      }
+      record.startTime = [NSDate dateWithTimeIntervalSince1970:startTime];
+
+      NIMUserSearchOption *option = [[NIMUserSearchOption alloc] init];
+      option.searchRange = NIMUserSearchRangeOptionAll;
+      option.searchContentOption = NIMUserSearchContentOptionUserId;
+
+      if (isCaller == YES) {
+        option.searchContent = message.receiverId;
+        record.imAccid = message.receiverId;
+
+      } else {
+        record.imAccid = message.senderId;
+        option.searchContent = message.senderId;
+      }
+    }
+
+    [NIMSDK.sharedSDK.v2UserService getUserListFromCloud:@[ record.imAccid ]
+        success:^(NSArray<V2NIMUser *> *_Nonnull result) {
+          if (result.count < 1) {
+            return;
+          }
+
+          V2NIMUser *user = result.firstObject;
+          NSLog(@"serch user : %lu", (unsigned long)result.count);
+          if (user) {
+            record.mobile = user.mobile;
+            record.avatar = user.avatar;
+            NSLog(@"on call happen");
+            [[NSNotificationCenter defaultCenter] postNotificationName:NERECORDADD object:record];
+          }
+        }
+        failure:^(V2NIMError *_Nonnull error) {
+          if (error) {
+            NSLog(@"search error : %@", error);
+          }
+        }];
   }
 }
 

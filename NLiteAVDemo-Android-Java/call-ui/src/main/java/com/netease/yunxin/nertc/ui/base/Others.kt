@@ -8,17 +8,16 @@ package com.netease.yunxin.nertc.ui.base
 
 import android.content.Context
 import android.content.Intent
-import android.text.TextUtils
+import com.netease.nimlib.sdk.NIMClient
 import com.netease.yunxin.kit.call.group.NEGroupCallInfo
 import com.netease.yunxin.kit.call.p2p.NECallEngine
 import com.netease.yunxin.kit.call.p2p.model.NECallType
 import com.netease.yunxin.kit.call.p2p.model.NEInviteInfo
 import com.netease.yunxin.nertc.nertcvideocall.utils.CallParams
-import com.netease.yunxin.nertc.ui.CallKitUI
 import com.netease.yunxin.nertc.ui.service.UIServiceManager
 
 fun CallParam.currentUserIsCaller(): Boolean {
-    return !TextUtils.isEmpty(callerAccId) && TextUtils.equals(callerAccId, currentAccId)
+    return true
 }
 
 fun CallParam.getChannelId(): String? {
@@ -41,7 +40,7 @@ fun NEInviteInfo.toCallParam(): CallParam {
         true,
         callType,
         callerAccId,
-        CallKitUI.currentUserAccId,
+        NIMClient.getCurrentAccount(),
         callExtraInfo = extraInfo,
         globalExtraCopy = NECallEngine.sharedInstance().callInfo.signalInfo.globalExtraCopy,
         rtcChannelName = NECallEngine.sharedInstance().callInfo.rtcInfo.channelName,

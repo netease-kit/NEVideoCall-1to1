@@ -15,6 +15,7 @@ import android.view.Window
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import com.netease.lava.nertc.sdk.NERtcEx
+import com.netease.nimlib.sdk.NIMClient
 import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.kit.alog.ParameterMap
 import com.netease.yunxin.kit.call.group.GroupCallHangupEvent
@@ -27,7 +28,6 @@ import com.netease.yunxin.kit.call.group.param.GroupCallParam
 import com.netease.yunxin.kit.call.group.param.GroupHangupParam
 import com.netease.yunxin.nertc.nertcvideocall.model.impl.NERtcCallbackExTemp
 import com.netease.yunxin.nertc.nertcvideocall.model.impl.NERtcCallbackProxyMgr
-import com.netease.yunxin.nertc.ui.CallKitUI
 import com.netease.yunxin.nertc.ui.base.Constants.PARAM_KEY_GROUP_CALL
 import com.netease.yunxin.nertc.ui.base.Constants.PARAM_KEY_GROUP_CALL_ID
 import com.netease.yunxin.nertc.ui.service.DefaultIncomingCallEx
@@ -186,7 +186,7 @@ abstract class CommonGroupCallActivity : AppCompatActivity() {
         callParam =
             intent.getSerializableExtra(PARAM_KEY_GROUP_CALL) as? GroupCallParam
         callId = intent.getStringExtra(PARAM_KEY_GROUP_CALL_ID)
-        currentUserAccId = CallKitUI.currentUserAccId!!
+        currentUserAccId = NIMClient.getCurrentAccount()
         ALog.d(
             tag,
             ParameterMap("prepareData")

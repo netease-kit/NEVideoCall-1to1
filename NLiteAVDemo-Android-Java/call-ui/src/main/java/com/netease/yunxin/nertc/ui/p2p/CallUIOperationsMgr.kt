@@ -158,6 +158,9 @@ object CallUIOperationsMgr {
         return this.callInfoWithUIState.callParam.getChannelId()
     }
 
+    /**
+     * 启动前台服务
+     */
     fun startService() {
         this.foregroundServiceConfig?.startService()
     }

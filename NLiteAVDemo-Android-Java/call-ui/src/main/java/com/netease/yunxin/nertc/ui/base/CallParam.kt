@@ -8,9 +8,9 @@ package com.netease.yunxin.nertc.ui.base
 
 import android.os.Parcel
 import android.os.Parcelable
+import com.netease.nimlib.sdk.NIMClient
 import com.netease.yunxin.kit.call.p2p.model.NECallPushConfig
 import com.netease.yunxin.kit.call.p2p.model.NECallType
-import com.netease.yunxin.nertc.ui.CallKitUI
 
 /**
  * 呼叫参数，用户群组呼叫/P2P 呼叫
@@ -27,7 +27,7 @@ class CallParam @JvmOverloads constructor(
     var extras: MutableMap<String?, Any?>? = null
 ) : Parcelable {
 
-    val currentAccId: String? = CallKitUI.currentUserAccId
+    val currentAccId: String? = NIMClient.getCurrentAccount()
 
     val otherAccId: String?
         get() = if (isCalled) callerAccId else calledAccId
@@ -132,7 +132,7 @@ class CallParam @JvmOverloads constructor(
     class Builder {
         private var callType: Int = NECallType.AUDIO
         private var isCalled: Boolean = false
-        private var callerAccId: String? = CallKitUI.currentUserAccId
+        private var callerAccId: String? = NIMClient.getCurrentAccount()
         private var calledAccId: String? = null
         private var callExtraInfo: String? = null
         private var globalExtraCopy: String? = null

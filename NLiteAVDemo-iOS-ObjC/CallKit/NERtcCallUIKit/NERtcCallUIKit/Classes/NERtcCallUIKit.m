@@ -140,10 +140,11 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
     [self.uiConfigDic setObject:NEVideoCallingController.class forKey:kVideoCalling];
     [self.uiConfigDic setObject:NEVideoInCallController.class forKey:kVideoInCall];
     [self registerRouter];
-    [NERtcCallKit sharedInstance].recordHandler = ^(NIMMessage *message) {
+
+    [NERtcCallKit sharedInstance].recordHandler = ^(V2NIMMessage *message) {
       if ([[NetManager shareInstance] isClose] == YES) {
-        NIMRtcCallRecordObject *object = (NIMRtcCallRecordObject *)message.messageObject;
-        object.callStatus = NIMRtcCallStatusCanceled;
+        V2NIMMessageCallAttachment *recordObject = (V2NIMMessageCallAttachment *)message.attachment;
+        recordObject.status = 2;  // 表示取消
       }
     };
 
@@ -771,7 +772,7 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
 #pragma mark - Version
 
 + (NSString *)version {
-  return @"2.5.0";
+  return @"3.0.0";
 }
 
 @end

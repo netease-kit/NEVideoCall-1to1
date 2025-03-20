@@ -49,8 +49,6 @@ object CallKitUI {
     var init = false
         private set
 
-    var currentUserAccId: String? = null
-
     var currentUserRtcUid: Long = 0L
 
     @SuppressLint("StaticFieldLeak")
@@ -91,14 +89,12 @@ object CallKitUI {
     @MainThread
     fun preVideoCallConfig(
         appKey: String,
-        enableAutoJoinWhenCalled: Boolean,
         accId: String,
         rtcUId: Long
     ) {
         CoroutineScope(Dispatchers.Main).launch {
             (NECallEngine.sharedInstance() as NECallEngineImpl).preInit(
                 appKey,
-                enableAutoJoinWhenCalled,
                 accId,
                 rtcUId
             )
@@ -121,7 +117,6 @@ object CallKitUI {
         this.options = options
         options.run {
             wrapperUncaughtExceptionHandler()
-            this@CallKitUI.currentUserAccId = currentUserAccId
             this@CallKitUI.currentUserRtcUid = currentUserRtcUId
             UserInfoExtensionHelper.userInfoHelper = userInfoHelper
             val uiService = object : UIService {
@@ -212,7 +207,6 @@ object CallKitUI {
                         .appKey(rtcConfig.appKey)
                         .rtcCallExtension(extension)
                         .rtcSafeMode(NEGroupConstants.RtcSafeMode.MODE_SAFE)
-                        .currentUserAccId(currentUserAccId)
                         .currentUserRtcUid(currentUserRtcUId)
                         .timeout((timeOutMillisecond / 1000L).toInt()).build()
                 )
@@ -295,7 +289,6 @@ object CallKitUI {
         unregisterResumeUIActionInner()
         callKitUIBridgeService?.destroy()
         callKitUIBridgeService = null
-        currentUserAccId = null
         currentUserRtcUid = 0L
         options = null
         AVChatSoundPlayer.release()

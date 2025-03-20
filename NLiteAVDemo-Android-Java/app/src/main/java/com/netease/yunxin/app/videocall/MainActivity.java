@@ -1,3 +1,7 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 package com.netease.yunxin.app.videocall;
 
 import android.Manifest;
@@ -5,31 +9,40 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
+import com.netease.lava.nertc.foreground.ForegroundKit;
 import com.netease.lava.nertc.sdk.NERtc;
-import com.netease.lava.nertc.sdk.NERtcOption;
+import com.netease.lava.nertc.sdk.NERtcEx;
 import com.netease.nimlib.sdk.NIMClient;
-import com.netease.nimlib.sdk.Observer;
-import com.netease.nimlib.sdk.StatusCode;
-import com.netease.nimlib.sdk.auth.AuthServiceObserver;
-import com.netease.yunxin.app.videocall.login.model.ProfileManager;
+import com.netease.nimlib.sdk.v2.V2NIMError;
+import com.netease.nimlib.sdk.v2.auth.V2NIMLoginListener;
+import com.netease.nimlib.sdk.v2.auth.V2NIMLoginService;
+import com.netease.nimlib.sdk.v2.auth.enums.V2NIMLoginClientChange;
+import com.netease.nimlib.sdk.v2.auth.enums.V2NIMLoginStatus;
+import com.netease.nimlib.sdk.v2.auth.model.V2NIMKickedOfflineDetail;
+import com.netease.nimlib.sdk.v2.auth.model.V2NIMLoginClient;
+import com.netease.yunxin.app.videocall.login.model.AuthManager;
 import com.netease.yunxin.app.videocall.login.ui.LoginActivity;
 import com.netease.yunxin.app.videocall.nertc.biz.CallOrderManager;
+import com.netease.yunxin.app.videocall.nertc.ui.CallModeType;
 import com.netease.yunxin.app.videocall.nertc.ui.NERTCSelectCallUserActivity;
 import com.netease.yunxin.nertc.ui.CallKitUI;
-import com.netease.yunxin.nertc.ui.CallKitUIOptions;
+
+import java.util.Collections;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-  private final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1001;
+  private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1001;
   private TextView tvVersion;
 
   @Override
@@ -54,102 +67,122 @@ public class MainActivity extends AppCompatActivity {
 
   private void initG2() {
 
-    NIMClient.getService(AuthServiceObserver.class).observeOnlineStatus((Observer<StatusCode>) statusCode -> {
-      if (statusCode == StatusCode.LOGINED) {
-
-        CallKitUIOptions options = new CallKitUIOptions.Builder()
-            // 音视频通话 sdk appKey，用于通话中使用
-            .rtcAppKey(BuildConfig.APP_KEY)
-            // 当前用户 accId
-            .currentUserAccId(ProfileManager.getInstance().getUserModel().imAccid)
-            // 通话接听成功的超时时间单位 毫秒，默认30s
-            .timeOutMillisecond(30 * 1000L)
-            // 当系统版本为 Android Q及以上时，若应用在后台系统限制不直接展示页面
-            // 而是展示 notification，通过点击 notification 跳转呼叫页面
-            // 此处为 notification 相关配置，如图标，提示语等。
-            .notificationConfigFetcher(new SelfNotificationConfigFetcher())
-            // 收到被叫时若 app 在后台，在恢复到前台时是否自动唤起被叫页面，默认为 true
-            .resumeBGInvitation(true)
-            // 设置初始化 rtc sdk 相关配置，按照所需进行配置
-            .rtcSdkOption(new NERtcOption())
-            // 设置用户信息
-            .userInfoHelper(new SelfUserInfoHelper())
-            // 自定义通话页面
-            .p2pAudioActivity(TestActivity.class)
-            .p2pVideoActivity(TestActivity.class)
-            .build();
-        // 若重复初始化会销毁之前的初始化实例，重新初始化
-        CallKitUI.init(getApplicationContext(), options);
-      }
-    }, true);
   }
 
   private void checkLogin() {
-    if (ProfileManager.getInstance().isLogin()) {
+    if (AuthManager.getInstance().isLogin()) {
       return;
     }
+
     //此处注册之后会立刻回调一次
-    NIMClient.getService(AuthServiceObserver.class).observeOnlineStatus((Observer<StatusCode>) statusCode -> {
-      if (statusCode == StatusCode.LOGINED) {
-        ProfileManager.getInstance().setLogin(true);
-        CallOrderManager.getInstance().init();
+    NIMClient.getService(V2NIMLoginService.class)
+        .addLoginListener(
+            new V2NIMLoginListener() {
+              @Override
+              public void onLoginStatus(V2NIMLoginStatus status) {
+                if (status == V2NIMLoginStatus.V2NIM_LOGIN_STATUS_LOGINED) {
+                  AuthManager.getInstance().setLogin(true);
+                  CallOrderManager.getInstance().init();
+                }
+              }
+
+              @Override
+              public void onLoginFailed(V2NIMError error) {}
+
+              @Override
+              public void onKickedOffline(V2NIMKickedOfflineDetail detail) {}
+
+              @Override
+              public void onLoginClientChanged(
+                  V2NIMLoginClientChange change, List<V2NIMLoginClient> clients) {}
+            });
+    if (NIMClient.getService(V2NIMLoginService.class).getLoginStatus()
+        != V2NIMLoginStatus.V2NIM_LOGIN_STATUS_LOGINED) {
+      if (AuthManager.getInstance().getUserModel() != null
+          && !TextUtils.isEmpty(AuthManager.getInstance().getUserModel().imAccid)
+          && !TextUtils.isEmpty(AuthManager.getInstance().getUserModel().imToken)) {
+        NIMClient.getService(V2NIMLoginService.class)
+            .login(
+                AuthManager.getInstance().getUserModel().imAccid,
+                AuthManager.getInstance().getUserModel().imToken,
+                null,
+                null,
+                null);
       }
-    }, true);
-
-
+    }
   }
 
   private void initView() {
     ImageView ivAccountIcon = findViewById(R.id.iv_account);
     RelativeLayout rlyVideoCall = findViewById(R.id.rly_video_call);
+    RelativeLayout rlyGroupCall = findViewById(R.id.rly_group_call);
+
     tvVersion = findViewById(R.id.tv_version);
 
-    ivAccountIcon.setOnClickListener(view -> {
-      if (ProfileManager.getInstance().isLogin()) {
-        showLogoutDialog();
-      } else {
-        LoginActivity.startLogin(this);
-      }
-    });
+    ivAccountIcon.setOnClickListener(
+        view -> {
+          if (AuthManager.getInstance().isLogin()) {
+            showLogoutDialog();
+          } else {
+            LoginActivity.startLogin(this);
+          }
+        });
 
-    rlyVideoCall.setOnClickListener(view -> {
-      if (!ProfileManager.getInstance().isLogin()) {
-        LoginActivity.startLogin(this);
-      } else {
-        NERTCSelectCallUserActivity.startSelectUser(this);
-      }
-    });
+    rlyVideoCall.setOnClickListener(
+        view -> {
+          if (!AuthManager.getInstance().isLogin()) {
+            LoginActivity.startLogin(this);
+          } else {
+            NERTCSelectCallUserActivity.startSelectUser(this, CallModeType.PSTN_1V1_AUDIO_CALL);
+          }
+        });
+
+    rlyGroupCall.setOnClickListener(
+        v -> {
+          if (!AuthManager.getInstance().isLogin()) {
+            LoginActivity.startLogin(this);
+          } else {
+            NERTCSelectCallUserActivity.startSelectUser(
+                this,
+                CallModeType.RTC_GROUP_CALL,
+                Collections.singletonList(AuthManager.getInstance().getUserModel().imAccid));
+          }
+        });
+    rlyGroupCall.setVisibility(View.VISIBLE);
 
     initVersionInfo();
   }
 
   private void initVersionInfo() {
-    String versionInfo = "NIM sdk version:" + NIMClient.getSDKVersion() + "\nnertc sdk version:" +
-        NERtc.version().versionName + "\ncallKit version:" + CallKitUI.INSTANCE.currentVersion();
+    String versionInfo =
+        "NIM sdk version:"
+            + NIMClient.getSDKVersion()
+            + "\nnertc sdk version:"
+            + NERtc.version().versionName
+            + "\ncallKit version:"
+            + CallKitUI.INSTANCE.currentVersion();
     tvVersion.setText(versionInfo);
   }
 
   private void showLogoutDialog() {
-    final AlertDialog.Builder confirmDialog =
-        new AlertDialog.Builder(MainActivity.this);
-    confirmDialog.setTitle("注销账户:" + ProfileManager.getInstance().getUserModel().mobile);
+    final AlertDialog.Builder confirmDialog = new AlertDialog.Builder(MainActivity.this);
+    confirmDialog.setTitle("注销账户:" + AuthManager.getInstance().getUserModel().mobile);
     confirmDialog.setMessage("确认注销当前登录账号？");
-    confirmDialog.setPositiveButton("是",
+    confirmDialog.setPositiveButton(
+        "是",
         (dialog, which) -> {
-          ProfileManager.getInstance().logout();
-          Toast.makeText(MainActivity.this, "已经退出登录", Toast.LENGTH_SHORT).show();
+          AuthManager.getInstance().logout();
+          Toast.makeText(MainActivity.this, "已经退出登录", Toast.LENGTH_LONG).show();
         });
-    confirmDialog.setNegativeButton("否",
-        (dialog, which) -> {
+    confirmDialog.setNegativeButton("否", (dialog, which) -> {});
 
-        });
     confirmDialog.show();
   }
 
   private void checkAndRequestNotificationPermission(Context context) {
     // 检查是否需要请求通知权限
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-      if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+      if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS)
           != PackageManager.PERMISSION_GRANTED) {
         // 请求权限
         ActivityCompat.requestPermissions(

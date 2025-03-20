@@ -3,11 +3,7 @@
 // found in the LICENSE file.
 
 #import "NEPSTNViewController.h"
-#import <NERtcCallUIKit/NECustomButton.h>
 #import "NERtcCallKit+Demo.h"
-#import <NERtcCallUIKit/NEVideoOperationView.h>
-#import <NERtcCallUIKit/NEVideoView.h>
-#import <NERtcCallUIKit/NetManager.h>
 #import "SettingManager.h"
 
 @interface NEPSTNViewController () <NERtcLinkEngineDelegate, NECallKitPstnDelegate>
@@ -335,36 +331,9 @@
   }];
   [self.speakerBtn setHidden:YES];
 
-  /*
-  [[self.mediaSwitchBtn.maskBtn rac_signalForControlEvents:UIControlEventTouchUpInside]
-      subscribeNext:^(__kindof UIControl *_Nullable x) {
-        if ([[NetManager shareInstance] isClose] == YES) {
-          [weakSelf.view ne_makeToast:@"网络连接异常，请稍后再试"];
-          return;
-        }
-        weakSelf.mediaSwitchBtn.maskBtn.enabled = NO;
-        NERtcCallType type =
-            weakSelf.callType == NERtcCallTypeVideo ? NERtcCallTypeAudio : NERtcCallTypeVideo;
-        [[NERtcCallKit sharedInstance]
-            switchCallType:type
-                 withState:NERtcSwitchStateInvite
-                completion:^(NSError *_Nullable error) {
-                  weakSelf.mediaSwitchBtn.maskBtn.enabled = YES;
-                  if (error == nil) {
-                    NSLog(@"切换成功 : %lu", type);
-                    if (type == NERtcCallTypeVideo &&
-                        [SettingManager.shareInstance isVideoConfirm]) {
-                      [weakSelf showBannerView];
-                    } else if (type == NERtcCallTypeAudio &&
-                               [SettingManager.shareInstance isAudioConfirm]) {
-                      [weakSelf showBannerView];
-                    }
-                  } else {
-                    [weakSelf.view ne_makeToast:[NSString stringWithFormat:@"切换失败:%@", error]];
-                  }
-                }];
-      }];
-     */
+  [self.mediaSwitchBtn.maskBtn addTarget:self
+                                  action:@selector(mediaSwitchClick)
+                        forControlEvents:UIControlEventTouchUpInside];
 
   [self.view addSubview:self.timerLabel];
   [self.timerLabel mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -373,6 +342,35 @@
   }];
 
   self.mediaSwitchBtn.hidden = ![[SettingManager shareInstance] supportAutoJoinWhenCalled];
+}
+
+- (void)mediaSwitchClick {
+  if ([[NetManager shareInstance] isClose] == YES) {
+    [self.view ne_makeToast:@"网络连接异常，请稍后再试"];
+    return;
+  }
+  self.mediaSwitchBtn.maskBtn.enabled = NO;
+  NERtcCallType type =
+      self.callType == NERtcCallTypeVideo ? NERtcCallTypeAudio : NERtcCallTypeVideo;
+  __weak typeof(self) weakSelf = self;
+
+  [[NERtcCallKit sharedInstance]
+      switchCallType:type
+           withState:NERtcSwitchStateInvite
+          completion:^(NSError *_Nullable error) {
+            weakSelf.mediaSwitchBtn.maskBtn.enabled = YES;
+            if (error == nil) {
+              NSLog(@"切换成功 : %lu", type);
+              if (type == NERtcCallTypeVideo && [SettingManager.shareInstance isVideoConfirm]) {
+                [weakSelf showBannerView];
+              } else if (type == NERtcCallTypeAudio &&
+                         [SettingManager.shareInstance isAudioConfirm]) {
+                [weakSelf showBannerView];
+              }
+            } else {
+              [weakSelf.view ne_makeToast:[NSString stringWithFormat:@"切换失败:%@", error]];
+            }
+          }];
 }
 
 - (void)setupPSTNUI {
@@ -1053,7 +1051,8 @@
     break;
     case NERtcSwitchStateReject:
       [self hideBannerView];
-      [UIApplication.sharedApplication.keyWindow ne_makeToast:NSLocalizedString(@"reject_tip", nil)];
+      [UIApplication.sharedApplication.keyWindow
+          ne_makeToast:NSLocalizedString(@"reject_tip", nil)];
       break;
     default:
       break;
@@ -1232,11 +1231,10 @@
     closeBtn.backgroundColor = [UIColor clearColor];
     [closeBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [closeBtn setTitle:@"X" forState:UIControlStateNormal];
-    __weak typeof(self) weakSelf = self;
-//    [[closeBtn rac_signalForControlEvents:UIControlEventTouchUpInside]
-//        subscribeNext:^(__kindof UIControl *_Nullable x) {
-//          [weakSelf hideBannerView];
-//        }];
+
+    [closeBtn addTarget:self
+                  action:@selector(closeEvent)
+        forControlEvents:UIControlEventTouchUpInside];
     [closeBtn mas_makeConstraints:^(MASConstraintMaker *make) {
       make.top.bottom.right.equalTo(_bannerView);
       make.width.mas_equalTo(40);
@@ -1254,6 +1252,10 @@
     label.text = @"正在等待对方响应...";
   }
   return _bannerView;
+}
+
+- (void)closeEvent {
+  [self hideBannerView];
 }
 
 - (NEVideoView *)bigVideoView {

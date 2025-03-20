@@ -4,11 +4,10 @@ buildscript {
         google()
         mavenCentral()
         maven { url 'https://maven.faceunity.com/repository/maven-public/' }
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.4.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0"
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -30,7 +29,7 @@ task clean(type: Delete) {
 
 ext {
     compileSdkVersion = 34
-    buildToolsVersion = "34.0.0"
+    buildToolsVersion = "30.0.0"
     minSdkVersion = 21
     targetSdkVersion = 34
 
@@ -44,6 +43,7 @@ ext {
     BaseUrl = ''
     libs = new Libs()
     libs.nertc = new Libs.Nertc()
+    libs.im = new Libs.Im()
 }
 
 class Libs{
@@ -60,7 +60,7 @@ class Libs{
     static def alog = "com.netease.yunxin.kit:alog:1.1.0"
     static def kotlinxCoroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
     static def kotlinxCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
-    static def call = "com.netease.yunxin.kit.call:call:2.5.1"
+    static def call = "com.netease.yunxin.kit.call:call:3.5.3"
     static def okhttp = "com.squareup.okhttp3:okhttp:4.9.3"
     static def okhttpLoggingInterceptor = "com.squareup.okhttp3:logging-interceptor:4.9.3"
     static def retrofitCore = "com.squareup.retrofit2:retrofit:2.9.0"
@@ -71,5 +71,13 @@ class Libs{
         def segment = "com.netease.yunxin:nertc-segment:5.5.2"
     }
 
+    static class Im {
+        def basesdk = "com.netease.nimlib:basesdk:10.6.0"
+        def chatroom = "com.netease.nimlib:chatroom:10.6.0"
+        def push = "com.netease.nimlib:push:10.6.0"
+        def avsignalling = "com.netease.nimlib:avsignalling:10.6.0"
+    }
+
     static def nertc
+    static def im
 }

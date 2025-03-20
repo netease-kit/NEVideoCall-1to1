@@ -68,7 +68,6 @@ class CallKitUIService : XKitService {
                         observer: ResultObserver<Any?>?
                     ): Boolean {
                         val calledID = params[Constants.KEY_CALLED_ACC_ID] as String
-                        val callerID = params[Constants.KEY_CALLER_ACC_ID] as String
                         val callerType = params[Constants.KEY_CALL_TYPE] as Int
                         val pushConfig = params[Constants.KEY_CALL_PUSH_CONFIG] as? NECallPushConfig
                         val extraInfo = params[Constants.KEY_CALL_EXTRA_INFO] as? String
@@ -81,7 +80,6 @@ class CallKitUIService : XKitService {
                             params[Constants.KEY_CALL_PAGE_EXTRAS] as? MutableMap<String?, Any?>
                         val param = CallParam.Builder()
                             .callType(callerType)
-                            .callerAccId(callerID)
                             .calledAccId(calledID).apply {
                                 if (extraInfo != null) {
                                     callExtraInfo(extraInfo)

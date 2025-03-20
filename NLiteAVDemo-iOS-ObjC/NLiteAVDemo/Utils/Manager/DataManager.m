@@ -25,23 +25,28 @@
     [accids addObject:member.imAccid];
     [dict setObject:member forKey:member.imAccid];
   }
-  [NIMSDK.sharedSDK.userManager
-      fetchUserInfos:accids
-          completion:^(NSArray<NIMUser *> *_Nullable users, NSError *_Nullable error) {
-            NSMutableArray *usersArray = [[NSMutableArray alloc] init];
-            for (NIMUser *user in users) {
-              NEUser *neUser = [[NEUser alloc] init];
-              neUser.imAccid = user.userId;
-              neUser.mobile = user.userInfo.mobile;
-              neUser.avatar = user.userInfo.avatarUrl;
-              GroupCallMember *member = [dict objectForKey:neUser.imAccid];
-              neUser.uid = member.rtcUid;
-              neUser.state = member.state;
-              neUser.isOpenVideo = member.isOpenVideo;
-              [usersArray addObject:neUser];
-            }
-            completion(error, usersArray);
-          }];
+
+  [NIMSDK.sharedSDK.v2UserService getUserList:accids
+      success:^(NSArray<V2NIMUser *> *_Nonnull result) {
+        NSMutableArray *usersArray = [[NSMutableArray alloc] init];
+        for (V2NIMUser *user in result) {
+          NEUser *neUser = [[NEUser alloc] init];
+          neUser.imAccid = user.accountId;
+          neUser.mobile = user.mobile;
+          neUser.avatar = user.avatar;
+          GroupCallMember *member = [dict objectForKey:neUser.imAccid];
+          neUser.uid = member.rtcUid;
+          neUser.state = member.state;
+          neUser.isOpenVideo = member.isOpenVideo;
+          [usersArray addObject:neUser];
+        }
+        completion(nil, usersArray);
+      }
+      failure:^(V2NIMError *_Nonnull error) {
+        NSMutableArray *usersArray = [[NSMutableArray alloc] init];
+        completion(error.nserror, usersArray);
+      }];
 }
+
 
 @end

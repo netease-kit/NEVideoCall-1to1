@@ -50,6 +50,8 @@
 
 @property(nonatomic, assign) BOOL isPickLocalDefautImage;
 
+@property(nonatomic, strong) UITextField *modeTextField;
+
 @end
 
 @implementation NERtcSettingViewController
@@ -109,30 +111,32 @@
                     action:@selector(changeJoinRtc:)
           forControlEvents:UIControlEventValueChanged];
 
-  UILabel *initRtcLabel = [self createLabelWithText:@"是否呼叫时初始化rtc"];
+  UILabel *initRtcLabel = [self createLabelWithText:@"Rtc初始化模式"];
   [self.view addSubview:initRtcLabel];
   [initRtcLabel mas_makeConstraints:^(MASConstraintMaker *make) {
     make.left.equalTo(joinRtcLabel);
     make.top.equalTo(joinRtcLabel.mas_bottom).offset(20);
   }];
 
-  UISwitch *initSwitch = [[UISwitch alloc] init];
-  [self.view addSubview:initSwitch];
-  [initSwitch mas_makeConstraints:^(MASConstraintMaker *make) {
+  // Rtc 初始化模式 TextField
+  UITextField *textField = [self createTextField];
+  textField.translatesAutoresizingMaskIntoConstraints = NO;
+  [self.view addSubview:textField];
+  [textField mas_makeConstraints:^(MASConstraintMaker *make) {
+    make.left.equalTo(initRtcLabel.mas_right).offset(20);
     make.centerY.equalTo(initRtcLabel);
     make.right.mas_equalTo(-20);
   }];
-  [initSwitch setOn:[[SettingManager shareInstance] isGlobalInit]];
-  [initSwitch addTarget:self
-                 action:@selector(changeInitRtc:)
-       forControlEvents:UIControlEventValueChanged];
+  self.modeTextField = textField;
+  textField.text =
+      [NSString stringWithFormat:@"%d", [[[NECallEngine sharedInstance]
+                                            valueForKeyPath:@"context.initRtcMode"] intValue]];
 
   UILabel *timeoutLabel = [self createLabelWithText:@"超时时间:"];
 
   [self.view addSubview:timeoutLabel];
   [timeoutLabel mas_makeConstraints:^(MASConstraintMaker *make) {
     make.left.mas_equalTo(20);
-    //      make.top.mas_equalTo(20);
     make.top.equalTo(initRtcLabel.mas_bottom).offset(20);
   }];
 
@@ -149,7 +153,6 @@
   self.timeoutField.keyboardType = UIKeyboardTypeNumberPad;
   self.timeoutField.attributedPlaceholder = [self getPlaceholderWithFont:self.timeoutField.font
                                                                 withText:@"输入超时时间，单位(秒)"];
-  //    [self.timeoutField becomeFirstResponder];
 
   CGFloat space = 20.0;
 
@@ -419,6 +422,16 @@
 }
 
 - (void)saveSetting {
+  NSString *initMode = self.modeTextField.text;
+  NSInteger initModeInt = [initMode integerValue];
+  if (initModeInt < 1 || initModeInt > 3) {
+    [UIApplication.sharedApplication.keyWindow ne_makeToast:@"初始化模式值为1-3区间整数"];
+    return;
+  }
+
+  [[NECallEngine sharedInstance] setValue:[NSNumber numberWithInteger:initModeInt]
+                               forKeyPath:@"context.initRtcMode"];
+
   NSString *time = self.timeoutField.text;
   if (time.length <= 0) {
     [self.timeoutField resignFirstResponder];
@@ -588,10 +601,6 @@
 - (UIScrollView *)contentScroll {
   if (!_contentScroll) {
     _contentScroll = [[UIScrollView alloc] init];
-    //        [_contentScroll addSubview:self.stackView];
-    //        [self.stackView mas_makeConstraints:^(MASConstraintMaker *make) {
-    //            make.edges.equalTo(_contentScroll);
-    //        }];
     _contentScroll.bounces = YES;
   }
   return _contentScroll;

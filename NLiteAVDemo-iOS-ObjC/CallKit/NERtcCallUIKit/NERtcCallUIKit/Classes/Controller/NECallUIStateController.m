@@ -385,7 +385,7 @@ navigation
     NSLog(@"show my big view");
     self.smallVideoView.maskView.hidden = !self.mainController.isRemoteMute;
     self.bigVideoView.maskView.hidden = !self.operationView.cameraBtn.selected;
-    self.bigVideoView.userID = NIMSDK.sharedSDK.loginManager.currentAccount;
+    self.bigVideoView.userID = [[NIMSDK sharedSDK].v2LoginService getLoginUser];
     self.smallVideoView.userID = self.callParam.remoteUserAccid;
   } else {
     [[NECallEngine sharedInstance] setupLocalView:self.smallVideoView.videoView];
@@ -394,7 +394,7 @@ navigation
     self.bigVideoView.maskView.hidden = !self.mainController.isRemoteMute;
     self.smallVideoView.maskView.hidden = !self.operationView.cameraBtn.selected;
     self.bigVideoView.userID = self.callParam.remoteUserAccid;
-    self.smallVideoView.userID = NIMSDK.sharedSDK.loginManager.currentAccount;
+    self.smallVideoView.userID = [[NIMSDK sharedSDK].v2LoginService getLoginUser];
   }
 }
 

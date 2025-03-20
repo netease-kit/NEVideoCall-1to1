@@ -6,13 +6,13 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.netease.yunxin.nertc.ui">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -35,6 +35,12 @@
             android:name=".base.TransferHelperActivity"
             android:configChanges="uiMode|screenSize|smallestScreenSize|orientation|keyboardHidden|keyboard|navigation|screenLayout|fontScale|locale|layoutDirection|density"
             android:theme="@style/TranslucentStyle" />
+
+        <activity
+            android:name=".p2p.P2PCallActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
 
         <activity
             android:name=".p2p.P2PCallFragmentActivity"

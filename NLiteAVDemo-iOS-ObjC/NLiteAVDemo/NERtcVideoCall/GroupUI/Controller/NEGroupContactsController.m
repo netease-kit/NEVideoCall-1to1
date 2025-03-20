@@ -17,7 +17,6 @@
 #import "NESectionHeaderView.h"
 #import "NSArray+NTES.h"
 #import "NSMacro.h"
-#import <NERtcCallUIKit/NetManager.h>
 
 @interface NEGroupContactsController () <UITextFieldDelegate,
                                          NIMChatManagerDelegate,
@@ -25,7 +24,7 @@
                                          UITableViewDataSource,
                                          SearchCellDelegate,
                                          NEGroupUserDelegagte,
-                                         NIMChatManagerDelegate>
+                                         V2NIMMessageListener>
 @property(nonatomic, strong) UIView *searchBarView;
 @property(nonatomic, strong) UITextField *textField;
 
@@ -69,7 +68,7 @@
     [self loadHistoryData];
     self.totalCount = GroupCallUserLimit;
     self.hasJoinCount = 1;
-    [[[NIMSDK sharedSDK] chatManager] addDelegate:self];
+    [[[NIMSDK sharedSDK] v2MessageService] addMessageListener:self];
   }
   return self;
 }
@@ -88,7 +87,7 @@
   }
   [self setupContent];
   [self setSetting];
-  NSLog(@"current accid : %@", NIMSDK.sharedSDK.loginManager.currentAccount);
+  NSLog(@"current accid : %@", [[NIMSDK sharedSDK].v2LoginService getLoginUser]);
 }
 
 - (void)setSetting {
@@ -378,26 +377,41 @@
   } else {
     NSLog(@"current user : %@", [NEAccount shared].userModel);
     NEUser *caller = [[NEUser alloc] init];
-    caller.imAccid = [NIMSDK.sharedSDK.loginManager currentAccount];
-    caller.avatar = [NIMSDK.sharedSDK.userManager userInfo:caller.imAccid].userInfo.avatarUrl;
-    caller.state = GroupMemberStateInChannel;
+    caller.imAccid = [NIMSDK.sharedSDK.v2LoginService getLoginUser];
 
-    NEGroupCallViewController *callController =
-        [[NEGroupCallViewController alloc] initWithCalled:NO withCaller:caller];
+    [NIMSDK.sharedSDK.v2UserService
+        getUserList:@[ caller.imAccid ]
+            success:^(NSArray<V2NIMUser *> *_Nonnull result) {
+              if (result.count < 1) {
+                return;
+              }
 
-    NSMutableArray *calledUsers = [[NSMutableArray alloc] init];
-    NSArray<NEUser *> *allValues = [self.flagDic allValues];
-    for (NEUser *user in allValues) {
-      NEUser *copyUser = [user getCopy];
-      copyUser.state = GroupMemberStateWaitting;
-      [calledUsers addObject:copyUser];
-    }
+              V2NIMUser *user = result.firstObject;
+              caller.avatar = user.avatar;
+              caller.state = GroupMemberStateInChannel;
 
-    [calledUsers insertObject:caller atIndex:0];
+              NEGroupCallViewController *callController =
+                  [[NEGroupCallViewController alloc] initWithCalled:NO withCaller:caller];
 
-    [callController addUser:calledUsers];
-    callController.modalPresentationStyle = UIModalPresentationFullScreen;
-    [self.navigationController presentViewController:callController animated:YES completion:nil];
+              NSMutableArray *calledUsers = [[NSMutableArray alloc] init];
+              NSArray<NEUser *> *allValues = [self.flagDic allValues];
+              for (NEUser *user in allValues) {
+                NEUser *copyUser = [user getCopy];
+                copyUser.state = GroupMemberStateWaitting;
+                [calledUsers addObject:copyUser];
+              }
+
+              [calledUsers insertObject:caller atIndex:0];
+
+              [callController addUser:calledUsers];
+              callController.modalPresentationStyle = UIModalPresentationFullScreen;
+              [self.navigationController presentViewController:callController
+                                                      animated:YES
+                                                    completion:nil];
+            }
+            failure:^(V2NIMError *_Nonnull error){
+
+            }];
   }
 }
 
@@ -461,7 +475,7 @@
       user = self.searchHistoryData[indexPath.row];
     }
   }
-  if ([user.imAccid isEqualToString:NIMSDK.sharedSDK.loginManager.currentAccount]) {
+  if ([user.imAccid isEqualToString:[NIMSDK.sharedSDK.v2LoginService getLoginUser]]) {
     [UIApplication.sharedApplication.keyWindow ne_makeToast:@"不能呼叫自己"];
     return;
   }
@@ -624,22 +638,6 @@
 }
 
 - (void)testAccid:(NSString *)accid {
-  NIMSession *session = [NIMSession session:accid type:NIMSessionTypeP2P];
-
-  // 构造自定义消息附件
-  NIMCustomObject *object = [[NIMCustomObject alloc] init];
-  Attachment *attachment = [[Attachment alloc] init];
-  object.attachment = attachment;
-
-  // 构造出具体消息并注入附件
-  NIMMessage *message = [[NIMMessage alloc] init];
-  message.messageObject = object;
-
-  // 错误反馈对象
-  NSError *error = nil;
-
-  // 发送消息
-  [[NIMSDK sharedSDK].chatManager sendMessage:message toSession:session error:&error];
 }
 
 #pragma mark - call view status delegate
@@ -648,19 +646,4 @@
   [[NSNotificationCenter defaultCenter] postNotificationName:NERECORDADD object:model];
 }
 
-//- (void)sendMessage:(NIMMessage *)message didCompleteWithError:(NSError *)error {
-//    NSLog(@"send complete : %@", error);
-//    if (error == nil) {
-//        [[UIApplication sharedApplication].keyWindow ne_makeToast:@"自定义消息发送成功"];
-//    }
-//}
-//
-//- (void)onRecvMessages:(NSArray<NIMMessage *> *)messages {
-//    NSLog(@"contacts onRecvMessages : %lu", (unsigned long)messages.count);
-//    for (NIMMessage *message in messages) {
-//        if (message.messageType == NIMMessageTypeCustom) {
-//            [[UIApplication sharedApplication].keyWindow ne_makeToast:@"收到消息"];
-//        }
-//    }
-//}
 @end
