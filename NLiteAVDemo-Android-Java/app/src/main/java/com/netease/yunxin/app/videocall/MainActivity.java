@@ -34,6 +34,7 @@ import com.netease.nimlib.sdk.v2.auth.model.V2NIMLoginClient;
 import com.netease.yunxin.app.videocall.login.model.AuthManager;
 import com.netease.yunxin.app.videocall.login.ui.LoginActivity;
 import com.netease.yunxin.app.videocall.nertc.biz.CallOrderManager;
+import com.netease.yunxin.app.videocall.nertc.ui.CallModeType;
 import com.netease.yunxin.app.videocall.nertc.ui.NERTCSelectCallUserActivity;
 import com.netease.yunxin.nertc.ui.CallKitUI;
 
@@ -132,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
           if (!AuthManager.getInstance().isLogin()) {
             LoginActivity.startLogin(this);
           } else {
-            NERTCSelectCallUserActivity.startSelectUser(this);
+            NERTCSelectCallUserActivity.startSelectUser(this, CallModeType.PSTN_1V1_AUDIO_CALL);
           }
         });
 
@@ -141,10 +142,10 @@ public class MainActivity extends AppCompatActivity {
           if (!AuthManager.getInstance().isLogin()) {
             LoginActivity.startLogin(this);
           } else {
-//            NERTCSelectCallUserActivity.startSelectUser(
-//                this,
-//                CallModeType.RTC_GROUP_CALL,
-//                Collections.singletonList(ProfileManager.getInstance().getUserModel().imAccid));
+            NERTCSelectCallUserActivity.startSelectUser(
+                this,
+                CallModeType.RTC_GROUP_CALL,
+                Collections.singletonList(AuthManager.getInstance().getUserModel().imAccid));
           }
         });
     rlyGroupCall.setVisibility(View.VISIBLE);
