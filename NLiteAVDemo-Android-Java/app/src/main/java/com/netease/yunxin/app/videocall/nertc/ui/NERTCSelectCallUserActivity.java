@@ -416,7 +416,7 @@ public class NERTCSelectCallUserActivity extends AppCompatActivity {
 
         CallParam param =
             new CallParam.Builder()
-                .callType(NECallType.VIDEO)
+                .callType(NECallType.AUDIO)
                 .calledAccId(data.imAccid)
                 .callExtraInfo(extraInfo.toString())
                 .build();
