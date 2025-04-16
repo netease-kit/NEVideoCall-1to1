@@ -103,7 +103,10 @@ object CallUIOperationsMgr {
             this@CallUIOperationsMgr.timer?.cancel()
             this@CallUIOperationsMgr.timer = null
             this@CallUIOperationsMgr.timeTickConfig = null
-            this@CallUIOperationsMgr.foregroundServiceConfig?.stopService(true)
+            this@CallUIOperationsMgr.foregroundServiceConfig?.stopService(
+                callEngine.callInfo.callType,
+                true
+            )
             this@CallUIOperationsMgr.doVirtualBlurInner(false)
         }
     }
@@ -162,7 +165,7 @@ object CallUIOperationsMgr {
      * 启动前台服务
      */
     fun startService() {
-        this.foregroundServiceConfig?.startService()
+        this.foregroundServiceConfig?.startService(callInfoWithUIState.callParam.callType)
     }
 
     /**
@@ -181,7 +184,7 @@ object CallUIOperationsMgr {
             )
             return
         }
-        this.foregroundServiceConfig?.stopService(force)
+        this.foregroundServiceConfig?.stopService(callInfoWithUIState.callParam.callType, force)
         this.foregroundServiceConfig = null
         this.toSwitchCallTypeInfo = null
         this.callInfoWithUIState = CallInfoWithUIState()
@@ -666,20 +669,21 @@ object CallUIOperationsMgr {
         private var serviceId: String? = null
         private var context = context.applicationContext
 
-        fun startService() {
+        fun startService(callType: Int) {
             serviceId = CallForegroundService.launchForegroundService(
                 context,
                 intent,
+                callType,
                 notificationConfig
             )
         }
 
-        fun stopService(force: Boolean = false) {
+        fun stopService(callType: Int, force: Boolean = false) {
             if (force) {
-                CallForegroundService.stopService(context)
+                CallForegroundService.stopService(context, callType)
             } else {
                 serviceId?.run {
-                    CallForegroundService.stopService(context, this)
+                    CallForegroundService.stopService(context, callType, this)
                 }
             }
             serviceId = null

@@ -16,25 +16,26 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.netease.yunxin.kit.alog.ALog
+import com.netease.yunxin.kit.call.p2p.model.NECallType
 import com.netease.yunxin.nertc.ui.CallKitNotificationConfig
 import com.netease.yunxin.nertc.ui.R
 import java.util.UUID
 
-class CallForegroundService : Service() {
+open class CallForegroundService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
-        ALog.d(LOG_TAG, "onCreate:$serviceId,$isRunning")
+        ALog.d(TAG, "onCreate:$serviceId,$isRunning")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        ALog.d(LOG_TAG, "onStartCommand:$isRunning")
+        ALog.d(TAG, "onStartCommand:$isRunning")
         isRunning = true
         val tempIntent = intent ?: return super.onStartCommand(null, flags, startId)
         serviceId = tempIntent.getStringExtra(KEY_SERVICE_ID)
-        ALog.d(LOG_TAG, "onStartCommand:$serviceId")
+        ALog.d(TAG, "onStartCommand:$serviceId")
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             return super.onStartCommand(intent, flags, startId)
         }
@@ -94,7 +95,7 @@ class CallForegroundService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        ALog.d(LOG_TAG, "onDestroy:$serviceId")
+        ALog.d(TAG, "onDestroy:$serviceId")
         isRunning = false
         serviceId = null
     }
@@ -105,7 +106,7 @@ class CallForegroundService : Service() {
 
         const val CALL_FOREGROUND_NOTIFICATION_ID = 1026
 
-        private const val LOG_TAG = "CallForegroundService"
+        private const val TAG = "CallForegroundService"
 
         private const val KEY_PENDING_INTENT = "call_pendingIntent"
 
@@ -124,33 +125,42 @@ class CallForegroundService : Service() {
         fun launchForegroundService(
             context: Context,
             intent: Intent,
+            callType: Int,
             config: CallKitNotificationConfig? = null
         ): String {
-            ALog.d(LOG_TAG, "launchForegroundService:$serviceId")
+            ALog.d(TAG, "launchForegroundService:$serviceId")
             this.notificationConfig = config
             val uuid = UUID.randomUUID().toString()
-            launchService(context, intent, uuid)
+            launchService(context, intent, callType, uuid)
             serviceId = uuid
             return uuid
         }
 
         @JvmStatic
         @JvmOverloads
-        fun stopService(context: Context, serviceId: String? = null) {
-            ALog.d(LOG_TAG, "stopService:${this.serviceId},$serviceId")
+        fun stopService(context: Context, callType: Int, serviceId: String? = null) {
+            ALog.d(TAG, "stopService:${this.serviceId},$serviceId")
             if (serviceId != null && serviceId != this.serviceId) {
                 return
             }
             try {
-                context.stopService(Intent(context, CallForegroundService::class.java))
+                context.stopService(
+                    Intent(
+                        context,
+                        if (callType == NECallType.VIDEO) VideoCallForegroundService::class.java else AudioCallForegroundService::class.java
+                    )
+                )
                 this.serviceId = null
             } catch (ignored: Throwable) {
             }
         }
 
-        private fun launchService(context: Context, extraInfo: Intent, serviceId: String) {
-            ALog.d(LOG_TAG, "launchService:$serviceId")
-            val intent = Intent(context, CallForegroundService::class.java).apply {
+        private fun launchService(context: Context, extraInfo: Intent, callType: Int, serviceId: String) {
+            ALog.d(TAG, "launchService:$serviceId")
+            val intent = Intent(
+                context,
+                if (callType == NECallType.VIDEO) VideoCallForegroundService::class.java else AudioCallForegroundService::class.java
+            ).apply {
                 putExtra(KEY_PENDING_INTENT, extraInfo)
                 putExtra(KEY_SERVICE_ID, serviceId)
             }

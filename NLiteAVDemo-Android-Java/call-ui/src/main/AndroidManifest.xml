@@ -54,7 +54,8 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
 
-        <service android:name=".service.CallForegroundService" android:foregroundServiceType="microphone|camera"/>
+        <service android:name=".service.VideoCallForegroundService" android:foregroundServiceType="microphone|camera"/>
+        <service android:name=".service.AudioCallForegroundService" android:foregroundServiceType="microphone"/>
 
     </application>
 
