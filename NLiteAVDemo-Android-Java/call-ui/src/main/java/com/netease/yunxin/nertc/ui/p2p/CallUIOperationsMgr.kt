@@ -104,7 +104,7 @@ object CallUIOperationsMgr {
             this@CallUIOperationsMgr.timer = null
             this@CallUIOperationsMgr.timeTickConfig = null
             this@CallUIOperationsMgr.foregroundServiceConfig?.stopService(
-                callEngine.callInfo.callType,
+                callInfoWithUIState.callParam.callType,
                 true
             )
             this@CallUIOperationsMgr.doVirtualBlurInner(false)
