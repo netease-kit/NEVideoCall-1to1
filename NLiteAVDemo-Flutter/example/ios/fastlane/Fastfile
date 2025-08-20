@@ -1,0 +1,138 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+platform :ios do
+
+  before_all do
+      # 如果你用 pod install
+      # cocoapods
+      ENV["FASTLANE_PASSWORD"] = "E89WnbHG"
+      ENV["FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD"] = "rksr-dzvn-wrla-qffr"
+      ENV["FASTLANE_SESSION"] = '---\n- !ruby/object:HTTP::Cookie\n  name: DES58082c493930089423b3c4f5edd3048b1\n  value: HSARMTKNSRVXWFlaV6hHgzKEZYcrMuMxxH9DPJ1wsOngpkU5NJx7djIHmAjXd9RPnS39kVZA/wWvwGwT6se2aq/R3yA6d9UHFiE21EG2NoNf+d5nplplvOnAsU+NeaRLtOM7t0HGkQ==SRVX\n  domain: idmsa.apple.com\n  for_domain: true\n  path: "/"\n  secure: true\n  httponly: true\n  expires: \n  max_age: 2592000\n  created_at: 2020-12-04 09:33:42.634226000 +08:00\n  accessed_at: 2020-12-21 22:19:07.404843000 +08:00\n- !ruby/object:HTTP::Cookie\n  name: myacinfo\n  value: DAWTKNV2096822b2fd43b2c96d0b8c8b052fb22c69a3f0415c183e5c15ae8e35d9a23d723c719b505ae195416652d927038bba86d7c05267eef631567bd38f0c2b5c0b8560e1ba44fc28a6aff99006213b83baf0fe1747598b8c3423e7afb643fd0ec81fe93e4719667c1f58c4c496bb15d28d0c317c1d0e01c65790d8f90ab1906f6ad8a38bf641704d5ba6bdc5609dbf3ac39e857a77a655c456598f917203f35060f2378249d2f84b71b268b835b9a7d0592260f77ad10e442ac7b53acd29b3b7b4d7856e898ffc43ee428eae9e565a9f3274b3e62b1bfbc89de6d25fad034d7caa2745438d026400c610da13931779f252ce6137a573da22099411f4d6218febc9a57ad4f5b4936d53274c21daa85f97686c37333066386266636665353635303837353139303966313662666166373735346337653866313333MVRYV2\n  domain: apple.com\n  for_domain: true\n  path: "/"\n  secure: true\n  httponly: true\n  expires: \n  max_age: \n  created_at: 2020-12-21 22:19:09.674199000 +08:00\n  accessed_at: 2020-12-21 22:19:09.674749000 +08:00\n- !ruby/object:HTTP::Cookie\n  name: dqsid\n  value: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MDg1NjAzNTAsImp0aSI6InVSUk96bXdMZzE0WlFXQTJybkRWQ3cifQ.mpalW9fEUOeF4Erm-EiiKehlrWlUT9AWQ6wDze5vLgg\n  domain: appstoreconnect.apple.com\n  for_domain: false\n  path: "/"\n  secure: true\n  httponly: true\n  expires: \n  max_age: 1800\n  created_at: &1 2020-12-21 22:19:10.876837000 +08:00\n  accessed_at: *1\n'
+  end
+
+  # -------------- enterprise -------------- #
+  desc "Build enterprise"
+    lane :build_enterprise do |options|
+  #     increment_build_number_in_plist(
+  #       build_number: options[:build_number]
+  #     )
+
+  #    increment_version_number_in_plist(
+  #      target: '~~~~~~~',
+  #      version_number: '1.0.3'
+  #    )
+
+      update_app_identifier(
+        app_identifier: "com.netease.yunxin.app.party",
+        plist_path: "Runner/Info.plist",
+      )
+#       automatic_code_signing(
+#         team_id: "569GNZ5392",
+#         profile_name:"nim_flutter_meeting_dis"
+#       )
+      gym(
+        configuration: "Release",
+        scheme: "Runner",
+        clean: true,
+        include_bitcode: false,
+        include_symbols: options[:with_archive],
+        export_method: 'enterprise',
+        archive_path: options[:archive_path],
+        output_directory: options[:output_directory],
+        output_name: options[:output_name],
+        export_options: "fastlane/options/EnterpriseExportOptions.plist"
+      )
+    end
+
+  # -------------- testflight -------------- #
+  desc "Build and upload a PROD app to TestFlight"
+  lane :release_testflight do
+    build_appstore
+    upload_testflight
+  end
+  lane :build_appstore do |options|
+#    increment_build_number_in_plist(
+#      build_number: options[:build_number]
+#    )
+#    increment_version_number_in_plist(
+#      target: '~~~~~~~',
+#      version_number: '1.0.3'
+#    )
+
+    update_app_identifier(
+      app_identifier: "com.netease.yunxin.app.party",
+      plist_path: "Runner/Info.plist",
+    )
+    automatic_code_signing(
+      team_id: "J669Y64Z9Y",
+      profile_name:"enterpriseForWildCard"
+    )
+    gym(
+      configuration: "Release",
+      scheme: "Runner",
+      clean: true,
+      include_bitcode: false,
+      include_symbols: true,
+      export_method: 'app-store',
+      export_xcargs: "-allowProvisioningUpdates",
+      archive_path: options[:archive_path],
+      output_directory: options[:output_directory],
+      output_name: options[:output_name],
+      export_options: 'fastlane/options/AppStoreExportOptions.plist'
+    )
+  end
+
+  lane :upload_testflight do |options|
+    upload_to_testflight(
+      beta_app_review_info: {
+        contact_email: "liuqijun@corp.netease.com",
+        contact_first_name: "liu",
+        contact_last_name: "qijun",
+        contact_phone: "186 6811 7515",
+        demo_account_name: "17072603943",
+        demo_account_password: "12345678",
+        notes: "适用于fastlane自动打包上传提审等操作 thank you for reviewing"
+      },
+      localized_build_info: {
+        "default": {
+          whats_new: "",
+        },
+        "en-GB": {
+              whats_new: "",
+        }
+      },
+
+      #true就不自动提审了
+      skip_waiting_for_build_processing: true,
+      skip_submission:false,
+      username: "liuqijun@corp.netease.com",
+      app_identifier: "com.netease.meeting",
+      beta_app_feedback_email:"liuqijun@corp.netease.com",
+      beta_app_description:"修复一些已知问题",
+      demo_account_required: true,
+      #构建是否应该分发给外部测试人员？
+      distribute_external: true,
+      notify_external_testers: true,
+      groups:"外部用户01",
+      changelog:"修复一些已知问题",
+      beta_app_feedback_email:"liuqijun@corp.netease.com",
+      ipa: options[:ipa_path]
+    )
+  end
+  # -------------- testflight -------------- #
+end

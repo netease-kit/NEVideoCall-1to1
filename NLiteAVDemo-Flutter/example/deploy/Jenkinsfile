@@ -1,0 +1,170 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
+pipeline {
+    agent {
+        label 'master'
+    }
+    options {
+        timestamps()
+        retry(1)
+    }
+    environment {
+        APP_NAME = "网易会议"
+        REPO_URL = 'ssh://git@g.hz.netease.com:22222/meeting/meeting-flutter.git'
+        CREDENTIALS_ID = '70eb04cf-37b7-47de-ae19-f23fed310c85'
+        NODE_PWD = credentials('NODE_PWD')
+        USER_NAME = "${currentBuild.getBuildCauses()[0].userId}"
+    }
+    parameters {
+        //string(name: 'buildBranch', defaultValue: 'release/integration', description: 'The build branch name.')
+        choice(name: 'buildEnv', choices:['test', 'online'], description: 'The build environment.')
+        choice(name: 'platform', choices:['All', 'Android', 'iOS'], description: 'The target platform to build.')
+        choice(name: 'backupDir', choices:['nightly', 'publish', '--'], description: 'The artifacts backup directory. Use -- to skip')
+        choice(name: 'xcodeExportMethod', choices:["enterprise", "app-store", "validation", "ad-hoc", "package", "development", "developer-id"], description: 'Describes how Xcode should export the archive.')
+    }
+    triggers {
+        gitlab(triggerOnPush: true, triggerOnMergeRequest: true, branchFilterType: 'All')
+    }
+    stages {
+        stage('Print Build Env') {
+            steps {
+                sh "set"
+                echo "${currentBuild.getBuildCauses()[0].toString()}"
+            }
+        }
+        stage('Build for CI') {
+            when {
+                beforeAgent true
+                not {
+                    triggeredBy cause: 'UserIdCause'
+                }
+//                 anyOf {
+//                     triggeredBy "gitlab"
+//                     triggeredBy "SCMTrigger"
+//                 }
+            }
+            parallel {
+                stage('Android CI') {
+                    agent {
+                        label "App-macOS-Low"
+                    }
+                    steps {
+                        updateGitlabCommitStatus name: 'Android CI', state: 'running'
+//                         echo "Checkout code"
+//                         checkout([
+//                                 $class    : 'GitSCM',
+//                                 branches  : [[name: env.gitlabBranch]],
+//                                 extensions: [[$class: 'CloneOption', timeout: 3600], [$class: 'SubmoduleOption', parentCredentials: true, recursiveSubmodules: true, disableSubmodules: false, reference: '', trackingSubmodules: false]], userRemoteConfigs: [[credentialsId: env.CREDENTIALS_ID, url: env.REPO_URL]]])
+                        echo "Compile Android"
+                        sh "./deploy/build.sh Android ${params.buildEnv}"
+                    }
+
+                    post {
+                        failure {
+                            updateGitlabCommitStatus name: 'Android CI', state: 'failed'
+                        }
+                        unstable {
+                            updateGitlabCommitStatus name: 'Android CI', state: 'failed'
+                        }
+                        aborted {
+                            updateGitlabCommitStatus name: 'Android CI', state: 'canceled'
+                        }
+                        success {
+                            updateGitlabCommitStatus name: 'Android CI', state: 'success'
+                        }
+                    }
+                }
+                stage('iOS CI') {
+                    agent {
+                        label "App-macOS"
+                    }
+                    steps {
+                        updateGitlabCommitStatus name: 'iOS CI', state: 'running'
+//                         echo "Checkout code"
+//                         checkout([$class    : 'GitSCM', branches: [[name: env.gitlabBranch]],
+//                                   extensions: [[$class: 'CloneOption', timeout: 3600], [$class: 'SubmoduleOption', parentCredentials: true, recursiveSubmodules: true, disableSubmodules: false, reference: '', trackingSubmodules: false]], userRemoteConfigs: [[credentialsId: env.CREDENTIALS_ID, url: env.REPO_URL]]])
+                        echo "Compile iOS"
+                        sh "security unlock-keychain -p ${env.NODE_PWD} '/Users/yunxin/Library/Keychains/login.keychain-db'"
+                        sh "./deploy/build.sh iOS ${params.buildEnv}"
+                    }
+
+                    post {
+                        failure {
+                            updateGitlabCommitStatus name: 'iOS CI', state: 'failed'
+                        }
+                        unstable {
+                            updateGitlabCommitStatus name: 'iOS CI', state: 'failed'
+                        }
+                        aborted {
+                            updateGitlabCommitStatus name: 'iOS CI', state: 'canceled'
+                        }
+                        success {
+                            updateGitlabCommitStatus name: 'iOS CI', state: 'success'
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Build for Pack') {
+            when {
+                beforeAgent true
+                triggeredBy cause: 'UserIdCause'
+            }
+            // environment {
+            //     GIT_BRANCH = "${params.buildBranch}"
+            // }
+            parallel {
+                stage('Android Pack') {
+                    agent {
+                        label 'App-macOS'
+                    }
+                    when {
+                        anyOf {
+                            equals expected: 'Android', actual: params.platform
+                            equals expected: 'All', actual: params.platform
+                        }
+                    }
+                    steps {
+                        // echo 'Checkout code'
+                        // checkout([
+                        // $class: 'GitSCM',
+                        // branches: [[name: params.buildBranch]],
+                        // extensions: [[$class: 'CloneOption', timeout: 3600], [$class: 'SubmoduleOption', parentCredentials: true, recursiveSubmodules: true, disableSubmodules: false, reference: '', trackingSubmodules: false]], userRemoteConfigs: [[credentialsId: env.CREDENTIALS_ID, url: env.REPO_URL]]])
+                        echo 'Pack Android'
+                        sh "./deploy/build.sh Android ${params.buildEnv} ${params.backupDir}"
+                    }
+                }
+
+                stage('iOS Pack') {
+                    agent {
+                        label 'App-macOS'
+                    }
+                    when {
+                        anyOf {
+                            equals expected: 'iOS', actual: params.platform
+                            equals expected: 'All', actual: params.platform
+                        }
+                    }
+                    steps {
+                        // echo 'Checkout code'
+                        // checkout([
+                        //     $class: 'GitSCM',
+                        //     branches: [[name: params.buildBranch]],
+                        //     extensions: [[$class: 'CloneOption', timeout: 3600], [$class: 'SubmoduleOption', parentCredentials: true, recursiveSubmodules: true, disableSubmodules: false, reference: '', trackingSubmodules: false]], userRemoteConfigs: [[credentialsId: env.CREDENTIALS_ID, url: env.REPO_URL]]])
+                        echo 'Pack iOS'
+                        sh "security unlock-keychain -p ${env.NODE_PWD} '/Users/yunxin/Library/Keychains/login.keychain-db'"
+                        sh "./deploy/build.sh iOS ${params.buildEnv} ${params.xcodeExportMethod} ${params.backupDir}"
+                    }
+                }
+            }
+        }
+    }
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}

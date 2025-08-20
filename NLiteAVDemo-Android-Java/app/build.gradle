@@ -36,7 +36,7 @@ android {
         pickFirst 'lib/armeabi-v7a/libc++_shared.so'
     }
 
-    def appKey = "Here, please fill your appKey!!!"
+    def appKey = "56813bdfbaa1c2a29bbea391ffbbe27a"
 
     // app key for code
     defaultConfig {
