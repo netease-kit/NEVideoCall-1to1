@@ -81,17 +81,4 @@ public class CallingBellPlayer {
       mHandlerThread = null;
     }
   }
-
-  private void startPlayAudioByTRTC(String filepath, int id) {
-    NERtcCreateAudioMixingOption option = new NERtcCreateAudioMixingOption();
-    option.path = filepath;
-    option.loopCount = -1;
-    option.playbackVolume = 100;
-    option.playbackEnabled = true;
-    NERtcEx.getInstance().startAudioMixing(option);
-  }
-
-  private void stopPlayAudioByTRTC(int id) {
-    NERtcEx.getInstance().stopAudioMixing();
-  }
 }
