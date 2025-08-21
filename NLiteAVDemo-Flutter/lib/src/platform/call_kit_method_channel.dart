@@ -7,7 +7,6 @@ import 'package:netease_callkit_ui/src/event/event_notify.dart';
 import 'package:netease_callkit_ui/src/impl/call_manager.dart';
 import 'package:netease_callkit_ui/src/impl/call_state.dart';
 import 'package:netease_callkit_ui/src/data/constants.dart';
-import 'package:netease_callkit_ui/src/extensions/call_ui_logger.dart';
 import 'package:netease_callkit_ui/src/platform/call_kit_platform_interface.dart';
 import 'package:netease_callkit_ui/src/utils/permission.dart';
 
@@ -146,14 +145,6 @@ class MethodChannelNECallKit extends NECallKitPlatform {
   Future<void> closeMicrophone() async {
     if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
       await methodChannel.invokeMethod('closeMicrophone', {});
-    }
-  }
-
-  @override
-  Future<void> apiLog(TRTCLoggerLevel level, String logString) async {
-    if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
-      await methodChannel.invokeMethod(
-          'apiLog', {'level': level.index, 'logString': logString});
     }
   }
 

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:netease_callkit_ui/ne_callkit_ui.dart';
 import 'package:netease_callkit_ui/src/impl/boot.dart';
 import 'package:netease_callkit_ui/src/extensions/calling_bell_feature.dart';
-import 'package:netease_callkit_ui/src/extensions/call_ui_logger.dart';
 import 'package:netease_callkit_ui/src/platform/call_kit_platform_interface.dart';
 import 'package:netease_callkit_ui/src/ui/call_main_widget.dart';
 
 import '../impl/boot.dart';
 
 class NECallKitNavigatorObserver extends NavigatorObserver {
+  static const _tag = "NECallKitNavigatorObserver";
   static final NECallKitNavigatorObserver _instance =
       NECallKitNavigatorObserver();
   static bool isClose = true;
@@ -18,13 +19,13 @@ class NECallKitNavigatorObserver extends NavigatorObserver {
   }
 
   NECallKitNavigatorObserver() {
-    CallKitUILogger.info('NECallKitNavigatorObserver Init');
+    CallKitUILog.i(_tag, 'NECallKitNavigatorObserver Init');
     Boot.instance;
   }
 
   void enterCallingPage() async {
-    CallKitUILogger.info(
-        'NECallKitNavigatorObserver enterCallingPage：[isClose：$isClose]');
+    CallKitUILog.i(
+        _tag, 'NECallKitNavigatorObserver enterCallingPage：[isClose：$isClose]');
     print(
         'NECallKitNavigatorObserver enterCallingPage: isClose=$isClose, navigator=${navigator}');
     if (!isClose) {
@@ -52,7 +53,7 @@ class NECallKitNavigatorObserver extends NavigatorObserver {
   }
 
   void exitCallingPage() async {
-    CallKitUILogger.info(
+    CallKitUILog.i(_tag,
         'NECallKitNavigatorObserver exitCallingPage：[currentPage：$currentPage]');
     if (currentPage == CallPage.callingPage) {
       NECallKitNavigatorObserver.getInstance().navigator?.pop();

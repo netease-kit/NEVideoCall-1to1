@@ -2,14 +2,15 @@ import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:netease_callkit_ui/ne_callkit_ui.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:netease_callkit_ui/src/call_define.dart';
 import 'package:netease_callkit_ui/src/impl/call_state.dart';
-import 'package:netease_callkit_ui/src/extensions/call_ui_logger.dart';
 import 'package:netease_callkit_ui/src/platform/call_kit_platform_interface.dart';
 import 'package:netease_callkit_ui/src/utils/preference.dart';
 
 class CallingBellFeature {
+  static const _tag = "CallingBellFeature";
   static FileSystem fileSystem = const LocalFileSystem();
   static String keyRingPath = "key_ring_path";
   static String package = "packages/";
@@ -19,7 +20,7 @@ class CallingBellFeature {
   static String calledRingName = "avchat_ring.mp3";
 
   static Future<void> startRing() async {
-    CallKitUILogger.info('CallingBellFeature startRing');
+    CallKitUILog.i(_tag, 'CallingBellFeature startRing');
     String filePath =
         await PreferenceUtils.getInstance().getString(keyRingPath);
     if (filePath.isNotEmpty &&
@@ -61,7 +62,7 @@ class CallingBellFeature {
   }
 
   static Future<void> stopRing() async {
-    CallKitUILogger.info('CallingBellFeature stopRing');
+    CallKitUILog.i(_tag, 'CallingBellFeature stopRing');
     NECallKitPlatform.instance.stopRing();
   }
 

@@ -9,11 +9,11 @@ import 'package:netease_callkit_ui/src/impl/call_manager.dart';
 import 'package:netease_callkit_ui/src/data/constants.dart';
 import 'package:netease_callkit_ui/src/data/user.dart';
 import 'package:netease_callkit_ui/src/extensions/calling_bell_feature.dart';
-import 'package:netease_callkit_ui/src/extensions/call_ui_logger.dart';
 import 'package:netease_callkit_ui/src/platform/call_kit_platform_interface.dart';
 import 'package:netease_callkit_ui/src/utils/nim_utils.dart';
 
 class CallState {
+  static const String _tag = "CallState";
   static final CallState instance = CallState._internal();
 
   factory CallState() {
@@ -51,7 +51,7 @@ class CallState {
 
   final NECallEngineDelegate observer = NECallEngineDelegate(
     onReceiveInvited: (NEInviteInfo info) async {
-      CallKitUILogger.info(
+      CallKitUILog.i(_tag,
           'NECallObserver onReceiveInvited(callerAccId:${info.callerAccId}, callType:${info.callType})');
 
       // 处理来电逻辑
@@ -75,7 +75,7 @@ class CallState {
       }
     },
     onCallEnd: (NECallEndInfo info) {
-      CallKitUILogger.info(
+      CallKitUILog.i(_tag,
           'NECallObserver onCallEnd(reasonCode:${info.reasonCode}, message:${info.message})');
       if (info.reasonCode == NECallTerminalCode.busy) {
         CallManager.instance.showToast(CallKitUIL10n.localizations.userBusy);
@@ -101,7 +101,7 @@ class CallState {
       NECallKitPlatform.instance.updateCallStateToNative();
     },
     onCallConnected: (NECallInfo info) {
-      CallKitUILogger.info(
+      CallKitUILog.i(_tag,
           'NECallObserver onCallConnected(callId:${info.callId}, callType:${info.callType})');
       NECallKitPlatform.instance.startForegroundService();
       CallState.instance.startTime =
@@ -124,14 +124,14 @@ class CallState {
       NECallKitPlatform.instance.updateCallStateToNative();
     },
     onCallTypeChange: (NECallTypeChangeInfo info) {
-      CallKitUILogger.info(
+      CallKitUILog.i(_tag,
           'NECallObserver onCallTypeChange(callType:${info.callType}, state:${info.state})');
       CallState.instance.mediaType = info.callType;
       NEEventNotify().notify(setStateEvent);
       NECallKitPlatform.instance.updateCallStateToNative();
     },
     onVideoAvailable: (bool available, String userID) {
-      CallKitUILogger.info(
+      CallKitUILog.i(_tag,
           'NECallObserver onVideoAvailable(userId:$userID, isVideoAvailable:$available)');
       for (var remoteUser in CallState.instance.remoteUserList) {
         if (remoteUser.id == userID) {
@@ -143,13 +143,13 @@ class CallState {
       }
     },
     onVideoMuted: (bool muted, String userID) {
-      CallKitUILogger.info(
-          'NECallObserver onVideoMuted(userId:$userID, muted:$muted)');
+      CallKitUILog.i(
+          _tag, 'NECallObserver onVideoMuted(userId:$userID, muted:$muted)');
       // 处理视频静音逻辑
     },
     onAudioMuted: (bool muted, String userID) {
-      CallKitUILogger.info(
-          'NECallObserver onAudioMuted(userId:$userID, muted:$muted)');
+      CallKitUILog.i(
+          _tag, 'NECallObserver onAudioMuted(userId:$userID, muted:$muted)');
       for (var remoteUser in CallState.instance.remoteUserList) {
         if (remoteUser.id == userID) {
           remoteUser.audioAvailable = !muted;
@@ -160,23 +160,23 @@ class CallState {
       NECallKitPlatform.instance.updateCallStateToNative();
     },
     onLocalAudioMuted: (bool muted) {
-      CallKitUILogger.info('NECallObserver onLocalAudioMuted(muted:$muted)');
+      CallKitUILog.i(_tag, 'NECallObserver onLocalAudioMuted(muted:$muted)');
       CallState.instance.isMicrophoneMute = muted;
       NECallKitPlatform.instance.updateCallStateToNative();
     },
     onRtcInitEnd: () {
-      CallKitUILogger.info('NECallObserver onRtcInitEnd()');
+      CallKitUILog.i(_tag, 'NECallObserver onRtcInitEnd()');
       NECallKitPlatform.instance.updateCallStateToNative();
       // RTC 初始化完成
     },
     onRecordSend: (NERecordConfig config) {
-      CallKitUILogger.info(
-          'NECallObserver onRecordSend(accId:${config.accId})');
+      CallKitUILog.i(
+          _tag, 'NECallObserver onRecordSend(accId:${config.accId})');
       NECallKitPlatform.instance.updateCallStateToNative();
       // 处理话单发送
     },
     onNERtcEngineVirtualBackgroundSourceEnabled: (bool enabled, int reason) {
-      CallKitUILogger.info(
+      CallKitUILog.i(_tag,
           'NECallObserver onNERtcEngineVirtualBackgroundSourceEnabled(enabled:$enabled, reason:$reason)');
       // 处理虚拟背景
       NECallKitPlatform.instance.updateCallStateToNative();
@@ -186,7 +186,7 @@ class CallState {
   void init() {}
 
   Future<void> registerEngineObserver() async {
-    CallKitUILogger.info('CallState registerEngineObserver');
+    CallKitUILog.i(_tag, 'CallState registerEngineObserver');
     NECallEngine.instance.addCallDelegate(observer);
   }
 

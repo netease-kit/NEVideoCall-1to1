@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:netease_callkit_ui/ne_callkit_ui.dart';
 import 'package:netease_callkit_ui/src/call_define.dart';
 import 'package:netease_callkit_ui/src/event/event_notify.dart';
 import 'package:netease_callkit_ui/src/impl/call_manager.dart';
 import 'package:netease_callkit_ui/src/impl/call_state.dart';
 import 'package:netease_callkit_ui/src/data/constants.dart';
-import 'package:netease_callkit_ui/src/extensions/call_ui_logger.dart';
 import 'package:netease_callkit_ui/src/ui/widget/calls/calls_widget.dart';
 
 class NECallKitWidget extends StatefulWidget {
@@ -18,12 +18,13 @@ class NECallKitWidget extends StatefulWidget {
 }
 
 class _NECallKitWidgetState extends State<NECallKitWidget> {
+  static const String _tag = "NECallKitWidget";
   NEEventCallback? onCallEndCallBack;
 
   @override
   void initState() {
     super.initState();
-    CallKitUILogger.info('NECallKitWidget initState');
+    CallKitUILog.i(_tag, 'NECallKitWidget initState');
     if (CallState.instance.selfUser.callStatus == NECallStatus.none) {
       Future.microtask(() {
         widget.close();
@@ -58,7 +59,7 @@ class _NECallKitWidgetState extends State<NECallKitWidget> {
   @override
   void dispose() {
     super.dispose();
-    CallKitUILogger.info('NECallKitWidget dispose');
+    CallKitUILog.i(_tag, 'NECallKitWidget dispose');
     NEEventNotify().unregister(setStateEventOnCallEnd, onCallEndCallBack);
     CallManager.instance.enableWakeLock(false);
   }

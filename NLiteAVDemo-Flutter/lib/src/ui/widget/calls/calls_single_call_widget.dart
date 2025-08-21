@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:netease_callkit/netease_callkit.dart';
+import 'package:netease_callkit_ui/ne_callkit_ui.dart';
 import 'package:netease_callkit_ui/src/call_define.dart';
 import 'package:netease_callkit_ui/src/event/event_notify.dart';
-import 'package:netease_callkit_ui/src/extensions/call_ui_logger.dart';
 import 'package:netease_callkit_ui/src/ui/widget/calls/calls_user_widget_data.dart';
 import 'package:netease_callkit_ui/src/impl/call_manager.dart';
 import 'package:netease_callkit_ui/src/impl/call_state.dart';
@@ -124,7 +124,7 @@ class _CallsIndividualUserWidgetState extends State<CallsIndividualUserWidget> {
       avatar = StringStream.makeNull(
           CallState.instance.remoteUserList[0].avatar, Constants.defaultAvatar);
     }
-    CallKitUILogger.info(_tag, logTag: "_buildUserInfoWidget avatar = $avatar");
+    CallKitUILog.i(_tag, "_buildUserInfoWidget avatar = $avatar");
 
     final userInfoWidget = Positioned(
         top: MediaQuery.of(context).size.height / 4,
