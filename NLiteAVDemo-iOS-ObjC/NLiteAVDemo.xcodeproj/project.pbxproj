@@ -31,6 +31,7 @@
 		4BD10274271D12D600ACA3E4 /* NESectionHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BD10273271D12D600ACA3E4 /* NESectionHeaderView.m */; };
 		54AD12862CE3514C00F0F370 /* NECallUISettingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 54AD12852CE3514B00F0F370 /* NECallUISettingViewController.m */; };
 		65F51E0653EC27F8380D7A83 /* Pods_NLiteAVDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 890A3C73BFF223F57ED1181D /* Pods_NLiteAVDemo.framework */; };
+		84FAFE8F2E56CB5E00F3A51F /* avchat_ring.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 84FAFE8E2E56CB5E00F3A51F /* avchat_ring.mp3 */; };
 		C758CCDA24EB7F5A003C406A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C758CCD924EB7F5A003C406A /* AppDelegate.m */; };
 		C758CCE324EB7F5A003C406A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C758CCE124EB7F5A003C406A /* Main.storyboard */; };
 		C758CCE524EB7F5F003C406A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C758CCE424EB7F5F003C406A /* Assets.xcassets */; };
@@ -118,13 +119,14 @@
 		54AD12842CE3514B00F0F370 /* NECallUISettingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NECallUISettingViewController.h; sourceTree = "<group>"; };
 		54AD12852CE3514B00F0F370 /* NECallUISettingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NECallUISettingViewController.m; sourceTree = "<group>"; };
 		6AFFCCD18BE65F0020ACC0E8 /* Pods-OTODemo-NLiteAVDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTODemo-NLiteAVDemo.debug.xcconfig"; path = "Target Support Files/Pods-OTODemo-NLiteAVDemo/Pods-OTODemo-NLiteAVDemo.debug.xcconfig"; sourceTree = "<group>"; };
+		84FAFE8E2E56CB5E00F3A51F /* avchat_ring.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = avchat_ring.mp3; sourceTree = "<group>"; };
 		890A3C73BFF223F57ED1181D /* Pods_NLiteAVDemo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NLiteAVDemo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C3E631E57C6DCADE269362E /* Pods-NLiteAVDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NLiteAVDemo.debug.xcconfig"; path = "Target Support Files/Pods-NLiteAVDemo/Pods-NLiteAVDemo.debug.xcconfig"; sourceTree = "<group>"; };
 		A84D31FDFABDF2E2C364A07D /* Pods-OTODemo-NLiteAVDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTODemo-NLiteAVDemo.release.xcconfig"; path = "Target Support Files/Pods-OTODemo-NLiteAVDemo/Pods-OTODemo-NLiteAVDemo.release.xcconfig"; sourceTree = "<group>"; };
 		C728EEE32500D77D00D27176 /* AppKey.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppKey.h; sourceTree = "<group>"; };
 		C758CCD524EB7F5A003C406A /* videocall.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = videocall.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C758CCD824EB7F5A003C406A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		C758CCD924EB7F5A003C406A /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		C758CCD924EB7F5A003C406A /* AppDelegate.m */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		C758CCE224EB7F5A003C406A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		C758CCE424EB7F5F003C406A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C758CCE724EB7F5F003C406A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -321,6 +323,7 @@
 				C758CCD824EB7F5A003C406A /* AppDelegate.h */,
 				C758CCD924EB7F5A003C406A /* AppDelegate.m */,
 				C728EEE32500D77D00D27176 /* AppKey.h */,
+				84FAFE8E2E56CB5E00F3A51F /* avchat_ring.mp3 */,
 				C758CCE124EB7F5A003C406A /* Main.storyboard */,
 				C758CCE424EB7F5F003C406A /* Assets.xcassets */,
 				C758CCE624EB7F5F003C406A /* LaunchScreen.storyboard */,
@@ -622,6 +625,7 @@
 				C758CCE824EB7F5F003C406A /* LaunchScreen.storyboard in Resources */,
 				01C8348A28A9D5F700B87F45 /* Localizable.strings in Resources */,
 				C758CCE524EB7F5F003C406A /* Assets.xcassets in Resources */,
+				84FAFE8F2E56CB5E00F3A51F /* avchat_ring.mp3 in Resources */,
 				C758CCE324EB7F5A003C406A /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -8,18 +8,18 @@
 
 Pod::Spec.new do |s|
   s.name             = 'NERtcCallUIKit'
-  s.version          = '3.0.0'
+  s.version          = '3.6.0'
   s.summary          = 'Netease XKit'
   s.homepage         = 'http://netease.im'
   s.license          =  { :'type' => "Copyright", :'text' => " Copyright 2022 Netease " }
   s.author           = 'yunxin engineering department'
-  s.ios.deployment_target = '12.0'
+  s.ios.deployment_target = '13.0'
   s.source = { :http => "" }
   s.source_files = 'NERtcCallUIKit/Classes/**/*'
   s.resource = 'NERtcCallUIKit/Assets/**/*'
 
   s.subspec 'NOS' do |nos|
-    nos.dependency 'NERtcCallKit/NOS','3.0.0'
+    nos.dependency 'NERtcCallKit/NOS','3.6.0'
     nos.dependency 'SDWebImage'
     nos.dependency 'NECoreKit'
     nos.dependency 'NECommonKit'
@@ -28,7 +28,7 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'NOS_Special' do |nos|
-    nos.dependency 'NERtcCallKit/NOS_Special', '3.0.0'
+    nos.dependency 'NERtcCallKit/NOS_Special', '3.6.0'
     nos.dependency 'SDWebImage'
     nos.dependency 'NECoreKit'
     nos.dependency 'NECommonKit'
@@ -38,7 +38,7 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'FCS' do |fcs|
-    fcs.dependency 'NERtcCallKit/FCS','3.0.0'
+    fcs.dependency 'NERtcCallKit/FCS','3.6.0'
     fcs.dependency 'SDWebImage'
     fcs.dependency 'NECoreKit'
     fcs.dependency 'NECommonKit'
@@ -48,7 +48,7 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'FCS_Special' do |fcs|
-    fcs.dependency 'NERtcCallKit/FCS_Special', '3.0.0'
+    fcs.dependency 'NERtcCallKit/FCS_Special', '3.6.0'
     fcs.dependency 'SDWebImage'
     fcs.dependency 'NECoreKit'
     fcs.dependency 'NECommonKit'

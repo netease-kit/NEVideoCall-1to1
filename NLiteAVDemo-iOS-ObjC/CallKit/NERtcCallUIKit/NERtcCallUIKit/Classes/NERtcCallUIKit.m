@@ -69,7 +69,7 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
 
 @property(nonatomic, weak) NERtcVideoCanvas *canvas;
 
-@property(nonatomic, strong) UIView *maskView;
+@property(nonatomic, strong) UIView *coverView;
 
 @property(nonatomic, strong) UIImageView *remoteHeaderImageView;
 
@@ -253,22 +253,22 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
 // 设置应用外小窗远端关闭视频时候的占位视图
 - (void)setRemoteWithUrl:(NSString *)url withAccid:(NSString *)accid {
   YXAlogInfo(@"set url %@  set accid %@", url, accid);
-  [self.maskView removeFromSuperview];
+  [self.coverView removeFromSuperview];
   [self.remoteHeaderImageView removeFromSuperview];
-  self.maskView = [self getMaskView];
+  self.coverView = [self getCoverView];
   self.currentRemoteAccid = accid;
   self.remoteHeaderImageView = [self getRemoteHeaderImage];
   [self.remoteHeaderImageView sd_setImageWithURL:[NSURL URLWithString:url]
                                 placeholderImage:[UIImage imageNamed:@"avator"
                                                                           inBundle:self.bundle
                                                      compatibleWithTraitCollection:nil]];
-  [self.maskView addSubview:self.remoteHeaderImageView];
+  [self.coverView addSubview:self.remoteHeaderImageView];
   [NSLayoutConstraint activateConstraints:@[
-    [self.remoteHeaderImageView.centerXAnchor constraintEqualToAnchor:self.maskView.centerXAnchor],
-    [self.remoteHeaderImageView.centerYAnchor constraintEqualToAnchor:self.maskView.centerYAnchor],
-    [self.remoteHeaderImageView.widthAnchor constraintEqualToAnchor:self.maskView.widthAnchor
+    [self.remoteHeaderImageView.centerXAnchor constraintEqualToAnchor:self.coverView.centerXAnchor],
+    [self.remoteHeaderImageView.centerYAnchor constraintEqualToAnchor:self.coverView.centerYAnchor],
+    [self.remoteHeaderImageView.widthAnchor constraintEqualToAnchor:self.coverView.widthAnchor
                                                          multiplier:0.5],
-    [self.remoteHeaderImageView.heightAnchor constraintEqualToAnchor:self.maskView.widthAnchor
+    [self.remoteHeaderImageView.heightAnchor constraintEqualToAnchor:self.coverView.widthAnchor
                                                           multiplier:0.5]
   ]];
 }
@@ -289,6 +289,9 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
   if (info.callType == NECallTypeVideo) {
     [self createPipController];
   }
+}
+
+- (void)onLocalAudioMuted:(BOOL)muted {
 }
 
 - (void)onReceiveInvited:(NEInviteInfo *)info {
@@ -420,7 +423,8 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
     UIWindow *window = [[UIWindow alloc] init];
     if (@available(iOS 13.0, *)) {
       for (UIWindowScene *scene in UIApplication.sharedApplication.connectedScenes.allObjects) {
-        if (scene.activationState == UISceneActivationStateForegroundActive) {
+        if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPhone ||
+            scene.activationState == UISceneActivationStateForegroundActive) {
           window = [[UIWindow alloc] initWithWindowScene:(UIWindowScene *)scene];
         }
       }
@@ -492,7 +496,9 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
   canvas.externalVideoRender = self;
   [NERtcEngine.sharedEngine
       setupRemoteVideoCanvas:canvas
-                   forUserID:[[NECallEngine sharedInstance] getCallInfo].calleeInfo.uid];
+                   forUserID:self.isCalled
+                                 ? [[NECallEngine sharedInstance] getCallInfo].callerInfo.uid
+                                 : [[NECallEngine sharedInstance] getCallInfo].calleeInfo.uid];
   if (![self.pipController isPictureInPictureActive]) {
     NSLog(@"isPictureInPictureSupported");
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -583,17 +589,17 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
                                    self.smallAudioSize.height);
       call.audioSmallView.hidden = NO;
       call.view.layer.cornerRadius = 6;
-      call.maskView.hidden = YES;
+      call.coverView.hidden = YES;
     }
   }
 }
 
 - (void)onVideoMuted:(BOOL)muted userID:(NSString *)userId {
   YXAlogInfo(@"callkit ui onVideoMuted current accid : %@  userid : %@ mute : %d mask view : %@",
-             self.currentRemoteAccid, userId, muted, self.maskView);
+             self.currentRemoteAccid, userId, muted, self.coverView);
 
   if (self.currentRemoteAccid.length > 0 && [self.currentRemoteAccid isEqualToString:userId]) {
-    self.maskView.hidden = !muted;
+    self.coverView.hidden = !muted;
   }
 }
 
@@ -614,9 +620,9 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
   self.callViewController = nil;
 }
 
-- (UIView *)getMaskView {
-  UIView *maskView = [[UIView alloc] init];
-  maskView.translatesAutoresizingMaskIntoConstraints = NO;
+- (UIView *)getCoverView {
+  UIView *coverView = [[UIView alloc] init];
+  coverView.translatesAutoresizingMaskIntoConstraints = NO;
   CAGradientLayer *gradientLayer = [CAGradientLayer layer];
   gradientLayer.colors = @[
     (__bridge id)[NECallKitUtil colorWithHexString:@"#232529"].CGColor,
@@ -628,9 +634,9 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
   CGFloat width = 360;
   CGSize size = CGSizeMake(width, width / 9 * 16);
   gradientLayer.frame = CGRectMake(0, 0, size.width, size.height);
-  [maskView.layer addSublayer:gradientLayer];
-  maskView.hidden = YES;
-  return maskView;
+  [coverView.layer addSublayer:gradientLayer];
+  coverView.hidden = YES;
+  return coverView;
 }
 
 - (void)createPipController {
@@ -684,15 +690,16 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
     [self.displayView.bottomAnchor
         constraintEqualToAnchor:videoCallViewController.view.bottomAnchor]
   ]];
-  if (self.maskView != nil) {
-    [videoCallViewController.view addSubview:self.maskView];
+  if (self.coverView != nil) {
+    [videoCallViewController.view addSubview:self.coverView];
     [NSLayoutConstraint activateConstraints:@[
-      [self.maskView.topAnchor constraintEqualToAnchor:videoCallViewController.view.topAnchor],
-      [self.maskView.leadingAnchor
+      [self.coverView.topAnchor constraintEqualToAnchor:videoCallViewController.view.topAnchor],
+      [self.coverView.leadingAnchor
           constraintEqualToAnchor:videoCallViewController.view.leadingAnchor],
-      [self.maskView.trailingAnchor
+      [self.coverView.trailingAnchor
           constraintEqualToAnchor:videoCallViewController.view.trailingAnchor],
-      [self.maskView.bottomAnchor constraintEqualToAnchor:videoCallViewController.view.bottomAnchor]
+      [self.coverView.bottomAnchor
+          constraintEqualToAnchor:videoCallViewController.view.bottomAnchor]
     ]];
   }
   return videoCallViewController;
@@ -772,7 +779,7 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
 #pragma mark - Version
 
 + (NSString *)version {
-  return @"3.0.0";
+  return @"3.6.0";
 }
 
 @end

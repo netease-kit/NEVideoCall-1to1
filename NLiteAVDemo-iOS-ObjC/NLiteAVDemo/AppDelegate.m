@@ -13,14 +13,17 @@
 #import "NENavigator.h"
 #import "NEPSTNViewController.h"
 #import "SettingManager.h"
+#import <PushKit/PushKit.h>
 
 @interface AppDelegate () <NERtcCallKitDelegate,
                            UNUserNotificationCenterDelegate,
                            NIMSDKConfigDelegate,
-                           NECallUIKitDelegate>
+                           NECallUIKitDelegate,
+                           PKPushRegistryDelegate>
 
 @property(nonatomic, strong) NSDictionary *blockDictionary;
 @property(nonatomic, strong) NSTimer *timer;
+@property(nonatomic, strong) PKPushRegistry *pushRegistry;
 
 @end
 
@@ -30,6 +33,7 @@
   [self initWindow];
   [self setupSDK];
   [self registerAPNS];
+  [self registerPushKit];
   return YES;
 }
 
@@ -92,6 +96,11 @@ rotation:(NERtcVideoRotationType)rotation
 - (void)setupSDK {
   NIMSDKOption *option = [NIMSDKOption optionWithAppKey:kAppKey];
   option.apnsCername = kAPNSCerName;
+  //pushkit 证书， 实现 LiveCommunicationKit 接听电话
+  if (@available(iOS 17.4, *)) {
+    option.pkCername = VoIPCerName;
+  }
+
   option.v2 = YES;
 
   [NIMSDK.sharedSDK registerWithOptionV2:option v2Option:nil];
@@ -184,5 +193,71 @@ rotation:(NERtcVideoRotationType)rotation
     didReceiveLocalNotification:(UILocalNotification *)notification {
   [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
 }
+
+#pragma mark - PushKit
+- (void)registerPushKit{
+  self.pushRegistry = [[PKPushRegistry alloc]
+      initWithQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
+
+  self.pushRegistry.delegate = self;
+  self.pushRegistry.desiredPushTypes = [NSSet setWithObject:PKPushTypeVoIP];
+}
+
+#pragma mark - PKPushRegistryDelegate
+- (void)pushRegistry:(PKPushRegistry *)registry
+    didUpdatePushCredentials:(PKPushCredentials *)credentials
+                     forType:(PKPushType)type {
+  if ([credentials.token length] == 0) {
+    NSLog(@"voip token NULL");
+    return;
+  }
+
+  [[NIMSDK sharedSDK] updatePushKitToken:credentials.token];
+}
+
+- (void)pushRegistry:(PKPushRegistry *)registry
+    didReceiveIncomingPushWithPayload:(PKPushPayload *)payload
+                              forType:(PKPushType)type
+                withCompletionHandler:(void (^)(void))completion {
+  NSDictionary *dictionaryPayload = payload.dictionaryPayload;
+  // 判断是否是云信发的payload
+  if (![dictionaryPayload objectForKey:@"nim"]) {
+    NSLog(@"not found nim payload");
+    return;
+  }
+
+  if (@available(iOS 17.4, *)) {
+    NECallSystemIncomingCallParam *param = [[NECallSystemIncomingCallParam alloc] init];
+    param.payload = dictionaryPayload;
+    param.ringtoneName = @"avchat_ring.mp3";
+
+    [[NECallEngine sharedInstance] reportIncomingCallWithParam:param
+        acceptCompletion:^(NSError *_Nullable error, NECallInfo *_Nullable callInfo) {
+          if (error) {
+            NSLog(@"lck accept failed %@", error);
+          } else {
+            NSLog(@"lck accept success %@", error);
+          }
+        }
+        hangupCompletion:^(NSError *_Nullable error) {
+          if (error) {
+            NSLog(@"lck hangup error %@", error);
+          } else {
+            NSLog(@"lck hangup success");
+          }
+        }
+        muteCompletion:^(NSError *_Nullable error, BOOL mute) {
+          if (error) {
+            NSLog(@"lck mute error %@", error);
+          } else {
+            NSLog(@"lck mute success %d", mute);
+          }
+        }];
+  }
+
+  completion();
+}
+
+
 
 @end

@@ -881,10 +881,10 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
 
 - (void)cameraAvailble:(BOOL)available userId:(NSString *)userId {
   if ([self.videoInCallController.bigVideoView.userID isEqualToString:userId]) {
-    self.videoInCallController.bigVideoView.maskView.hidden = available;
+    self.videoInCallController.bigVideoView.coverView.hidden = available;
   }
   if ([self.videoInCallController.smallVideoView.userID isEqualToString:userId]) {
-    self.videoInCallController.smallVideoView.maskView.hidden = available;
+    self.videoInCallController.smallVideoView.coverView.hidden = available;
   }
 
   if (self.showMyBigView) {
@@ -894,7 +894,7 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
   }
   if ([userId isEqualToString:self.callParam.remoteUserAccid] && self.isSmallWindow == YES &&
       self.callParam.callType == NECallTypeVideo) {
-    self.maskView.hidden = available;
+    self.coverView.hidden = available;
   }
 }
 
@@ -1290,6 +1290,10 @@ NSString *const kCallKitShowNoti = @"kCallKitShowNoti";
     [self.view ne_makeToast:[NECallKitUtil localizableWithKey:@"device_not_support"]];
     self.operationView.virtualBtn.selected = NO;
   }
+}
+
+- (void)onLocalAudioMuted:(BOOL)muted {
+  self.operationView.microPhone.selected = muted;
 }
 
 @end
