@@ -36,6 +36,7 @@ import com.netease.yunxin.app.videocall.login.ui.LoginActivity;
 import com.netease.yunxin.app.videocall.nertc.biz.CallOrderManager;
 import com.netease.yunxin.app.videocall.nertc.ui.CallModeType;
 import com.netease.yunxin.app.videocall.nertc.ui.NERTCSelectCallUserActivity;
+import com.netease.yunxin.app.videocall.nertc.ui.SettingActivity;
 import com.netease.yunxin.nertc.ui.CallKitUI;
 
 import java.util.Collections;
@@ -83,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
                 if (status == V2NIMLoginStatus.V2NIM_LOGIN_STATUS_LOGINED) {
                   AuthManager.getInstance().setLogin(true);
                   CallOrderManager.getInstance().init();
+                  SettingActivity.toInit();
                 }
               }
 

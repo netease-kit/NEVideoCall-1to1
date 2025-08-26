@@ -183,10 +183,11 @@ public class NERTCSelectCallUserActivity extends AppCompatActivity {
     View settingBtn = findViewById(R.id.iv_setting);
 
     TextView title = findViewById(R.id.tv_title);
-    if (callModeType == CallModeType.PSTN_1V1_AUDIO_CALL) {
-      title.setText(R.string.converged_call);
-    } else if (callModeType == CallModeType.RTC_1V1_VIDEO_CALL) {
+    if (callModeType == CallModeType.PSTN_1V1_AUDIO_CALL
+        || callModeType == CallModeType.RTC_1V1_VIDEO_CALL) {
       title.setText(R.string.video_call);
+      settingBtn.setOnClickListener(
+          v -> startActivity(new Intent(NERTCSelectCallUserActivity.this, SettingActivity.class)));
     } else if (callModeType == CallModeType.RTC_GROUP_CALL) {
       title.setText(R.string.group_call);
     }
@@ -416,7 +417,7 @@ public class NERTCSelectCallUserActivity extends AppCompatActivity {
 
         CallParam param =
             new CallParam.Builder()
-                .callType(NECallType.AUDIO)
+                .callType(SettingActivity.ENABLE_AUDIO_CALL ? NECallType.AUDIO : NECallType.VIDEO)
                 .calledAccId(data.imAccid)
                 .callExtraInfo(extraInfo.toString())
                 .build();
