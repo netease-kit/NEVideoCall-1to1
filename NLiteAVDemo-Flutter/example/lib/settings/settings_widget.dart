@@ -2,6 +2,8 @@
 // Use of this source code is governed by a MIT license that can be
 // found in the LICENSE file.
 
+import 'dart:io';
+
 import 'package:callkit_example/settings/settings_config.dart';
 import 'package:callkit_example/settings/settings_detail_widget.dart';
 import 'package:flutter/material.dart';
@@ -82,6 +84,32 @@ class _SettingsWidgetState extends State<SettingsWidget> {
             ],
           ),
         ),
+        if (Platform.isAndroid)
+          SizedBox(
+            height: 40,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.show_incoming_banner,
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontStyle: FontStyle.normal,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.black),
+                ),
+                Switch(
+                    value: SettingsConfig.showIncomingBanner,
+                    onChanged: (value) {
+                      setState(() {
+                        SettingsConfig.showIncomingBanner = value;
+                        NECallKitUI.instance.enableIncomingBanner(
+                            SettingsConfig.showIncomingBanner);
+                      });
+                    })
+              ],
+            ),
+          ),
         const SizedBox(height: 10),
       ],
     );

@@ -1,3 +1,7 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 package com.netease.yunxin.flutter.plugins.callkit.ui.utils;
 
 import android.content.Context;
@@ -5,16 +9,16 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.HandlerThread;
-import com.netease.lava.nertc.sdk.NERtcEx;
-import com.netease.lava.nertc.sdk.audio.NERtcCreateAudioMixingOption;
 
 public class CallingBellPlayer {
+  private static final String TAG = "CallingBellPlayer";
   private final Context mContext;
 
   private MediaPlayer mMediaPlayer;
   private Handler mHandler;
   private HandlerThread mHandlerThread;
   private Runnable mPlayRunnable;
+  private Runnable mStopPlayRunnable;
   private String mRingFilePath = "";
   private int AUDIO_DIAL_ID = 48;
 
@@ -24,17 +28,19 @@ public class CallingBellPlayer {
   }
 
   public void startRing(String filePath) {
+    CallUILog.i(TAG, "startRing");
     mRingFilePath = filePath;
     startHandlerThread();
-    mHandler.post(mPlayRunnable);
   }
 
   public void stopRing() {
+    CallUILog.i(TAG, "stopRing");
     mRingFilePath = "";
     stopHandlerThread();
   }
 
   private void startHandlerThread() {
+    CallUILog.i(TAG, "startHandlerThread");
     if (null != mHandler) {
       return;
     }
@@ -55,6 +61,7 @@ public class CallingBellPlayer {
               mMediaPlayer.setDataSource(mRingFilePath);
               mMediaPlayer.setLooping(true);
               mMediaPlayer.prepare();
+              CallUILog.i(TAG, "MediaPlayer start");
               mMediaPlayer.start();
 
             } catch (Exception e) {
@@ -62,19 +69,27 @@ public class CallingBellPlayer {
             }
           }
         };
+    mHandler.post(mPlayRunnable);
   }
 
   private void stopHandlerThread() {
+    CallUILog.i("CallingBellPlayer", "stopHandlerThread");
     if (null == mHandler) {
       return;
     }
-    if (mMediaPlayer.isPlaying()) {
-      mMediaPlayer.stop();
-    }
-    if (mHandler != null) {
-      mHandler.removeCallbacks(mPlayRunnable);
-      mHandler = null;
-    }
+    mStopPlayRunnable =
+        new Runnable() {
+          @Override
+          public void run() {
+            CallUILog.i(TAG, "MediaPlayer stop");
+            if (mMediaPlayer.isPlaying()) {
+              mMediaPlayer.stop();
+            }
+          }
+        };
+    mHandler.post(mStopPlayRunnable);
+    mHandler.removeCallbacks(mPlayRunnable);
+    mHandler = null;
     mPlayRunnable = null;
     if (mHandlerThread != null) {
       mHandlerThread.quitSafely();

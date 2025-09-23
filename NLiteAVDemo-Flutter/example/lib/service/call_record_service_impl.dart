@@ -6,14 +6,11 @@ import 'package:callkit_example/auth/auth_manager.dart';
 import 'call_record_service.dart';
 
 /// CallRecordService的具体实现类
-class CallRecordServiceImpl {
+class CallRecordServiceImpl extends CallRecordService {
   static final CallRecordServiceImpl _instance =
       CallRecordServiceImpl._internal();
   factory CallRecordServiceImpl() => _instance;
   CallRecordServiceImpl._internal();
-
-  // 通话记录列表
-  List<CallRecord> _callRecords = [];
 
   final AuthManager _authManager = AuthManager();
 
@@ -33,18 +30,4 @@ class CallRecordServiceImpl {
   /// 监听登录状态变化
   Stream<String?> get authInfoStream =>
       _authManager.authInfoStream().map((info) => info?.accountId);
-
-  /// 获取通话记录列表
-  List<CallRecord> getCallRecords() {
-    return _callRecords;
-  }
-
-  /// 添加通话记录
-  void addCallRecord(CallRecord callRecord) {
-    _callRecords.insert(0, callRecord);
-  }
-
-  void clearCallRecords() {
-    _callRecords.clear();
-  }
 }

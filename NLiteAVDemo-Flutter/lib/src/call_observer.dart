@@ -1,3 +1,7 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 import 'package:netease_callkit/netease_callkit.dart';
 import 'package:netease_callkit_ui/src/call_define.dart';
 

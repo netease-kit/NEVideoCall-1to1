@@ -1,25 +1,36 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 package com.netease.yunxin.flutter.plugins.callkit.ui;
 
 import static com.netease.yunxin.flutter.plugins.callkit.ui.utils.Constants.KEY_NESTATE_CHANGE;
 import static com.netease.yunxin.flutter.plugins.callkit.ui.utils.Constants.SUBKEY_REFRESH_VIEW;
 
+import android.Manifest;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.netease.yunxin.flutter.plugins.callkit.ui.event.EventManager;
+import com.netease.yunxin.flutter.plugins.callkit.ui.permission.PermissionCallback;
+import com.netease.yunxin.flutter.plugins.callkit.ui.permission.PermissionRequester;
+import com.netease.yunxin.flutter.plugins.callkit.ui.service.AudioCallForegroundService;
 import com.netease.yunxin.flutter.plugins.callkit.ui.service.ServiceInitializer;
+import com.netease.yunxin.flutter.plugins.callkit.ui.service.VideoCallForegroundService;
 import com.netease.yunxin.flutter.plugins.callkit.ui.state.CallState;
 import com.netease.yunxin.flutter.plugins.callkit.ui.state.User;
 import com.netease.yunxin.flutter.plugins.callkit.ui.utils.CallUILog;
 import com.netease.yunxin.flutter.plugins.callkit.ui.utils.CallingBellPlayer;
 import com.netease.yunxin.flutter.plugins.callkit.ui.utils.CallingVibrator;
+import com.netease.yunxin.flutter.plugins.callkit.ui.utils.DeviceUtils;
+import com.netease.yunxin.flutter.plugins.callkit.ui.utils.FloatWindowsPermission;
 import com.netease.yunxin.flutter.plugins.callkit.ui.utils.MethodCallUtils;
-import com.netease.yunxin.flutter.plugins.callkit.ui.utils.NotificationUtils;
+import com.netease.yunxin.flutter.plugins.callkit.ui.utils.MethodUtils;
 import com.netease.yunxin.flutter.plugins.callkit.ui.utils.ObjectParse;
-import com.netease.yunxin.flutter.plugins.callkit.ui.utils.Permission;
 import com.netease.yunxin.flutter.plugins.callkit.ui.utils.WakeLock;
 import com.netease.yunxin.flutter.plugins.callkit.ui.view.WindowManager;
 import com.netease.yunxin.flutter.plugins.callkit.ui.view.incomingfloatwindow.IncomingNotificationView;
+import com.netease.yunxin.kit.call.p2p.model.NECallType;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -43,7 +54,7 @@ public class CallKitUIHandler {
     mApplicationContext = flutterPluginBinding.getApplicationContext();
 
     // 设置 Permission 类的应用上下文
-    Permission.setApplicationContext(mApplicationContext);
+    FloatWindowsPermission.setApplicationContext(mApplicationContext);
 
     mCallingBellPlayer = new CallingBellPlayer(mApplicationContext);
     mCallingVibrator = new CallingVibrator(mApplicationContext);
@@ -73,14 +84,21 @@ public class CallKitUIHandler {
   }
 
   public void startForegroundService(MethodCall call, MethodChannel.Result result) {
+    int mediaTypeIndex = MethodCallUtils.getMethodParams(call, "mediaType");
+    int mediaType = ObjectParse.getMediaType(mediaTypeIndex);
     CallUILog.i(TAG, "startForegroundService");
-    //    ForegroundService.start(mApplicationContext);
+    if (mediaType == NECallType.AUDIO) {
+      AudioCallForegroundService.start(mApplicationContext);
+    } else {
+      VideoCallForegroundService.start(mApplicationContext);
+    }
     result.success(0);
   }
 
   public void stopForegroundService(MethodCall call, MethodChannel.Result result) {
     CallUILog.i(TAG, "stopForegroundService");
-    //    ForegroundService.stop(mApplicationContext);
+    AudioCallForegroundService.stop(mApplicationContext);
+    VideoCallForegroundService.stop(mApplicationContext);
     result.success(0);
   }
 
@@ -98,7 +116,6 @@ public class CallKitUIHandler {
     if (CallState.getInstance().mIncomingFloatView != null) {
       CallState.getInstance().mIncomingFloatView.cancelIncomingView();
     }
-    NotificationUtils.cancelNotification(mApplicationContext);
     result.success(0);
   }
 
@@ -163,12 +180,17 @@ public class CallKitUIHandler {
 
   public void hasFloatPermission(MethodCall call, MethodChannel.Result result) {
     CallUILog.i(TAG, "hasFloatPermission");
-    if (Permission.hasPermission(Permission.FLOAT_PERMISSION)) {
+    if (FloatWindowsPermission.hasPermission(FloatWindowsPermission.FLOAT_PERMISSION)) {
       result.success(true);
     } else {
       result.success(false);
     }
-    Permission.requestFloatPermission();
+  }
+
+  public void requestFloatPermission(MethodCall call, MethodChannel.Result result) {
+    CallUILog.i(TAG, "requestFloatPermission");
+    FloatWindowsPermission.requestFloatPermission();
+    result.success(true);
   }
 
   public void isAppInForeground(MethodCall call, MethodChannel.Result result) {
@@ -182,8 +204,7 @@ public class CallKitUIHandler {
 
   public void showIncomingBanner(MethodCall call, MethodChannel.Result result) {
     CallUILog.i(TAG, "showIncomingBanner");
-    //    WindowManager.showIncomingBanner(mApplicationContext);
-    NotificationUtils.showNotification(mApplicationContext);
+    WindowManager.showIncomingBanner(mApplicationContext);
     result.success(0);
   }
 
@@ -191,16 +212,82 @@ public class CallKitUIHandler {
     result.success(0);
   }
 
+  public void hasPermissions(MethodCall call, MethodChannel.Result result) {
+    List<Integer> permissionsList = MethodUtils.getMethodParam(call, "permission");
+    String[] strings = new String[permissionsList.size()];
+    for (int i = 0; i < permissionsList.size(); i++) {
+      strings[i] = getPermissionsByIndex(permissionsList.get(i));
+    }
+    boolean isGranted = PermissionRequester.isGranted(strings);
+    result.success(isGranted);
+  }
+
+  public void requestPermissions(MethodCall call, MethodChannel.Result result) {
+    List<Integer> permissionsList = MethodUtils.getMethodParam(call, "permission");
+    String[] permissions = new String[permissionsList.size()];
+    for (int i = 0; i < permissionsList.size(); i++) {
+      permissions[i] = getPermissionsByIndex(permissionsList.get(i));
+    }
+    String title = MethodUtils.getMethodParam(call, "title");
+    String description = MethodUtils.getMethodParam(call, "description");
+    String settingsTip = MethodUtils.getMethodParam(call, "settingsTip");
+    PermissionCallback callback =
+        new PermissionCallback() {
+          @Override
+          public void onGranted() {
+            result.success(PermissionRequester.Result.Granted.ordinal());
+          }
+
+          @Override
+          public void onDenied() {
+            result.success(PermissionRequester.Result.Denied.ordinal());
+          }
+
+          @Override
+          public void onRequesting() {
+            result.success(PermissionRequester.Result.Requesting.ordinal());
+          }
+        };
+
+    PermissionRequester.newInstance(permissions)
+        .title(title)
+        .description(description)
+        .settingsTip(settingsTip)
+        .callback(callback)
+        .request();
+  }
+
+  private String getPermissionsByIndex(int index) {
+    switch (index) {
+      case 0:
+        return Manifest.permission.CAMERA;
+      case 1:
+        return Manifest.permission.RECORD_AUDIO;
+      case 2:
+        return Manifest.permission.BLUETOOTH_CONNECT;
+      default:
+        return "";
+    }
+  }
+
   public void pullBackgroundApp(MethodCall call, MethodChannel.Result result) {
-    //        WindowManager.pullBackgroundApp(mApplicationContext);
     CallUILog.i(TAG, "pullBackgroundApp");
+    WindowManager.pullBackgroundApp(mApplicationContext);
     result.success(0);
   }
 
   public void openLockScreenApp(MethodCall call, MethodChannel.Result result) {
     CallUILog.i(TAG, "openLockScreenApp");
-    //        WindowManager.openLockScreenApp(mApplicationContext);
+    WindowManager.openLockScreenApp(mApplicationContext);
     result.success(0);
+  }
+
+  public void isScreenLocked(MethodCall call, MethodChannel.Result result) {
+    if (DeviceUtils.isScreenLocked(mApplicationContext)) {
+      result.success(true);
+    } else {
+      result.success(false);
+    }
   }
 
   public void enableWakeLock(MethodCall call, MethodChannel.Result result) {
@@ -212,6 +299,15 @@ public class CallKitUIHandler {
       WakeLock.getInstance().disable();
     }
     result.success(0);
+  }
+
+  public void isSamsungDevice(MethodCall call, MethodChannel.Result result) {
+    CallUILog.i(TAG, "isSamsungDevice");
+    if (DeviceUtils.isSamsungDevice()) {
+      result.success(true);
+    } else {
+      result.success(false);
+    }
   }
 
   public void backCallingPageFromFloatWindow() {

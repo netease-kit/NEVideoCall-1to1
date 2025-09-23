@@ -12,7 +12,7 @@ class SettingsConfig {
   static bool muteMode = false;
   static bool enableFloatWindow = true;
   static bool showBlurBackground = false;
-  static bool showIncomingBanner = false;
+  static bool showIncomingBanner = true;
 
   static int intRoomId = 0;
   static String strRoomId = "";

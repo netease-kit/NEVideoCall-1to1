@@ -69,7 +69,7 @@ class ToastUtils {
   static void _showToast(
       Key? key, BuildContext context, String text, Duration duration) async {
     final overlayState = Overlay.of(context);
-    if (overlayState != null && overlayState.mounted) {
+    if (overlayState.mounted) {
       final entry = OverlayEntry(
         builder: (_) => Center(
           child: Container(

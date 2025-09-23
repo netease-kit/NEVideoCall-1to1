@@ -1,3 +1,7 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 import 'dart:async';
 
 import 'package:callkit_example/settings/settings_widget.dart';
@@ -25,9 +29,12 @@ class _SingleCallWidgetState extends State<SingleCallWidget> {
 
   // 添加TextEditingController来控制输入框
   late TextEditingController _userIdController;
+
+  // 通话记录列表
+  List<CallRecord> _callRecords = [];
   late StreamSubscription _receiveMessageSubscription;
   late StreamSubscription _sendMessageSubscription;
-  final CallRecordServiceImpl callRecordService = CallRecordServiceImpl();
+  final CallRecordServiceImpl _callRecordService = CallRecordServiceImpl();
 
   @override
   void initState() {
@@ -50,6 +57,8 @@ class _SingleCallWidgetState extends State<SingleCallWidget> {
         _addCallRecord(record);
       }
     });
+    _loadCallRecords();
+
     // 页面出现时设置通话超时时间
     _setCallTimeout();
   }
@@ -219,7 +228,7 @@ class _SingleCallWidgetState extends State<SingleCallWidget> {
                     color: Colors.black,
                   ),
                 ),
-                if (callRecordService.getCallRecords().isNotEmpty)
+                if (_callRecords.isNotEmpty)
                   GestureDetector(
                     onTap: _clearCallRecords,
                     child: const Text(
@@ -234,7 +243,7 @@ class _SingleCallWidgetState extends State<SingleCallWidget> {
             ),
             const SizedBox(height: 10),
             Expanded(
-              child: callRecordService.getCallRecords().isEmpty
+              child: _callRecords.isEmpty
                   ? const Center(
                       child: Text(
                         '暂无通话记录',
@@ -245,10 +254,9 @@ class _SingleCallWidgetState extends State<SingleCallWidget> {
                       ),
                     )
                   : ListView.builder(
-                      itemCount: callRecordService.getCallRecords().length,
+                      itemCount: _callRecords.length,
                       itemBuilder: (context, index) {
-                        final record =
-                            callRecordService.getCallRecords()[index];
+                        final record = _callRecords[index];
                         return _buildCallRecordItem(record);
                       },
                     ),
@@ -389,11 +397,8 @@ class _SingleCallWidgetState extends State<SingleCallWidget> {
     // 2. 延迟 100ms 确保键盘完全关闭
     Future.delayed(const Duration(milliseconds: 100), () {
       // 发起通话
-
-      NECallParams params = NECallParams();
-      params.pushConfig = NECallPushConfig(pushTitle: "testTitle", pushContent: "testContent", pushPayload: "testPayload", needPush: false, needBadge: false);
       NECallKitUI.instance.call(
-          record.accountId, _isAudioCall ? NECallType.audio : NECallType.video, params);
+          record.accountId, _isAudioCall ? NECallType.audio : NECallType.video);
     });
   }
 
@@ -405,18 +410,32 @@ class _SingleCallWidgetState extends State<SingleCallWidget> {
     ));
   }
 
+  // 加载通话记录
+  Future<void> _loadCallRecords() async {
+    try {
+      final records = await _callRecordService.loadCurrentAccountRecords();
+      setState(() {
+        _callRecords = records;
+      });
+    } catch (e) {
+      print('Failed to load call records: $e');
+    }
+  }
+
   // 添加通话记录并保存
   Future<void> _addCallRecord(CallRecord record) async {
     setState(() {
-      callRecordService.addCallRecord(record);
+      _callRecords.insert(0, record);
     });
   }
 
   // 清除通话记录
   Future<void> _clearCallRecords() async {
     setState(() {
-      callRecordService.clearCallRecords();
+      _callRecords.clear();
     });
+
+    await _callRecordService.clearCurrentAccountRecords();
   }
 
   // 设置通话超时时间

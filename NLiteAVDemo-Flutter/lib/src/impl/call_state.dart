@@ -1,3 +1,7 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 import 'dart:async';
 import 'dart:io';
 
@@ -53,13 +57,12 @@ class CallState {
     onReceiveInvited: (NEInviteInfo info) async {
       CallKitUILog.i(_tag,
           'NECallObserver onReceiveInvited(callerAccId:${info.callerAccId}, callType:${info.callType})');
-
+      CallingBellFeature.startRing();
       // 处理来电逻辑
       await CallState.instance.handleCallReceivedData(
           info.callerAccId, [], info.channelId ?? '', info.callType);
       await NECallKitPlatform.instance.updateCallStateToNative();
       // await CallManager.instance.enableWakeLock(true);
-      CallingBellFeature.startRing();
       if (Platform.isIOS) {
         if (CallState.instance.enableIncomingBanner) {
           CallState.instance.isInNativeIncomingBanner = true;
@@ -69,9 +72,23 @@ class CallState {
           CallManager.instance.launchCallingPage();
         }
       } else if (Platform.isAndroid) {
-        CallState.instance.isInNativeIncomingBanner = true;
-        CallManager.instance.showIncomingBanner();
-        CallManager.instance.launchCallingPage();
+        if (await CallManager.instance.isScreenLocked()) {
+          CallManager.instance.openLockScreenApp();
+          return;
+        }
+        if (CallState.instance.enableIncomingBanner &&
+            await NECallKitPlatform.instance.hasFloatPermission() &&
+            !(await CallManager.instance.isSamsungDevice())) {
+          CallState.instance.isInNativeIncomingBanner = true;
+          CallManager.instance.showIncomingBanner();
+        } else {
+          if (await NECallKitPlatform.instance.isAppInForeground()) {
+            CallState.instance.isInNativeIncomingBanner = false;
+            CallManager.instance.launchCallingPage();
+          } else {
+            CallManager.instance.pullBackgroundApp();
+          }
+        }
       }
     },
     onCallEnd: (NECallEndInfo info) {
@@ -86,8 +103,7 @@ class CallState {
               .showToast(CallKitUIL10n.localizations.remoteUserReject);
         }
       } else {
-        CallManager.instance
-            .showToast(info.reasonCode.toString() + " " + (info.message ?? ""));
+        CallKitUILog.i(_tag, 'NECallObserver onCallEnd: ${info.reasonCode}');
       }
       CallingBellFeature.stopRing();
       if (CallState.instance.mediaType == NECallType.video &&
@@ -103,7 +119,7 @@ class CallState {
     onCallConnected: (NECallInfo info) {
       CallKitUILog.i(_tag,
           'NECallObserver onCallConnected(callId:${info.callId}, callType:${info.callType})');
-      NECallKitPlatform.instance.startForegroundService();
+      NECallKitPlatform.instance.startForegroundService(info.callType);
       CallState.instance.startTime =
           DateTime.now().millisecondsSinceEpoch ~/ 1000;
       CallingBellFeature.stopRing();
@@ -199,6 +215,8 @@ class CallState {
       List<String> calleeIdList,
       String groupId,
       NECallType callMediaType) async {
+    CallKitUILog.i(_tag,
+        'handleCallReceivedData callerId = $callerId callMediaType = $callMediaType');
     CallState.instance.caller.id = callerId;
     CallState.instance.calleeIdList.clear();
     CallState.instance.calleeIdList.addAll(calleeIdList);
@@ -286,6 +304,7 @@ class CallState {
   }
 
   void cleanState() {
+    CallKitUILog.i(_tag, 'cleanState');
     stopTimer();
     CallState.instance.selfUser.callRole = NECallRole.none;
     CallState.instance.selfUser.callStatus = NECallStatus.none;

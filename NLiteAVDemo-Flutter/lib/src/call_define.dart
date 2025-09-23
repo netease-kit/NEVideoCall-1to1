@@ -1,3 +1,7 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 import 'package:netease_callkit/netease_callkit.dart';
 
 class NEValueCallback {
@@ -112,6 +116,26 @@ class NECertificateConfig {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['apnsCername'] = apnsCername;
     data['pkCername'] = pkCername;
+    return data;
+  }
+}
+
+/// 额外配置参数
+class NEExtraConfig {
+  final NELCKConfig? lckConfig; // Live Communication Kit 配置
+
+  NEExtraConfig({
+    this.lckConfig,
+  });
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    if (lckConfig != null) {
+      data['lckConfig'] = {
+        'enableLiveCommunicationKit': lckConfig!.enableLiveCommunicationKit,
+        'ringtoneName': lckConfig!.ringtoneName,
+      };
+    }
     return data;
   }
 }

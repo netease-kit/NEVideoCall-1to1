@@ -6,7 +6,6 @@ import Foundation
 
 protocol NEBackToFlutterWidgetDelegate: NSObject {
   func backCallingPageFromFloatWindow()
-  func launchCallingPageFromIncomingBanner()
 }
 
 class NEWindowManager: NSObject, NEFloatWindowViewDelegate {

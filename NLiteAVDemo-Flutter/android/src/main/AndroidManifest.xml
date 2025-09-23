@@ -30,10 +30,16 @@
             android:exported="false" />
 
         <service
-            android:name=".service.ForegroundService"
+            android:name=".service.AudioCallForegroundService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="microphone" />
+
+        <service
+            android:name=".service.VideoCallForegroundService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="microphone|camera" />
 
         <service
             android:name=".view.floatwindow.FloatWindowService"
@@ -50,5 +56,11 @@
                 <action android:name="reject_call_action" />
             </intent-filter>
         </receiver>
+        <activity android:name=".permission.PermissionActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/TranslucentStyle"
+            android:windowSoftInputMode="stateHidden|stateAlwaysHidden" />
+            />
     </application>
 </manifest>

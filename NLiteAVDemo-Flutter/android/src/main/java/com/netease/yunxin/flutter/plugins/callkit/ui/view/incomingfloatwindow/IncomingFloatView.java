@@ -1,3 +1,7 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 package com.netease.yunxin.flutter.plugins.callkit.ui.view.incomingfloatwindow;
 
 import android.content.Context;
@@ -12,10 +16,13 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.netease.yunxin.flutter.plugins.callkit.ui.CallKitUIPlugin;
 import com.netease.yunxin.flutter.plugins.callkit.ui.R;
+import com.netease.yunxin.flutter.plugins.callkit.ui.event.EventManager;
+import com.netease.yunxin.flutter.plugins.callkit.ui.permission.PermissionRequester;
 import com.netease.yunxin.flutter.plugins.callkit.ui.state.CallState;
 import com.netease.yunxin.flutter.plugins.callkit.ui.state.User;
 import com.netease.yunxin.flutter.plugins.callkit.ui.utils.CallUILog;
-import com.netease.yunxin.flutter.plugins.callkit.ui.utils.Permission;
+import com.netease.yunxin.flutter.plugins.callkit.ui.utils.Constants;
+import com.netease.yunxin.flutter.plugins.callkit.ui.utils.FloatWindowsPermission;
 import com.netease.yunxin.flutter.plugins.callkit.ui.view.WindowManager;
 import com.netease.yunxin.kit.call.p2p.NECallEngine;
 import com.netease.yunxin.kit.call.p2p.model.NECallType;
@@ -101,9 +108,12 @@ public class IncomingFloatView {
           @Override
           public void onClick(View v) {
             cancelIncomingView();
-            if (Permission.hasPermission(Permission.BG_START_PERMISSION)) {
+            if (FloatWindowsPermission.hasPermission(FloatWindowsPermission.BG_START_PERMISSION)) {
               WindowManager.launchMainActivity(context);
             }
+            EventManager.getInstance()
+                .notifyEvent(
+                    Constants.KEY_CALLKIT_PLUGIN, Constants.SUB_KEY_HANDLE_CALL_RECEIVED, null);
           }
         });
 
@@ -112,10 +122,21 @@ public class IncomingFloatView {
           @Override
           public void onClick(View v) {
             cancelIncomingView();
-            NECallEngine.sharedInstance().accept(null);
-            if (Permission.hasPermission(Permission.BG_START_PERMISSION)) {
+            if (mediaType == NECallType.VIDEO
+                && PermissionRequester.isGranted(FloatWindowsPermission.CAMERA_PERMISSION)
+                && PermissionRequester.isGranted(FloatWindowsPermission.RECORD_AUDIO_PERMISSION)) {
+              NECallEngine.sharedInstance().accept(null);
+            } else if (mediaType == NECallType.AUDIO
+                && PermissionRequester.isGranted(FloatWindowsPermission.RECORD_AUDIO_PERMISSION)) {
+              NECallEngine.sharedInstance().accept(null);
+            }
+
+            if (FloatWindowsPermission.hasPermission(FloatWindowsPermission.BG_START_PERMISSION)) {
               WindowManager.launchMainActivity(context);
             }
+            EventManager.getInstance()
+                .notifyEvent(
+                    Constants.KEY_CALLKIT_PLUGIN, Constants.SUB_KEY_HANDLE_CALL_RECEIVED, null);
           }
         });
 

@@ -1,3 +1,7 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 // GENERATED CODE - DO NOT MODIFY BY HAND
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -287,6 +291,26 @@ class S {
     return Intl.message(
       'remote user rejected',
       name: 'remoteUserReject',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `remote user rejected`
+  String get noFloatWindowPermission {
+    return Intl.message(
+      'no float window permission',
+      name: 'noFloatWindowPermission',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `remote user rejected`
+  String get needFloatWindowPermission {
+    return Intl.message(
+      'need float window permission',
+      name: 'needFloatWindowPermission',
       desc: '',
       args: [],
     );

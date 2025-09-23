@@ -4,17 +4,15 @@
 
 import 'package:callkit_example/service/call_record_service.dart';
 import 'package:netease_callkit/netease_callkit.dart';
-import 'package:netease_callkit_ui/ne_callkit_ui.dart';
 import 'package:nim_core_v2/nim_core.dart';
 
 class RecordUtils {
-  static const String _tag = 'RecordUtils';
   static Future<CallRecord?> parseForCallRecord(NIMMessage message) async {
     if (message.messageType == NIMMessageType.call &&
         message.sendingState == NIMMessageSendingState.succeeded) {
       var attachment = message.attachment;
       if (attachment == null) {
-        CallKitUILog.e(_tag, 'handleNetCallAttachment attachment is null');
+        print('handleNetCallAttachment attachment is null');
         return null;
       }
 
@@ -26,8 +24,7 @@ class RecordUtils {
       // 获取会话目标ID
       var targetId = await _getTargetIdFromConversation(message);
       if (targetId == null || targetId.isEmpty) {
-        CallKitUILog.e(
-            _tag, 'handleNetCallAttachment targetId is null or empty');
+        print('handleNetCallAttachment targetId is null or empty');
         return null;
       }
 
@@ -55,20 +52,15 @@ class RecordUtils {
   static Future<String?> _getTargetIdFromConversation(
       NIMMessage message) async {
     if (message.conversationId == null) {
-      CallKitUILog.e(
-          _tag, '_getTargetIdFromConversation conversationId is null');
       return null;
     }
-    CallKitUILog.i(_tag,
-        '_getTargetIdFromConversation conversationId: ${message.conversationId} message.createTime: ${message.createTime}');
+
     try {
       final result = await NimCore.instance.conversationIdUtil
           .conversationTargetId(message.conversationId!);
-      CallKitUILog.i(
-          _tag, '_getTargetIdFromConversation targetId: ${result.data}');
       return result.data;
     } catch (e) {
-      CallKitUILog.e(_tag, 'Failed to get target ID: $e');
+      print('Failed to get target ID: $e');
       return null;
     }
   }
