@@ -7,17 +7,17 @@
 package com.netease.yunxin.nertc.ui.p2p
 
 import com.netease.nimlib.sdk.util.Entry
-import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.kit.call.p2p.model.NECallTypeChangeInfo
 import com.netease.yunxin.nertc.nertcvideocall.bean.InvitedInfo
 import com.netease.yunxin.nertc.nertcvideocall.model.AbsNERtcCallingDelegate
+import com.netease.yunxin.nertc.ui.utils.CallUILog
 
 open class NERtcCallDelegateForP2P : AbsNERtcCallingDelegate() {
 
     private val tag = "NERtcCallDelegateForGroup"
 
     override fun onError(errorCode: Int, errorMsg: String?, needFinish: Boolean) {
-        ALog.e(
+        CallUILog.e(
             tag,
             "NERtcCallDelegateForGroup onError->$errorCode, errorMsg:$errorMsg, needFinish:$needFinish"
         )

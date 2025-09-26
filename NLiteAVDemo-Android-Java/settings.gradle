@@ -1,2 +1,11 @@
 include ':app', ':call-ui'
-rootProject.name = "NERTCScenesDemo"
+rootProject.name = "NECallKitDemo"
+
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://maven.faceunity.com/repository/maven-public/' }
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    }
+}

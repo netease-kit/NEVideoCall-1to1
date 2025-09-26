@@ -18,7 +18,7 @@ import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.annotation.Px
 import androidx.core.view.setPadding
-import com.netease.yunxin.kit.alog.ALog
+import com.netease.yunxin.nertc.ui.utils.CallUILog
 import kotlin.math.abs
 
 /**
@@ -51,7 +51,7 @@ class FloatingWindowWrapper(context: Context, val config: Config) : FrameLayout(
         @SuppressLint("ClickableViewAccessibility")
         override fun onTouch(v: View?, event: MotionEvent?): Boolean {
             event ?: return false
-            ALog.i(
+            CallUILog.i(
                 logTag,
                 "x is ${event.x} , y is ${event.y} , rawX is ${event.rawX}, rawY is ${event.rawY}. detail is $event"
             )
@@ -87,7 +87,7 @@ class FloatingWindowWrapper(context: Context, val config: Config) : FrameLayout(
      */
     override fun onInterceptTouchEvent(event: MotionEvent?): Boolean {
         event ?: return false
-        ALog.i(
+        CallUILog.i(
             logTag,
             "onInterceptTouchEvent x is ${event.x} , y is ${event.y} , rawX is ${event.rawX}, rawY is ${event.rawY}. detail is $event"
         )
@@ -119,7 +119,7 @@ class FloatingWindowWrapper(context: Context, val config: Config) : FrameLayout(
             config.touchEventStrategy?.initForWrapper(this)
             wm.addView(this, config.windowParams)
         } catch (exception: Exception) {
-            ALog.w(logTag, "showView", exception)
+            CallUILog.e(logTag, "showView", exception)
         }
     }
 
@@ -139,7 +139,7 @@ class FloatingWindowWrapper(context: Context, val config: Config) : FrameLayout(
             background = null
             wm.removeView(this)
         } catch (exception: Exception) {
-            ALog.w(logTag, "dismiss", exception)
+            CallUILog.e(logTag, "dismiss", exception)
         }
     }
 
@@ -155,7 +155,7 @@ class FloatingWindowWrapper(context: Context, val config: Config) : FrameLayout(
         if (!isAttachedToWindow) {
             return
         }
-        ALog.i(logTag, "xPos is $xPos, yPos is $yPos")
+        CallUILog.i(logTag, "xPos is $xPos, yPos is $yPos")
         config.windowParams.x = xPos
         config.windowParams.y = yPos
         wm.updateViewLayout(this, config.windowParams)

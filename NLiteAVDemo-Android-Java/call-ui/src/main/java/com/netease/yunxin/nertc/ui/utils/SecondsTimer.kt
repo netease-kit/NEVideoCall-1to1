@@ -6,7 +6,6 @@
 
 package com.netease.yunxin.nertc.ui.utils
 
-import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.kit.alog.ParameterMap
 import java.util.*
 
@@ -17,7 +16,7 @@ class SecondsTimer(private val delay: Long = 0L, private val period: Long = 1000
     private var finished = false
 
     fun start(onSecondsTick: (Long) -> Unit) {
-        ALog.d(
+        CallUILog.d(
             tag,
             ParameterMap("start")
                 .append("running", running)
@@ -45,12 +44,12 @@ class SecondsTimer(private val delay: Long = 0L, private val period: Long = 1000
                 )
             }
         } catch (e: Throwable) {
-            ALog.e(tag, "SecondsTimer execute start error with $e.")
+            CallUILog.e(tag, "SecondsTimer execute start error with $e.")
         }
     }
 
     fun cancel() {
-        ALog.d(
+        CallUILog.d(
             tag,
             ParameterMap("cancel")
                 .append("running", running)
@@ -64,7 +63,7 @@ class SecondsTimer(private val delay: Long = 0L, private val period: Long = 1000
             finished = true
             timer.cancel()
         } catch (e: Throwable) {
-            ALog.e(tag, "SecondsTimer execute cancel error with $e.")
+            CallUILog.e(tag, "SecondsTimer execute cancel error with $e.")
         }
     }
 }

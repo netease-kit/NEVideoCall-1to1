@@ -18,8 +18,8 @@ import android.view.View
 import android.view.WindowManager
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.core.content.ContextCompat
-import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.nertc.ui.R
+import com.netease.yunxin.nertc.ui.utils.CallUILog
 import kotlin.math.max
 
 /**
@@ -81,7 +81,7 @@ class DefaultFloatingTouchEventStrategy(
         if (animator.isRunning()) {
             return
         }
-        ALog.i(
+        CallUILog.i(
             logTag,
             "x is ${event.x} , y is ${event.y} , rawX is ${event.rawX}, rawY is ${event.rawY}. detail is $event"
         )
@@ -195,12 +195,12 @@ class DefaultFloatingTouchEventStrategy(
             }
 
             override fun onAnimationEnd(animation: Animator) {
-                ALog.d(logTag, "onAnimationEnd")
+                CallUILog.d(logTag, "onAnimationEnd")
                 finish()
             }
 
             override fun onAnimationCancel(animation: Animator) {
-                ALog.d(logTag, "onAnimationCancel")
+                CallUILog.d(logTag, "onAnimationCancel")
                 finish()
             }
 
@@ -223,14 +223,14 @@ class DefaultFloatingTouchEventStrategy(
             windowWrapper: FloatingWindowWrapper
         ) {
             if (isRunning()) {
-                ALog.d(logTag, "running")
+                CallUILog.d(logTag, "running")
                 return
             }
             if (endPos == windowWrapper.fetchWindowParamsX()) {
                 windowWrapper.setBgRes(finishedBg)
                 return
             }
-            ALog.d(logTag, "start $startPos, $endPos")
+            CallUILog.d(logTag, "start $startPos, $endPos")
 
             this.endXPos = endPos
             this.finishedBg = finishedBg

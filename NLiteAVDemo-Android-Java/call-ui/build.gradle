@@ -16,6 +16,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -25,21 +26,18 @@ android {
 
 
 dependencies {
-    implementation(libs.coreKtx)
-    implementation(libs.kotlinxCoroutinesCore)
-    implementation(libs.kotlinxCoroutinesAndroid)
-    implementation(libs.appcompat)
-    implementation(libs.constraintlayout)
-    implementation(libs.material)
-
-    implementation(libs.alog)
-    implementation(libs.glide)
-    implementation(libs.recyclerview)
-    implementation(libs.lifecycleViewModelKtx)
-
-    implementation (libs.lifecycleProcess)
-    implementation (libs.viewpager2)
-
-    implementation (libs.glideTransformations)
-    api (libs.call)
+    implementation libs.android.material
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.constraintlayout
+    implementation libs.androidx.lifecycle.process
+    implementation libs.androidx.viewpager2
+    implementation libs.androidx.recyclerview
+    implementation libs.androidx.lifecycle.viewmodel.ktx
+    implementation libs.kotlinx.coroutines.core
+    implementation libs.kotlinx.coroutines.android
+    implementation libs.yunxin.kit.alog
+    implementation libs.glide
+    implementation libs.glide.transformations
+    implementation 'com.netease.yunxin.kit.call:call:3.7.0'
 }

@@ -48,6 +48,7 @@ class CallKitUIOptions constructor(
     val audio2Video: Boolean = false,
     val video2Audio: Boolean = false,
     val enableGroup: Boolean = false,
+    val enableInviteOthersWhenGroupCalling: Boolean = false,
     val language: NECallUILanguage = NECallUILanguage.AUTO,
     var framework: String? = null,
     var channel: String? = null
@@ -98,6 +99,8 @@ class CallKitUIOptions constructor(
         private var rtcSafeMode = NEGroupConstants.RtcSafeMode.MODE_SAFE
 
         private var enableGroup: Boolean = false
+
+        private var enableInviteOthersWhenGroupCalling: Boolean = false
 
         private var audio2Video: Boolean = false
 
@@ -187,6 +190,10 @@ class CallKitUIOptions constructor(
             this.enableGroup = enable
         }
 
+        fun enableInviteOthersWhenGroupCalling(enable: Boolean) = apply {
+            this.enableInviteOthersWhenGroupCalling = enable
+        }
+
         fun enableAutoJoinWhenCalled(enable: Boolean) = apply {
             this.enableAutoJoinWhenCalled = enable
         }
@@ -263,6 +270,7 @@ class CallKitUIOptions constructor(
                 audio2Video = audio2Video,
                 video2Audio = video2Audio,
                 enableGroup = enableGroup,
+                enableInviteOthersWhenGroupCalling = enableInviteOthersWhenGroupCalling,
                 language = language,
                 framework = framework,
                 channel = channel
@@ -271,7 +279,7 @@ class CallKitUIOptions constructor(
     }
 
     override fun toString(): String {
-        return "CallKitUIOptions(currentUserRtcUId=$currentUserRtcUId, timeOutMillisecond=$timeOutMillisecond, resumeBGInvitation=$resumeBGInvitation, rtcConfig=$rtcConfig, activityConfig=$activityConfig, uiHelper=$uiHelper, notificationConfigFetcher=$notificationConfigFetcher, notificationConfigFetcherForGroup=$notificationConfigFetcherForGroup, userInfoHelper=$userInfoHelper, incomingCallEx=$incomingCallEx, callKitUIBridgeService=$callKitUIBridgeService, pushConfigProviderForGroup=$pushConfigProviderForGroup, callExtension=$callExtension, soundHelper=$soundHelper, enableOrder=$enableOrder, enableAutoJoinWhenCalled=$enableAutoJoinWhenCalled, initRtcMode=$initRtcMode, joinRtcWhenCall=$joinRtcWhenCall, audio2Video=$audio2Video, video2Audio=$video2Audio, enableGroup=$enableGroup, language=$language, framework=$framework, channel=$channel)"
+        return "CallKitUIOptions(currentUserRtcUId=$currentUserRtcUId, timeOutMillisecond=$timeOutMillisecond, resumeBGInvitation=$resumeBGInvitation, rtcConfig=$rtcConfig, activityConfig=$activityConfig, uiHelper=$uiHelper, notificationConfigFetcher=$notificationConfigFetcher, notificationConfigFetcherForGroup=$notificationConfigFetcherForGroup, userInfoHelper=$userInfoHelper, incomingCallEx=$incomingCallEx, callKitUIBridgeService=$callKitUIBridgeService, pushConfigProviderForGroup=$pushConfigProviderForGroup, callExtension=$callExtension, soundHelper=$soundHelper, enableOrder=$enableOrder, enableAutoJoinWhenCalled=$enableAutoJoinWhenCalled, initRtcMode=$initRtcMode, joinRtcWhenCall=$joinRtcWhenCall, audio2Video=$audio2Video, video2Audio=$video2Audio, enableGroup=$enableGroup, enableInviteOthersWhenGroupCalling=$enableInviteOthersWhenGroupCalling, language=$language, framework=$framework, channel=$channel)"
     }
 }
 

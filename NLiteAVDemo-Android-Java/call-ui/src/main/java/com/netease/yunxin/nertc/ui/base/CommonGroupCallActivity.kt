@@ -16,13 +16,13 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import com.netease.lava.nertc.sdk.NERtcEx
 import com.netease.nimlib.sdk.NIMClient
-import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.kit.alog.ParameterMap
+import com.netease.yunxin.kit.call.group.GroupCallEndEvent
 import com.netease.yunxin.kit.call.group.GroupCallHangupEvent
 import com.netease.yunxin.kit.call.group.GroupCallMember
 import com.netease.yunxin.kit.call.group.NEGroupCall
-import com.netease.yunxin.kit.call.group.NEGroupCallActionObserver
-import com.netease.yunxin.kit.call.group.NEGroupCallActionObserverForAll
+import com.netease.yunxin.kit.call.group.NEGroupCallDelegate
+import com.netease.yunxin.kit.call.group.NEGroupCallDelegateForAll
 import com.netease.yunxin.kit.call.group.NEGroupCallInfo
 import com.netease.yunxin.kit.call.group.param.GroupCallParam
 import com.netease.yunxin.kit.call.group.param.GroupHangupParam
@@ -31,6 +31,7 @@ import com.netease.yunxin.nertc.nertcvideocall.model.impl.NERtcCallbackProxyMgr
 import com.netease.yunxin.nertc.ui.base.Constants.PARAM_KEY_GROUP_CALL
 import com.netease.yunxin.nertc.ui.base.Constants.PARAM_KEY_GROUP_CALL_ID
 import com.netease.yunxin.nertc.ui.service.DefaultIncomingCallEx
+import com.netease.yunxin.nertc.ui.utils.CallUILog
 
 abstract class CommonGroupCallActivity : AppCompatActivity() {
     private val tag = "CommonGroupCallActivity"
@@ -40,23 +41,29 @@ abstract class CommonGroupCallActivity : AppCompatActivity() {
     protected var callId: String? = null
     protected var currentUserAccId: String = ""
 
-    private val callActionObserver: NEGroupCallActionObserver =
-        object : NEGroupCallActionObserverForAll() {
+    private val callActionObserver: NEGroupCallDelegate =
+        object : NEGroupCallDelegateForAll() {
+            override fun onReceiveGroupInvitation(info: NEGroupCallInfo?) {
+                CallUILog.d(
+                    tag,
+                    ParameterMap("onReceiveGroupInvitation").append("info", info).toValue()
+                )
+            }
 
-            override fun onMemberChanged(callId: String, userList: MutableList<GroupCallMember>) {
-                ALog.d(
+            override fun onGroupMemberListChanged(callId: String, userList: MutableList<GroupCallMember>) {
+                CallUILog.d(
                     tag,
                     ParameterMap("onMemberChanged")
                         .append("callId", callId)
                         .append("userList", userList)
                         .toValue()
                 )
-                super.onMemberChanged(callId, userList)
+                super.onGroupMemberListChanged(callId, userList)
                 this@CommonGroupCallActivity.onMemberChanged(callId, userList)
             }
 
             override fun onMemberChangedForAll(callId: String, userList: List<GroupCallMember>) {
-                ALog.d(
+                CallUILog.d(
                     tag,
                     ParameterMap("onMemberChangedForAll")
                         .append("callId", callId)
@@ -67,20 +74,30 @@ abstract class CommonGroupCallActivity : AppCompatActivity() {
             }
 
             override fun onGroupCallHangup(hangupEvent: GroupCallHangupEvent) {
-                ALog.d(
+                CallUILog.d(
                     tag,
                     ParameterMap("onGroupCallHangup")
                         .append("hangupEvent", hangupEvent)
                         .toValue()
                 )
-                this@CommonGroupCallActivity.onGroupCallHangup(hangupEvent)
+                this@CommonGroupCallActivity.onGroupCallHangup(hangupEvent.callId)
+            }
+
+            override fun onGroupCallEnd(endEvent: GroupCallEndEvent) {
+                CallUILog.d(
+                    tag,
+                    ParameterMap("onGroupCallEnd")
+                        .append("endEvent", endEvent)
+                        .toValue()
+                )
+                this@CommonGroupCallActivity.onGroupCallHangup(endEvent.callId)
             }
         }
 
     private val rtcCallback = object : NERtcCallbackExTemp() {
 
         override fun onJoinChannel(i: Int, l: Long, l1: Long, l2: Long) {
-            ALog.d(
+            CallUILog.d(
                 tag,
                 ParameterMap("onJoinChannel")
                     .append("result", i)
@@ -93,7 +110,7 @@ abstract class CommonGroupCallActivity : AppCompatActivity() {
         }
 
         override fun onUserVideoStart(uid: Long, maxProfile: Int) {
-            ALog.d(
+            CallUILog.d(
                 tag,
                 ParameterMap("onUserVideoStart")
                     .append("uid", uid)
@@ -104,7 +121,7 @@ abstract class CommonGroupCallActivity : AppCompatActivity() {
         }
 
         override fun onUserVideoMute(uid: Long, mute: Boolean) {
-            ALog.d(
+            CallUILog.d(
                 tag,
                 ParameterMap("onUserVideoMute")
                     .append("uid", uid)
@@ -115,7 +132,7 @@ abstract class CommonGroupCallActivity : AppCompatActivity() {
         }
 
         override fun onUserVideoStop(uid: Long) {
-            ALog.d(
+            CallUILog.d(
                 tag,
                 ParameterMap("onUserVideoStop")
                     .append("uid", uid)
@@ -125,7 +142,7 @@ abstract class CommonGroupCallActivity : AppCompatActivity() {
         }
 
         override fun onVideoDeviceStageChange(deviceState: Int) {
-            ALog.d(
+            CallUILog.d(
                 tag,
                 ParameterMap("onVideoDeviceStageChange")
                     .append("deviceState", deviceState)
@@ -137,7 +154,7 @@ abstract class CommonGroupCallActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ALog.d(
+        CallUILog.d(
             tag,
             ParameterMap("onCreate")
                 .append("savedInstanceState", savedInstanceState)
@@ -159,14 +176,14 @@ abstract class CommonGroupCallActivity : AppCompatActivity() {
         }
         // 初始数据检查
         checkData()
-        NEGroupCall.instance().configGroupActionObserver(callActionObserver, true)
+        NEGroupCall.instance().addGroupCallDelegate(callActionObserver)
         NERtcCallbackProxyMgr.getInstance().addCallback(rtcCallback)
         doOnCreate()
     }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        ALog.d(
+        CallUILog.d(
             tag,
             ParameterMap("onNewIntent")
                 .append("intent", intent)
@@ -187,7 +204,7 @@ abstract class CommonGroupCallActivity : AppCompatActivity() {
             intent.getSerializableExtra(PARAM_KEY_GROUP_CALL) as? GroupCallParam
         callId = intent.getStringExtra(PARAM_KEY_GROUP_CALL_ID)
         currentUserAccId = NIMClient.getCurrentAccount()
-        ALog.d(
+        CallUILog.d(
             tag,
             ParameterMap("prepareData")
                 .append("callInfo", callInfo)
@@ -206,7 +223,7 @@ abstract class CommonGroupCallActivity : AppCompatActivity() {
                 )
                 )
         if (!pass) {
-            ALog.e(
+            CallUILog.e(
                 tag,
                 "checkData failed, currentUserAccId-$currentUserAccId can't be null" +
                     " and callInfo-$callInfo, callParam-$callParam, callId-$callId can't be null together. "
@@ -219,7 +236,7 @@ abstract class CommonGroupCallActivity : AppCompatActivity() {
         val tempCallInfo = NEGroupCall.instance().currentGroupCallInfo()
         callInfo?.run {
             if (tempCallInfo == null || !TextUtils.equals(callId, tempCallInfo.callId)) {
-                ALog.w(
+                CallUILog.w(
                     tag,
                     "finish when current callInfo was invalid. current call info is $tempCallInfo, invited call info is $this."
                 )
@@ -231,7 +248,7 @@ abstract class CommonGroupCallActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         if (isFinishing) {
-            NEGroupCall.instance().configGroupActionObserver(callActionObserver, false)
+            NEGroupCall.instance().removeGroupCallDelegate(callActionObserver)
             NERtcCallbackProxyMgr.getInstance().removeCallback(rtcCallback)
             if (callInfo != null) {
                 NEGroupCall.instance().groupHangup(GroupHangupParam(callInfo!!.callId), null)
@@ -241,7 +258,7 @@ abstract class CommonGroupCallActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        NEGroupCall.instance().configGroupActionObserver(callActionObserver, false)
+        NEGroupCall.instance().removeGroupCallDelegate(callActionObserver)
         NERtcCallbackProxyMgr.getInstance().removeCallback(rtcCallback)
         if (callInfo != null) {
             NEGroupCall.instance().groupHangup(GroupHangupParam(callInfo!!.callId), null)
@@ -254,8 +271,8 @@ abstract class CommonGroupCallActivity : AppCompatActivity() {
     protected open fun onMemberChangedForAll(callId: String, userList: List<GroupCallMember>) {
     }
 
-    protected open fun onGroupCallHangup(hangupEvent: GroupCallHangupEvent) {
-        if (callInfo == null || TextUtils.equals(hangupEvent.callId, callInfo!!.callId)) {
+    protected open fun onGroupCallHangup(callId: String) {
+        if (callInfo == null || TextUtils.equals(callId, callInfo!!.callId)) {
             callInfo = null
             NERtcEx.getInstance().enableLocalVideo(false)
             NERtcEx.getInstance().muteLocalVideoStream(true)
@@ -283,7 +300,7 @@ abstract class CommonGroupCallActivity : AppCompatActivity() {
             (getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager)
                 ?.cancel(DefaultIncomingCallEx.INCOMING_CALL_NOTIFY_ID)
         } catch (exception: Exception) {
-            ALog.e(tag, "group call cancel notification", exception)
+            CallUILog.e(tag, "group call cancel notification", exception)
         }
     }
 }

@@ -15,9 +15,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.netease.nimlib.sdk.NIMClient
-import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.kit.call.group.NEGroupConstants
 import com.netease.yunxin.nertc.ui.R
+import com.netease.yunxin.nertc.ui.utils.CallUILog
 import com.netease.yunxin.nertc.ui.utils.dip2Px
 import com.netease.yunxin.nertc.ui.utils.image.RoundedCornersCenterCrop
 
@@ -59,12 +59,12 @@ class GroupMemberPageView(context: Context) : FrameLayout(context) {
                 videoViewPool.recycleRtcVideo(data.uid)
                 continue
             }
-            ALog.i(TAG, "current item position is $index, data is $data.")
+            CallUILog.i(TAG, "current item position is $index, data is $data.")
             if (data.state == NEGroupConstants.UserState.LEAVING) {
                 continue
             }
 
-            ALog.i(TAG, "onBindViewHolder - $data position is $index")
+            CallUILog.i(TAG, "onBindViewHolder - $data position is $index")
             holder.itemView.visibility = View.VISIBLE
             Glide.with(context).asBitmap().load(data.avatarUrl)
                 .transform(RoundedCornersCenterCrop(4.dip2Px(context))).into(holder.ivUserAvatar)

@@ -12,10 +12,10 @@ import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Build
-import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.kit.alog.ParameterMap
 import com.netease.yunxin.nertc.ui.CallKitUI
 import com.netease.yunxin.nertc.ui.R
+import com.netease.yunxin.nertc.ui.utils.CallUILog
 
 open class SoundHelper {
     companion object {
@@ -64,14 +64,14 @@ open class SoundHelper {
     }
 
     open fun play(context: Context, type: AVChatSoundPlayer.RingerTypeEnum) {
-        ALog.d(logTag, "play type is ${type.name}")
+        CallUILog.d(logTag, "play type is ${type.name}")
         ringerTypeEnum = type
         innerPlay(context, type)
     }
 
     @JvmOverloads
     open fun stop(context: Context? = null, type: AVChatSoundPlayer.RingerTypeEnum? = null) {
-        ALog.d(logTag, "stop, type is ${type?.name}")
+        CallUILog.d(logTag, "stop, type is ${type?.name}")
         if (type != null && type != ringerTypeEnum) {
             return
         }
@@ -86,7 +86,7 @@ open class SoundHelper {
         context: Context,
         type: AVChatSoundPlayer.RingerTypeEnum
     ) {
-        ALog.d(logTag, "play ring type is $type.")
+        CallUILog.d(logTag, "play ring type is $type.")
         val ringId = soundResources(type)
         if (ringId == null || ringId == 0) {
             return
@@ -106,7 +106,7 @@ open class SoundHelper {
             )
             val afd = context.resources.openRawResourceFd(ringId)
             if (afd == null) {
-                ALog.e(logTag, "can't open resources by ringId$ringId, type is $type.")
+                CallUILog.e(logTag, "can't open resources by ringId$ringId, type is $type.")
                 return@apply
             }
             try {
@@ -123,13 +123,13 @@ open class SoundHelper {
                 prepare()
                 start()
             } catch (e: Exception) {
-                ALog.e(logTag, "innerPlay error.", e)
+                CallUILog.e(logTag, "innerPlay error.", e)
             }
         }
     }
 
     private fun innerStop() {
-        ALog.d(logTag, "stop")
+        CallUILog.d(logTag, "stop")
         player.run {
             if (isPlaying) {
                 stop()
@@ -141,7 +141,7 @@ open class SoundHelper {
         if (CallKitUI.options?.joinRtcWhenCall == true && type == AVChatSoundPlayer.RingerTypeEnum.CONNECTING) {
             return
         }
-        ALog.d(TAG, ParameterMap("requestAudioFocus").toString())
+        CallUILog.d(TAG, ParameterMap("requestAudioFocus").toString())
         (context.getSystemService(Context.AUDIO_SERVICE) as AudioManager).run {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 requestAudioFocus(
@@ -158,7 +158,7 @@ open class SoundHelper {
             }
 
             isAudioFocus = true
-            ALog.d(logTag, "requestAudioFocus")
+            CallUILog.d(logTag, "requestAudioFocus")
         }
     }
 
@@ -166,7 +166,7 @@ open class SoundHelper {
         if (!isAudioFocus) {
             return
         }
-        ALog.d(TAG, ParameterMap("abandonAudioFocus").toString())
+        CallUILog.d(TAG, ParameterMap("abandonAudioFocus").toString())
         (context.getSystemService(Context.AUDIO_SERVICE) as AudioManager).run {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 abandonAudioFocusRequest(
@@ -177,7 +177,7 @@ open class SoundHelper {
                 abandonAudioFocus(null)
             }
             isAudioFocus = false
-            ALog.d(logTag, "abandonAudioFocus")
+            CallUILog.d(logTag, "abandonAudioFocus")
         }
     }
 

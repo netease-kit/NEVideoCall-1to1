@@ -15,8 +15,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.Process
 import android.provider.Settings
-import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.nertc.ui.CallKitUI
+import com.netease.yunxin.nertc.ui.utils.CallUILog
 import java.lang.reflect.Method
 import java.util.Arrays
 import java.util.Locale
@@ -38,6 +38,14 @@ object FloatingPermission {
     }
 
     /**
+     * 是否为 MIUI 设备
+     */
+    private fun isMiui(): Boolean {
+        return Build.MANUFACTURER.equals("XIAOMI", true) ||
+            (Build.DISPLAY?.contains("MIUI", true) == true)
+    }
+
+    /**
      * 请求浮窗权限
      */
     fun requireFloatPermission(context: Context) {
@@ -52,16 +60,20 @@ object FloatingPermission {
             }
             context.startActivity(intent)
         } catch (e: Exception) {
-            ALog.e(TAG, "requestFloatWindowPermission Exception", e)
+            CallUILog.e(TAG, "requestFloatWindowPermission Exception", e)
         }
     }
 
     /**
-     * 检查miui 是否被允许后台启动
+     * 检查是否被允许后台启动
      *
      * @return true 允许后台启动
      */
-    fun miuiBackgroundStartAllowed(context: Context): Boolean {
+    fun isBackgroundStartAllowed(context: Context): Boolean {
+        // 仅在 MIUI 设备上进行检查，非 MIUI 直接视为允许，避免不必要的反射调用
+        if (!isMiui()) {
+            return true
+        }
         val ops = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
         try {
             val op = 10021
@@ -82,7 +94,7 @@ object FloatingPermission {
             ) as Int
             return result == AppOpsManager.MODE_ALLOWED
         } catch (e: Exception) {
-            ALog.e(TAG, "not support")
+            CallUILog.e(TAG, "not support")
         }
         return false
     }
@@ -247,7 +259,7 @@ object FloatingPermission {
         }
 
     fun startToPermissionSetting(context: Context) {
-        ALog.i(TAG, "Build.MANUFACTURER = " + Build.MANUFACTURER)
+        CallUILog.i(TAG, "Build.MANUFACTURER = " + Build.MANUFACTURER)
         val permissionMap: LinkedHashMap<String, List<String>> = bgPopHashMap
 
         if (!permissionMap.keys.contains(Build.MANUFACTURER.uppercase(Locale.ROOT))) {
@@ -265,7 +277,7 @@ object FloatingPermission {
                     try {
                         var intent: Intent?
                         if (act.contains("/")) {
-                            ALog.d(TAG, "act = $act")
+                            CallUILog.d(TAG, "act = $act")
                             intent = Intent()
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                             val componentName: ComponentName? = ComponentName.unflattenFromString(

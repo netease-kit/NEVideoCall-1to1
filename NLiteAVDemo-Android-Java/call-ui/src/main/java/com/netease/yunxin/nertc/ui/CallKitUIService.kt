@@ -25,7 +25,7 @@ class CallKitUIService : XKitService {
         get() = "CallUIKit"
 
     override val versionName: String
-        get() = NECallEngine.getVersion()
+        get() = BuildConfig.versionName
 
     override val appKey: String?
         get() = null

@@ -33,25 +33,6 @@
         app:layout_constraintStart_toStartOf="@id/videoViewBig"
         app:layout_constraintTop_toTopOf="@id/videoViewBig" />
 
-    <!--视频通话本地用户预览小视频画面-->
-    <com.netease.lava.nertc.sdk.video.NERtcVideoView
-        android:id="@+id/videoViewSmall"
-        android:layout_width="90dp"
-        android:layout_height="160dp"
-        android:layout_margin="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/ivSmallVideoShade"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/videoViewSmall"
-        app:layout_constraintEnd_toEndOf="@id/videoViewSmall"
-        app:layout_constraintStart_toStartOf="@id/videoViewSmall"
-        app:layout_constraintTop_toTopOf="@id/videoViewSmall" />
-
     <ImageView
         android:id="@+id/ivFloatingWindow"
         android:layout_width="40dp"

@@ -16,7 +16,6 @@ import com.netease.lava.api.IVideoRender
 import com.netease.lava.nertc.sdk.NERtcConstants
 import com.netease.lava.nertc.sdk.NERtcEx
 import com.netease.lava.nertc.sdk.video.NERtcVideoView
-import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.kit.call.NEResultObserver
 import com.netease.yunxin.kit.call.p2p.NECallEngine
 import com.netease.yunxin.kit.call.p2p.model.NECallEndInfo
@@ -33,6 +32,7 @@ import com.netease.yunxin.nertc.ui.p2p.CallUIFloatingWindowMgr
 import com.netease.yunxin.nertc.ui.p2p.CallUIOperationsMgr
 import com.netease.yunxin.nertc.ui.p2p.P2PUIConfig
 import com.netease.yunxin.nertc.ui.utils.AppForegroundWatcherHelper
+import com.netease.yunxin.nertc.ui.utils.CallUILog
 import com.netease.yunxin.nertc.ui.utils.PermissionTipDialog
 import com.netease.yunxin.nertc.ui.utils.SwitchCallTypeConfirmDialog
 import com.netease.yunxin.nertc.ui.view.OverLayPermissionDialog
@@ -108,7 +108,7 @@ abstract class CommonCallActivity : AppCompatActivity(), NECallEngineDelegate {
         // 初始化呼叫信息
         channelId = callParam.getChannelId()
         uiConfig = provideUIConfig(callParam)?.apply {
-            ALog.d(tag, "current P2PUIConfig is $this.")
+            CallUILog.d(tag, "current P2PUIConfig is $this.")
         }
         if (!isFromFloatingWindow) {
             CallUIOperationsMgr.initCallInfoAndUIState(
@@ -367,12 +367,12 @@ abstract class CommonCallActivity : AppCompatActivity(), NECallEngineDelegate {
     }
 
     protected open fun doShowFloatingWindow() {
-        ALog.dApi(tag, "doShowFloatingWindow")
+        CallUILog.d(tag, "doShowFloatingWindow")
         doShowFloatingWindowInner()
     }
 
     private fun doShowFloatingWindowInner() {
-        ALog.d(tag, "doShowFloatingWindowInner")
+        CallUILog.d(tag, "doShowFloatingWindowInner")
         if (!FloatingPermission.isFloatPermissionValid(this)) {
             if (overLayPermissionDialog?.isShowing != true) {
                 showOverlayPermissionDialog {
@@ -382,7 +382,7 @@ abstract class CommonCallActivity : AppCompatActivity(), NECallEngineDelegate {
             return
         }
 
-        if (!FloatingPermission.miuiBackgroundStartAllowed(this)) {
+        if (!FloatingPermission.isBackgroundStartAllowed(this)) {
             if (overLayPermissionDialog?.isShowing != true) {
                 showOverlayPermissionDialog {
                     FloatingPermission.startToPermissionSetting(this)
@@ -433,7 +433,7 @@ abstract class CommonCallActivity : AppCompatActivity(), NECallEngineDelegate {
             }
             occurError = true
             releaseAndFinish(true)
-            ALog.e(tag, "CallParam is null. Then finish this activity.")
+            CallUILog.e(tag, "CallParam is null. Then finish this activity.")
             CallParam(true)
         }
     }

@@ -13,21 +13,17 @@ import android.text.TextUtils
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.netease.lava.nertc.sdk.NERtcConstants
 import com.netease.lava.nertc.sdk.NERtcEx
 import com.netease.nimlib.sdk.NIMClient
-import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.kit.call.NEResultObserver
 import com.netease.yunxin.kit.call.group.GroupCallMember
 import com.netease.yunxin.kit.call.group.GroupHelperUtils
-import com.netease.yunxin.kit.call.group.NEGroupCall
 import com.netease.yunxin.kit.call.group.NEGroupConstants
 import com.netease.yunxin.kit.call.group.param.GroupAcceptParam
 import com.netease.yunxin.kit.call.group.param.GroupCallParam
@@ -35,16 +31,20 @@ import com.netease.yunxin.kit.call.group.param.GroupHangupParam
 import com.netease.yunxin.kit.call.group.param.GroupInviteParam
 import com.netease.yunxin.kit.call.group.param.GroupJoinParam
 import com.netease.yunxin.kit.call.group.result.GroupCallResult
+import com.netease.yunxin.kit.common.ui.utils.ToastX
 import com.netease.yunxin.nertc.ui.CallKitUI
 import com.netease.yunxin.nertc.ui.R
 import com.netease.yunxin.nertc.ui.base.CommonGroupCallActivity
+import com.netease.yunxin.nertc.ui.base.Constants
 import com.netease.yunxin.nertc.ui.service.UIServiceManager
+import com.netease.yunxin.nertc.ui.utils.CallUILog
 import com.netease.yunxin.nertc.ui.utils.SecondsTimer
 import com.netease.yunxin.nertc.ui.utils.dip2Px
 import com.netease.yunxin.nertc.ui.utils.formatSecondTime
 import com.netease.yunxin.nertc.ui.utils.image.BlurCenterCorp
 import com.netease.yunxin.nertc.ui.utils.image.RoundedCornersCenterCrop
 import com.netease.yunxin.nertc.ui.utils.requestPermission
+import com.netease.yunxin.nertc.ui.view.GroupCallGridLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -59,9 +59,7 @@ open class GroupCallActivity : CommonGroupCallActivity() {
     protected var isMuteAudio = false
     protected var isMuteVideo = true
     protected var enableVideo = false
-
     private val videoEnableList = mutableListOf<Long>()
-
     private val userInfoFetcher = GroupUserInfoFetcher()
 
     override fun onMemberChanged(callId: String, userList: MutableList<GroupCallMember>) {
@@ -72,47 +70,36 @@ open class GroupCallActivity : CommonGroupCallActivity() {
         if (userList.isEmpty()) {
             return
         }
-        ALog.d(TAG, "onMemberChanged, callId is $callId, userList is $userList.")
+        CallUILog.d(TAG, "onMemberChanged, callId is $callId, userList is $userList.")
         userList.forEach {
             if (currentUserAccId == it.accId) {
                 return@forEach
             }
+            CallUILog.d(TAG, "onMemberChanged action: ${it.action}, reason: ${it.reason}.")
             when (it.action) {
                 NEGroupConstants.UserAction.REJECT -> {
-                    Toast.makeText(
-                        this@GroupCallActivity,
-                        when (it.reason) {
-                            NEGroupConstants.HangupReason.BUSY -> R.string.tip_busy_by_other
-                            NEGroupConstants.HangupReason.TIMEOUT -> R.string.tip_timeout_by_other
-                            else -> R.string.tip_reject_by_other
-                        },
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    when (it.reason) {
+                        NEGroupConstants.HangupReason.BUSY ->
+                            ToastX.showShortToast(
+                                R.string.tip_busy_by_other
+                            )
+                        NEGroupConstants.HangupReason.TIMEOUT ->
+                            ToastX.showShortToast(
+                                R.string.tip_timeout_by_other
+                            )
+                    }
                 }
                 NEGroupConstants.UserAction.LEAVE -> {
-                    Toast.makeText(
-                        this@GroupCallActivity,
-                        when (it.reason) {
-                            NEGroupConstants.HangupReason.BUSY -> R.string.tip_busy_by_other
-                            NEGroupConstants.HangupReason.TIMEOUT -> R.string.tip_timeout_by_other
-                            else -> R.string.tip_hangup_by_other
-                        },
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    when (it.reason) {
+                        NEGroupConstants.HangupReason.BUSY ->
+                            ToastX.showShortToast(R.string.tip_busy_by_other)
+                        NEGroupConstants.HangupReason.TIMEOUT ->
+                            ToastX.showShortToast(R.string.tip_timeout_by_other)
+                    }
                 }
                 NEGroupConstants.UserAction.ACCEPT -> {
-                    Toast.makeText(
-                        this@GroupCallActivity,
-                        R.string.tip_accept_by_other,
-                        Toast.LENGTH_SHORT
-                    ).show()
                 }
                 NEGroupConstants.UserAction.JOIN -> {
-                    Toast.makeText(
-                        this@GroupCallActivity,
-                        R.string.tip_join_by_other,
-                        Toast.LENGTH_SHORT
-                    ).show()
                 }
             }
         }
@@ -142,7 +129,7 @@ open class GroupCallActivity : CommonGroupCallActivity() {
                 if (result == null || result.isEmpty()) {
                     return@getUserInfoList
                 }
-                pageAdapter?.setData(result) {
+                gridAdapter?.setData(result) {
                     result.forEach {
                         val index = resultList.indexOf(GroupCallMember(it.accId))
                         if (index >= 0) {
@@ -170,33 +157,33 @@ open class GroupCallActivity : CommonGroupCallActivity() {
     }
 
     override fun onUserVideoStart(uid: Long, maxProfile: Int) {
-        ALog.d(TAG, "onUserVideoMute, uid is $uid, maxProfile is $maxProfile.")
+        CallUILog.d(TAG, "onUserVideoMute, uid is $uid, maxProfile is $maxProfile.")
         if (isFinishing) {
             return
         }
         videoEnableList.add(uid)
         CoroutineScope(Dispatchers.Main).launch {
-            pageAdapter?.updateState(uid, enableVideo = true)
+            gridAdapter?.updateState(uid, enableVideo = true)
         }
     }
 
     override fun onUserVideoStop(uid: Long) {
-        ALog.d(TAG, "onUserVideoStop, uid is $uid")
+        CallUILog.d(TAG, "onUserVideoStop, uid is $uid")
         if (isFinishing) {
             return
         }
         videoEnableList.remove(uid)
         CoroutineScope(Dispatchers.Main).launch {
-            pageAdapter?.updateState(uid, enableVideo = false)
+            gridAdapter?.updateState(uid, enableVideo = false)
         }
     }
 
     override fun onUserVideoMute(uid: Long, mute: Boolean) {
-        ALog.d(TAG, "onUserVideoMute, uid is $uid, mute is $mute.")
+        CallUILog.d(TAG, "onUserVideoMute, uid is $uid, mute is $mute.")
         if (isFinishing) {
             return
         }
-        pageAdapter?.updateState(uid, enableVideo = !mute)
+        gridAdapter?.updateState(uid, enableVideo = !mute)
     }
 
     override fun onVideoDeviceStageChange(deviceState: Int) {
@@ -215,18 +202,17 @@ open class GroupCallActivity : CommonGroupCallActivity() {
         }
     }
 
-    private var pageAdapter: GroupMemberPageAdapter? = null
+    private var gridAdapter: GroupMemberGridAdapter? = null
+    private var gridLayout: GroupCallGridLayout? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.requestPermission(
             {},
             { _: List<String>?, _: List<String>? ->
-                Toast.makeText(
-                    applicationContext,
-                    R.string.ui_dialog_permission_content,
-                    Toast.LENGTH_SHORT
-                ).show()
+                ToastX.showShortToast(
+                    R.string.ui_dialog_permission_content
+                )
             },
             Manifest.permission.CAMERA,
             Manifest.permission.RECORD_AUDIO
@@ -255,17 +241,13 @@ open class GroupCallActivity : CommonGroupCallActivity() {
             initOnTheCallUI(list)
             doCall(callParam!!)
         } else if (!TextUtils.isEmpty(callId)) {
-            NEGroupCall.instance()
+            GroupCallUIManager.getInstance()
                 .groupJoin(
                     GroupJoinParam(callId)
                 ) {
                     if (!it.isSuccessful || it.groupCallInfo == null) {
-                        Toast.makeText(
-                            applicationContext,
-                            R.string.tip_join_failed,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        ALog.w(TAG, "result is error $it.")
+                        ToastX.showShortToast(R.string.tip_join_failed)
+                        CallUILog.w(TAG, "result is error $it.")
                         finish()
                         return@groupJoin
                     }
@@ -301,7 +283,6 @@ open class GroupCallActivity : CommonGroupCallActivity() {
             )
             NERtcEx.getInstance().muteLocalAudioStream(isMuteAudio)
         }
-        NERtcEx.getInstance().enableLocalVideo(false)
         val muteVideo = findViewById<ImageView>(R.id.ivMuteVideo)
         muteVideo.setImageResource(if (isMuteVideo) R.drawable.cam_off else R.drawable.cam_on)
         NERtcEx.getInstance().muteLocalVideoStream(isMuteVideo)
@@ -314,7 +295,7 @@ open class GroupCallActivity : CommonGroupCallActivity() {
             }
             muteVideo.setImageResource(if (isMuteVideo) R.drawable.cam_off else R.drawable.cam_on)
             NERtcEx.getInstance().muteLocalVideoStream(isMuteVideo)
-            pageAdapter?.updateState(
+            gridAdapter?.updateState(
                 callInfo?.getRtcUidByAccId(currentUserAccId) ?: 0,
                 enableVideo = !isMuteVideo
             )
@@ -323,13 +304,16 @@ open class GroupCallActivity : CommonGroupCallActivity() {
         hangup.setOnClickListener {
             hangup.isEnabled = false
             callInfo?.run {
-                NEGroupCall.instance().groupHangup(GroupHangupParam(callId), null)
+                GroupCallUIManager.getInstance().groupHangup(GroupHangupParam(callId), null)
             }
             callInfo = null
             finish()
         }
         val inviteUsers = findViewById<View>(R.id.ivInviteUsers)
-        if (UIServiceManager.getInstance().uiService == null) {
+        if (UIServiceManager.getInstance().uiService == null ||
+            CallKitUI.options == null ||
+            CallKitUI.options?.enableInviteOthersWhenGroupCalling == false
+        ) {
             inviteUsers.visibility = View.GONE
         } else {
             inviteUsers.visibility = View.VISIBLE
@@ -342,17 +326,40 @@ open class GroupCallActivity : CommonGroupCallActivity() {
                     callInfo!!.memberList?.map { it.accId }
                 ) { it ->
                     it ?: return@startContactSelector
+                    if ((callInfo?.memberList?.size ?: 0) + it.size > Constants.MAX_MEMBER_COUNT) {
+                        CallUILog.e(TAG, "startGroupCall, calleeList size is too large.")
+                        ToastX.showShortToast(R.string.ui_member_exceed_limit)
+                        return@startContactSelector
+                    }
+
                     val inviteParam = GroupInviteParam(callInfo!!.callId, it)
-                    NEGroupCall.instance().groupInvite(inviteParam) { result ->
-                        ALog.d(TAG, "invite result is $result.")
+                    GroupCallUIManager.getInstance().groupInvite(inviteParam) { result ->
+                        CallUILog.d(TAG, "invite result is $result.")
                     }
                 }
             }
         }
 
-        val vpMemberOnTheCall = findViewById<ViewPager2>(R.id.vpMemberList)
-        pageAdapter = GroupMemberPageAdapter(this)
-        pageAdapter?.wrapViewpager(vpMemberOnTheCall)
+        gridLayout = findViewById<GroupCallGridLayout>(R.id.gridMemberList)
+        gridAdapter = GroupMemberGridAdapter(this)
+        gridAdapter?.setGridLayout(gridLayout!!)
+
+        // 设置动画状态监听器
+        gridLayout?.setOnAnimationStateChangeListener { isAnimating ->
+            gridAdapter?.setLayoutAnimating(isAnimating)
+        }
+
+        // 设置点击监听器，实现点击放大功能
+        gridLayout?.setOnItemClickListener { index ->
+            // 点击放大功能
+            if (gridLayout?.getLargeViewIndex() == index) {
+                // 如果当前点击的是已放大的View，则取消放大
+                gridLayout?.resetLargeView(true) // 使用动画
+            } else {
+                // 放大点击的View
+                gridLayout?.setLargeViewIndex(index, true) // 使用动画
+            }
+        }
         // 数据获取并刷新 UI
         userInfoFetcher.getUserInfoList(
             userList,
@@ -361,7 +368,7 @@ open class GroupCallActivity : CommonGroupCallActivity() {
                     return@getUserInfoList
                 }
                 val totalUserList = callInfo!!.memberList
-                pageAdapter?.setData(result) {
+                gridAdapter?.setData(result) {
                     result.map {
                         val index = totalUserList.indexOf(GroupCallMember(it.accId))
                         if (index >= 0) {
@@ -448,7 +455,7 @@ open class GroupCallActivity : CommonGroupCallActivity() {
             reject.isEnabled = false
             accept.isEnabled = false
             callInfo?.run {
-                NEGroupCall.instance().groupHangup(GroupHangupParam(callId), null)
+                GroupCallUIManager.getInstance().groupHangup(GroupHangupParam(callId), null)
             }
             callInfo = null
             finish()
@@ -458,18 +465,14 @@ open class GroupCallActivity : CommonGroupCallActivity() {
             accept.isEnabled = false
             reject.isEnabled = false
             callInfo?.run {
-                NEGroupCall.instance().groupAccept(
+                GroupCallUIManager.getInstance().groupAccept(
                     GroupAcceptParam(
                         callId
                     )
                 ) {
                     if (!it.isSuccessful || it.groupCallInfo == null) {
-                        ALog.w(TAG, "result is error $it.")
-                        Toast.makeText(
-                            applicationContext,
-                            R.string.tip_accept_failed,
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        CallUILog.w(TAG, "result is error $it.")
+                        ToastX.showShortToast(R.string.tip_accept_failed)
                         finish()
                         return@groupAccept
                     }
@@ -483,7 +486,7 @@ open class GroupCallActivity : CommonGroupCallActivity() {
                     calleeLayout.visibility = View.GONE
                 }
             } ?: run {
-                ALog.e(TAG, "callInfo is null. accept failed.")
+                CallUILog.e(TAG, "callInfo is null. accept failed.")
             }
         }
     }
@@ -491,15 +494,17 @@ open class GroupCallActivity : CommonGroupCallActivity() {
     private fun doCall(param: GroupCallParam) {
         val muteVideo = findViewById<ImageView>(R.id.ivMuteVideo)
         muteVideo.isEnabled = false
-        NEGroupCall.instance().groupCall(param) { result: GroupCallResult ->
+        GroupCallUIManager.getInstance().groupCall(param) { result: GroupCallResult ->
             if (!result.isSuccessful) {
-                Toast.makeText(
-                    applicationContext,
-                    R.string.tip_start_call_failed,
-                    Toast.LENGTH_SHORT
-                ).show()
+                CallUILog.e(
+                    TAG,
+                    "groupCall failed callId:${result.callId}, sdkCode:${result.sdkCode}, dataCode:${result.dataCode}}"
+                )
+                ToastX.showShortToast(R.string.tip_start_call_failed)
                 finish()
                 return@groupCall
+            } else {
+                CallUILog.i(TAG, "groupCall success callId:${result.callId}")
             }
             callInfo = GroupHelperUtils.generateGroupCallInfo(
                 NIMClient.getCurrentAccount(),
@@ -507,7 +512,7 @@ open class GroupCallActivity : CommonGroupCallActivity() {
                 param,
                 result
             ).apply {
-                pageAdapter?.updateCallerUid(callerAccId, result.callerUid)
+                gridAdapter?.updateCallerUid(callerAccId, result.callerUid)
                 muteVideo.isEnabled = true
             }
         }
@@ -526,14 +531,14 @@ open class GroupCallActivity : CommonGroupCallActivity() {
             }
             NERtcEx.getInstance().setupLocalVideoCanvas(null)
             videoEnableList.clear()
-            pageAdapter?.release()
-            pageAdapter = null
+            gridAdapter?.release()
+            gridAdapter = null
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        pageAdapter?.release()
+        gridAdapter?.release()
     }
 
     private fun showExitDialog() {

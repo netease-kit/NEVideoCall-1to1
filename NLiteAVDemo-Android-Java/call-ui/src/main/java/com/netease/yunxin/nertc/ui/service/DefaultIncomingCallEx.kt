@@ -14,13 +14,13 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.kit.call.group.NEGroupCallInfo
 import com.netease.yunxin.kit.call.p2p.model.NEInviteInfo
 import com.netease.yunxin.nertc.ui.CallKitNotificationConfig
 import com.netease.yunxin.nertc.ui.CallKitUI
 import com.netease.yunxin.nertc.ui.R
 import com.netease.yunxin.nertc.ui.base.toCallIntent
+import com.netease.yunxin.nertc.ui.utils.CallUILog
 
 open class DefaultIncomingCallEx : IncomingCallEx() {
 
@@ -29,7 +29,7 @@ open class DefaultIncomingCallEx : IncomingCallEx() {
     }
 
     override fun onIncomingCall(invitedInfo: NEGroupCallInfo): Boolean {
-        ALog.d(TAG, "onIncomingCall for group, invitedInfo is $invitedInfo.")
+        CallUILog.d(TAG, "onIncomingCall for group, invitedInfo is $invitedInfo.")
         // 直接呼起
         context!!.startActivity(invitedInfo.toCallIntent())
         // 生成通知并提醒
@@ -38,7 +38,7 @@ open class DefaultIncomingCallEx : IncomingCallEx() {
     }
 
     override fun onIncomingCall(invitedInfo: NEInviteInfo): Boolean {
-        ALog.d(TAG, "onIncomingCall, invitedInfo is $invitedInfo.")
+        CallUILog.d(TAG, "onIncomingCall, invitedInfo is $invitedInfo.")
         // 直接呼起
         context!!.startActivity(invitedInfo.toCallIntent())
         // 生成通知并提醒
@@ -142,7 +142,7 @@ open class DefaultIncomingCallEx : IncomingCallEx() {
         try {
             notificationManager.cancel(INCOMING_CALL_NOTIFY_ID)
         } catch (ignored: Exception) {
-            ALog.e(TAG, "cancelNotification", ignored)
+            CallUILog.e(TAG, "cancelNotification", ignored)
         }
     }
 
@@ -150,10 +150,10 @@ open class DefaultIncomingCallEx : IncomingCallEx() {
         val intent = invitedInfo.toCallIntent()
         // 直接呼起
         context?.startActivity(intent) ?: run {
-            ALog.d("NERTCVideoCallImpl", "start new call In!")
+            CallUILog.d("NERTCVideoCallImpl", "start new call In!")
             return false
         }
-        ALog.d("NERTCVideoCallImpl", "start new call In!")
+        CallUILog.d("NERTCVideoCallImpl", "start new call In!")
         return true
     }
 
@@ -161,10 +161,10 @@ open class DefaultIncomingCallEx : IncomingCallEx() {
         val intent = invitedInfo.toCallIntent()
         // 直接呼起
         context?.startActivity(intent) ?: run {
-            ALog.d("NERTCVideoCallImpl", "start new group call In!")
+            CallUILog.d("NERTCVideoCallImpl", "start new group call In!")
             return false
         }
-        ALog.d("NERTCVideoCallImpl", "start new group call In!")
+        CallUILog.d("NERTCVideoCallImpl", "start new group call In!")
         return true
     }
 

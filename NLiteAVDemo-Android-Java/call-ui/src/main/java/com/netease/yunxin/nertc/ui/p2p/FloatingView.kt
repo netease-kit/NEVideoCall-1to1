@@ -13,7 +13,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.Toast
-import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.kit.alog.ParameterMap
 import com.netease.yunxin.kit.call.p2p.NECallEngine
 import com.netease.yunxin.kit.call.p2p.model.NECallEngineDelegateAbs
@@ -21,6 +20,7 @@ import com.netease.yunxin.nertc.nertcvideocall.model.impl.state.CallState
 import com.netease.yunxin.nertc.ui.R
 import com.netease.yunxin.nertc.ui.base.loadAvatarByAccId
 import com.netease.yunxin.nertc.ui.databinding.ViewFloatingWindowBinding
+import com.netease.yunxin.nertc.ui.utils.CallUILog
 import com.netease.yunxin.nertc.ui.utils.dip2Px
 import com.netease.yunxin.nertc.ui.utils.formatSecondTime
 import com.netease.yunxin.nertc.ui.utils.isGranted
@@ -62,7 +62,7 @@ class FloatingView(context: Context) : FrameLayout(context), IFloatingView {
     }
 
     override fun transToAudioUI() {
-        ALog.dApi(logTag, ParameterMap("transToAudioUI"))
+        CallUILog.dApi(logTag, ParameterMap("transToAudioUI"))
         val action = { _: Any? ->
             binding.floatAudioGroup.visibility = View.VISIBLE
             binding.videoViewSmall.visibility = View.GONE
@@ -83,7 +83,7 @@ class FloatingView(context: Context) : FrameLayout(context), IFloatingView {
     }
 
     override fun transToVideoUI() {
-        ALog.dApi(logTag, ParameterMap("transToVideoUI"))
+        CallUILog.dApi(logTag, ParameterMap("transToVideoUI"))
         val action = { needToEnableLocalVideo: Boolean ->
             if (needToEnableLocalVideo) {
                 NECallEngine.sharedInstance().enableLocalVideo(true)

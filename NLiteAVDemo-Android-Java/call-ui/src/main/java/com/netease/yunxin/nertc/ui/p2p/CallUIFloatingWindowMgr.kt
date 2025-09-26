@@ -11,7 +11,6 @@ import android.content.Context
 import android.content.Intent
 import android.view.View
 import android.view.WindowManager
-import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.kit.alog.ParameterMap
 import com.netease.yunxin.kit.call.p2p.NECallEngine
 import com.netease.yunxin.kit.call.p2p.model.NECallEndInfo
@@ -26,6 +25,7 @@ import com.netease.yunxin.nertc.ui.base.Constants
 import com.netease.yunxin.nertc.ui.base.launchTask
 import com.netease.yunxin.nertc.ui.floating.FloatingTouchEventStrategy
 import com.netease.yunxin.nertc.ui.floating.FloatingWindowWrapper
+import com.netease.yunxin.nertc.ui.utils.CallUILog
 import com.netease.yunxin.nertc.ui.utils.SwitchCallTypeConfirmDialog
 
 /**
@@ -114,7 +114,7 @@ object CallUIFloatingWindowMgr {
         touchEventStrategy: FloatingTouchEventStrategy? = null
 
     ) {
-        ALog.dApi(
+        CallUILog.dApi(
             TAG,
             ParameterMap("showFloat").append("context", context).append("uiConfig", uiConfig)
         )
@@ -147,7 +147,7 @@ object CallUIFloatingWindowMgr {
                 }
 
                 else -> {
-                    ALog.e(TAG, "unknown call type")
+                    CallUILog.e(TAG, "unknown call type")
                 }
             }
         }
@@ -175,7 +175,7 @@ object CallUIFloatingWindowMgr {
                         launch(context, clazz, callParam)
                     } else {
                         innerRelease(true)
-                        ALog.e(
+                        CallUILog.e(
                             TAG,
                             "launch activity failed, clazz is null, callType is $callType."
                         )
@@ -198,7 +198,7 @@ object CallUIFloatingWindowMgr {
      * 销毁悬浮窗
      */
     fun releaseFloat(isFinished: Boolean = true) {
-        ALog.dApi(TAG, ParameterMap("releaseFloat"))
+        CallUILog.dApi(TAG, ParameterMap("releaseFloat"))
         innerRelease(isFinished)
     }
 
@@ -219,7 +219,7 @@ object CallUIFloatingWindowMgr {
         dialogFlag = Any()
         floatingWindowWrapper?.context?.run {
             launchTask(this, REQUEST_CODE_FLOAT, { activity, _ ->
-                ALog.d(TAG, "showSwitchCallTypeConfirmDialog")
+                CallUILog.d(TAG, "showSwitchCallTypeConfirmDialog")
                 dialog =
                     switchCallTypeConfirmDialogProvider?.invoke(activity) ?: SwitchCallTypeConfirmDialog(
                         activity,
@@ -253,7 +253,7 @@ object CallUIFloatingWindowMgr {
     }
 
     private fun innerRelease(isFinished: Boolean) {
-        ALog.d(TAG, ParameterMap("innerRelease").toValue())
+        CallUILog.d(TAG, ParameterMap("innerRelease").toValue())
         NECallEngine.sharedInstance().removeCallDelegate(delegate)
         CallUIOperationsMgr.configTimeTick(null)
         floatContentView?.toDestroy(isFinished)
@@ -272,7 +272,7 @@ object CallUIFloatingWindowMgr {
         clazz: Class<out Activity>,
         callParam: CallParam
     ) {
-        ALog.dApi(
+        CallUILog.dApi(
             TAG,
             ParameterMap("launch")
                 .append("context", context)

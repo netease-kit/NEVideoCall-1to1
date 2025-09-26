@@ -14,7 +14,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.netease.yunxin.kit.alog.ALog
+import com.netease.yunxin.nertc.ui.utils.CallUILog
 
 private const val TAG = "TransHelper"
 
@@ -74,7 +74,7 @@ class TransferHelperActivity : AppCompatActivity() {
             val param = transferMap.remove(requestId)
             param?.result?.invoke(ResultInfo(data, resultCode == RESULT_OK))
         } catch (ignored: Throwable) {
-            ALog.e(TAG, "onActivityResult", ignored)
+            CallUILog.e(TAG, "onActivityResult", ignored)
         } finally {
             finish()
         }
@@ -130,7 +130,7 @@ class TransferHelperActivity : AppCompatActivity() {
                 )
             )
         } catch (ignored: Throwable) {
-            ALog.e(TAG, "onRequestPermissionsResult", ignored)
+            CallUILog.e(TAG, "onRequestPermissionsResult", ignored)
         } finally {
             finish()
         }

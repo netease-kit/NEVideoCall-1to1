@@ -12,7 +12,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Process
 import androidx.annotation.MainThread
-import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.kit.alog.ParameterMap
 import com.netease.yunxin.kit.call.NEResultObserver
 import com.netease.yunxin.kit.call.common.NECallExtensionMgr
@@ -28,6 +27,7 @@ import com.netease.yunxin.kit.call.p2p.model.NECallConfig
 import com.netease.yunxin.kit.call.p2p.model.NECallType
 import com.netease.yunxin.kit.call.p2p.model.NEInviteInfo
 import com.netease.yunxin.kit.call.p2p.model.NESetupConfig
+import com.netease.yunxin.kit.common.ui.utils.ToastX
 import com.netease.yunxin.nertc.nertcvideocall.utils.CallOrderHelper
 import com.netease.yunxin.nertc.ui.base.AVChatSoundPlayer
 import com.netease.yunxin.nertc.ui.base.CallParam
@@ -39,6 +39,7 @@ import com.netease.yunxin.nertc.ui.service.CallKitUIBridgeService
 import com.netease.yunxin.nertc.ui.service.UIService
 import com.netease.yunxin.nertc.ui.service.UIServiceManager
 import com.netease.yunxin.nertc.ui.utils.AppForegroundWatcherHelper
+import com.netease.yunxin.nertc.ui.utils.CallUILog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -104,14 +105,14 @@ object CallKitUI {
     @JvmStatic
     @MainThread
     fun init(context: Context, options: CallKitUIOptions) {
-        ALog.dApi(TAG, ParameterMap("init"))
+        CallUILog.dApi(TAG, ParameterMap("init"))
         initInner(context, options)
     }
 
     private fun initInner(context: Context, options: CallKitUIOptions) {
-        ALog.d(TAG, "CallKitUI init start.")
+        CallUILog.d(TAG, "CallKitUI init start.")
         if (init) {
-            ALog.w(TAG, "CallKitUI had init completed, to init again.")
+            CallUILog.w(TAG, "CallKitUI had init completed, to init again.")
             destroyInner()
         }
         this.options = options
@@ -214,14 +215,14 @@ object CallKitUI {
             CallUIOperationsMgr.load(context)
             MultiLanguageHelper.changeLanguage(context, language.language)
             init = true
-            ALog.d(TAG, "CallKitUI init completed. Init with options $this.")
+            CallUILog.d(TAG, "CallKitUI init completed. Init with options $this.")
         }
     }
 
     @JvmStatic
     @MainThread
     fun startSingleCall(context: Context, callParam: CallParam) {
-        ALog.dApi(
+        CallUILog.dApi(
             TAG,
             ParameterMap("startSingleCall").append("context", context)
                 .append("callParam", callParam)
@@ -241,12 +242,19 @@ object CallKitUI {
     @JvmStatic
     @MainThread
     fun startGroupCall(context: Context, callParam: GroupCallParam) {
-        ALog.dApi(
+        CallUILog.dApi(
             TAG,
             ParameterMap("startGroupCall").append("context", context)
                 .append("callParam", callParam)
         )
         init.checkAndThrow("startGroupCall")
+
+        if (callParam.calleeList.size > Constants.MAX_MEMBER_COUNT - 1) {
+            CallUILog.e(TAG, "startGroupCall, calleeList size is too large.")
+            ToastX.showShortToast(R.string.ui_member_exceed_limit)
+            return
+        }
+
         val intent = Intent(context, options!!.activityConfig.groupCallActivity!!).apply {
             putExtra(Constants.PARAM_KEY_GROUP_CALL, callParam)
             if (context !is Activity) {
@@ -259,7 +267,7 @@ object CallKitUI {
     @JvmStatic
     @MainThread
     fun joinGroupCall(context: Context, param: GroupJoinParam) {
-        ALog.dApi(
+        CallUILog.dApi(
             TAG,
             ParameterMap("joinGroupCall").append("context", context)
                 .append("param", param)
@@ -277,13 +285,13 @@ object CallKitUI {
     @JvmStatic
     @MainThread
     fun destroy() {
-        ALog.dApi(TAG, ParameterMap("destroy"))
+        CallUILog.dApi(TAG, ParameterMap("destroy"))
         destroyInner()
         CallUIOperationsMgr.unload()
     }
 
     private fun destroyInner() {
-        ALog.d(TAG, "CallKitUI destroy inner.")
+        CallUILog.d(TAG, "CallKitUI destroy inner.")
         init = false
         UIServiceManager.getInstance().uiService = null
         unregisterResumeUIActionInner()
@@ -297,13 +305,13 @@ object CallKitUI {
             NEGroupCall.instance().release()
         }
         UserInfoExtensionHelper.userInfoHelper = null
-        ALog.d(TAG, "CallKitUI destroy inner, completed.")
+        CallUILog.d(TAG, "CallKitUI destroy inner, completed.")
     }
 
     @JvmStatic
     @MainThread
     fun registerResumeUIAction() {
-        ALog.dApi(TAG, ParameterMap("registerResumeUIAction"))
+        CallUILog.dApi(TAG, ParameterMap("registerResumeUIAction"))
         init.checkAndThrow("registerResumeUIAction")
         registerResumeUIActionInner()
     }
@@ -311,7 +319,7 @@ object CallKitUI {
     @JvmStatic
     @MainThread
     fun unregisterResumeUIAction() {
-        ALog.dApi(TAG, ParameterMap("unregisterResumeUIAction"))
+        CallUILog.dApi(TAG, ParameterMap("unregisterResumeUIAction"))
         init.checkAndThrow("unregisterResumeUIAction")
         unregisterResumeUIActionInner()
     }
@@ -319,12 +327,12 @@ object CallKitUI {
     fun currentVersion(): String = NECallEngineImpl.CURRENT_VERSION
 
     private fun registerResumeUIActionInner() {
-        ALog.d(TAG, "CallKitUI register resume ui action inner.")
+        CallUILog.d(TAG, "CallKitUI register resume ui action inner.")
         AppForegroundWatcherHelper.addWatcher(watcher)
     }
 
     private fun unregisterResumeUIActionInner() {
-        ALog.d(TAG, "CallKitUI unregister resume ui action inner.")
+        CallUILog.d(TAG, "CallKitUI unregister resume ui action inner.")
         AppForegroundWatcherHelper.removeWatcher(watcher)
     }
 
@@ -335,7 +343,7 @@ object CallKitUI {
     }
 
     private fun wrapperUncaughtExceptionHandler() {
-        ALog.d(TAG, "wrapperUncaughtExceptionHandler")
+        CallUILog.d(TAG, "wrapperUncaughtExceptionHandler")
         val exceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         if (exceptionHandler is InnerExceptionHandler) {
             return
@@ -346,7 +354,7 @@ object CallKitUI {
     private class InnerExceptionHandler(val exceptionHandler: Thread.UncaughtExceptionHandler?) :
         Thread.UncaughtExceptionHandler {
         override fun uncaughtException(t: Thread, e: Throwable) {
-            ALog.e(
+            CallUILog.e(
                 TAG,
                 "ThreadName is ${Thread.currentThread().name}, pid is ${Process.myPid()} tid is ${Process.myTid()}.",
                 e

@@ -24,7 +24,6 @@ import com.netease.lava.nertc.sdk.NERtcConstants.ErrorCode.ENGINE_ERROR_DEVICE_P
 import com.netease.lava.nertc.sdk.NERtcEx
 import com.netease.nimlib.sdk.NIMClient
 import com.netease.nimlib.sdk.ResponseCode
-import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.kit.call.NEResultObserver
 import com.netease.yunxin.kit.call.p2p.model.NECallEndInfo
 import com.netease.yunxin.kit.call.p2p.model.NECallInfo
@@ -43,6 +42,7 @@ import com.netease.yunxin.nertc.ui.base.currentUserIsCaller
 import com.netease.yunxin.nertc.ui.base.fetchNickname
 import com.netease.yunxin.nertc.ui.base.loadAvatarByAccId
 import com.netease.yunxin.nertc.ui.databinding.ActivityP2PcallBinding
+import com.netease.yunxin.nertc.ui.utils.CallUILog
 import com.netease.yunxin.nertc.ui.utils.PermissionTipDialog
 import com.netease.yunxin.nertc.ui.utils.dip2Px
 import com.netease.yunxin.nertc.ui.utils.formatSecondTime
@@ -110,7 +110,7 @@ open class P2PCallActivity : CommonCallActivity() {
             binding.ivMuteSpeaker -> doConfigSpeakerSwitch(v as ImageView)
 
             binding.videoViewSmall -> doSwitchCanvas()
-            else -> ALog.d(tag, "can't response this clicked Event for $v")
+            else -> CallUILog.d(tag, "can't response this clicked Event for $v")
         }
     }
 
@@ -215,7 +215,7 @@ open class P2PCallActivity : CommonCallActivity() {
 
     override fun doOnCreate(savedInstanceState: Bundle?) {
         super.doOnCreate(savedInstanceState)
-        ALog.d(tag, callParam.toString())
+        CallUILog.d(tag, callParam.toString())
         initForLaunchUI()
         val dialog: PermissionTipDialog?
         if (!isGranted(
@@ -240,7 +240,7 @@ open class P2PCallActivity : CommonCallActivity() {
                 return@requestPermission
             }
             granted.forEach {
-                ALog.i(tag, "granted:$it")
+                CallUILog.i(tag, "granted:$it")
             }
             if (granted.containsAll(
                     listOf(
@@ -256,13 +256,13 @@ open class P2PCallActivity : CommonCallActivity() {
                 }
                 initForLaunchAction()
             }
-            ALog.i(tag, "extra info is ${callParam.callExtraInfo}")
+            CallUILog.i(tag, "extra info is ${callParam.callExtraInfo}")
         }, { deniedForever, denied ->
             denied.forEach {
-                ALog.i(tag, "denied:$it")
+                CallUILog.i(tag, "denied:$it")
             }
             deniedForever.forEach {
-                ALog.i(tag, "deniedForever:$it")
+                CallUILog.i(tag, "deniedForever:$it")
             }
             if (deniedForever.isNotEmpty() || denied.isNotEmpty()) {
                 getString(R.string.tip_permission_request_failed).toastShort(this@P2PCallActivity)
@@ -340,7 +340,7 @@ open class P2PCallActivity : CommonCallActivity() {
             startPreviewCode != NERtcConstants.ErrorCode.OK
         ) {
             startPreviewCode = NERtcEx.getInstance().startVideoPreview().apply {
-                ALog.d(tag, "initForLaunchAction startPreviewCode is $this.")
+                CallUILog.d(tag, "initForLaunchAction startPreviewCode is $this.")
             }
         }
     }
@@ -434,7 +434,10 @@ open class P2PCallActivity : CommonCallActivity() {
                         getString(R.string.tip_switch_call_type_failed).toastShort(
                             this@P2PCallActivity
                         )
-                        ALog.e(tag, "doSwitchCallType to $toCallType error, result is $result.")
+                        CallUILog.e(
+                            tag,
+                            "doSwitchCallType to $toCallType error, result is $result."
+                        )
                         return
                     }
                     if (switchCallState == SwitchCallState.INVITE) {
@@ -452,7 +455,7 @@ open class P2PCallActivity : CommonCallActivity() {
 
         val rtcUid = callEngine.callInfo.otherUserInfo().uid
         if (rtcUid == 0L) {
-            ALog.e(tag, "doSwitchCanvas rtcUid is 0L with accId ${callParam.otherAccId}.")
+            CallUILog.e(tag, "doSwitchCanvas rtcUid is 0L with accId ${callParam.otherAccId}.")
             return
         }
         if (isLocalMuteVideo) {
@@ -661,7 +664,7 @@ open class P2PCallActivity : CommonCallActivity() {
                 startPreviewCode != ENGINE_ERROR_DEVICE_PREVIEW_ALREADY_STARTED
             ) {
                 startPreviewCode = NERtcEx.getInstance().startVideoPreview().apply {
-                    ALog.d(tag, "renderForCaller startPreviewCode is $this.")
+                    CallUILog.d(tag, "renderForCaller startPreviewCode is $this.")
                 }
             }
             binding.ivBg.visibility = View.GONE

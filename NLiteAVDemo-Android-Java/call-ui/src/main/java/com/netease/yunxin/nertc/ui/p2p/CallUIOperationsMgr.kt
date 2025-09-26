@@ -17,7 +17,6 @@ import com.netease.lava.nertc.sdk.NERtcConstants
 import com.netease.lava.nertc.sdk.NERtcEx
 import com.netease.lava.nertc.sdk.video.NERtcVideoView
 import com.netease.lava.nertc.sdk.video.NERtcVirtualBackgroundSource
-import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.kit.alog.ParameterMap
 import com.netease.yunxin.kit.call.NEResultObserver
 import com.netease.yunxin.kit.call.p2p.NECallEngine
@@ -26,6 +25,7 @@ import com.netease.yunxin.kit.call.p2p.extra.NECallLocalActionObserver
 import com.netease.yunxin.kit.call.p2p.model.NECallEndInfo
 import com.netease.yunxin.kit.call.p2p.model.NECallEngineDelegateAbs
 import com.netease.yunxin.kit.call.p2p.model.NECallInfo
+import com.netease.yunxin.kit.call.p2p.model.NECallType
 import com.netease.yunxin.kit.call.p2p.model.NECallTypeChangeInfo
 import com.netease.yunxin.kit.call.p2p.param.NECallParam
 import com.netease.yunxin.kit.call.p2p.param.NEHangupParam
@@ -43,6 +43,7 @@ import com.netease.yunxin.nertc.ui.base.channelId
 import com.netease.yunxin.nertc.ui.base.getChannelId
 import com.netease.yunxin.nertc.ui.service.CallForegroundService
 import com.netease.yunxin.nertc.ui.service.DefaultIncomingCallEx.Companion.INCOMING_CALL_NOTIFY_ID
+import com.netease.yunxin.nertc.ui.utils.CallUILog
 import com.netease.yunxin.nertc.ui.utils.SecondsTimer
 
 @SuppressLint("StaticFieldLeak")
@@ -57,6 +58,8 @@ object CallUIOperationsMgr {
 
     var timer: SecondsTimer? = null
         private set
+
+    var callType: Int = NECallType.VIDEO
 
     private val callEngineDelegate = object : NECallEngineDelegateAbs() {
         override fun onCallTypeChange(info: NECallTypeChangeInfo) {
@@ -103,11 +106,8 @@ object CallUIOperationsMgr {
             this@CallUIOperationsMgr.timer?.cancel()
             this@CallUIOperationsMgr.timer = null
             this@CallUIOperationsMgr.timeTickConfig = null
-            this@CallUIOperationsMgr.foregroundServiceConfig?.stopService(
-                callInfoWithUIState.callParam.callType,
-                true
-            )
             this@CallUIOperationsMgr.doVirtualBlurInner(false)
+            stopService()
         }
     }
 
@@ -148,7 +148,7 @@ object CallUIOperationsMgr {
         callInfoWithUIState: CallInfoWithUIState,
         foregroundServiceConfig: CallForegroundServiceConfig? = null
     ): String? {
-        ALog.d(
+        CallUILog.d(
             TAG,
             ParameterMap("initCallInfoAndUIState")
                 .append("callInfoWithUIState", callInfoWithUIState)
@@ -165,26 +165,33 @@ object CallUIOperationsMgr {
      * 启动前台服务
      */
     fun startService() {
-        this.foregroundServiceConfig?.startService(callInfoWithUIState.callParam.callType)
+        callType = callInfoWithUIState.callParam.callType
+        CallUILog.d(TAG, "startService callType: $callType")
+        this.foregroundServiceConfig?.startService(callType)
+    }
+
+    fun stopService() {
+        CallUILog.i(TAG, "stopService callType: $callType")
+        this.foregroundServiceConfig?.stopService(callType)
     }
 
     /**
      * 释放呼叫信息及状态
      */
     fun releaseCallInfoAndUIState(force: Boolean = false, channelId: String? = null) {
-        ALog.dApi(
+        CallUILog.dApi(
             TAG,
             ParameterMap("releaseCallInfoAndUIState").append("force", force)
                 .append("channelId", channelId)
         )
         if (channelId != callInfoWithUIState.callParam.getChannelId() && !force) {
-            ALog.e(
+            CallUILog.e(
                 TAG,
                 "releaseCallInfoAndUIState, current channelId is ${callInfoWithUIState.callParam.getChannelId()}, to release channelId is $channelId."
             )
             return
         }
-        this.foregroundServiceConfig?.stopService(callInfoWithUIState.callParam.callType, force)
+        stopService()
         this.foregroundServiceConfig = null
         this.toSwitchCallTypeInfo = null
         this.callInfoWithUIState = CallInfoWithUIState()
@@ -197,7 +204,7 @@ object CallUIOperationsMgr {
      * 配置通话计时，此计时仅用来进行展示 ui 上的时间，实际通话时间以服务抄送为准
      */
     fun configTimeTick(config: TimeTickConfig?) {
-        ALog.dApi(TAG, ParameterMap("configTimeTick").append("config", config))
+        CallUILog.dApi(TAG, ParameterMap("configTimeTick").append("config", config))
         this.timeTickConfig = config
     }
 
@@ -214,7 +221,7 @@ object CallUIOperationsMgr {
         isLocalSmallVideo: Boolean? = null,
         isVirtualBlur: Boolean? = null
     ) {
-        ALog.dApi(
+        CallUILog.dApi(
             TAG,
             ParameterMap("updateInitUIState")
                 .append("isRemoteMuteVideo", isRemoteMuteVideo)
@@ -255,7 +262,7 @@ object CallUIOperationsMgr {
         callParam: CallParam,
         observer: NEResultObserver<CommonResult<NECallInfo>>?
     ) {
-        ALog.dApi(
+        CallUILog.dApi(
             TAG,
             ParameterMap("doCall")
                 .append("callParam", callParam)
@@ -271,31 +278,7 @@ object CallUIOperationsMgr {
                     .rtcChannelName(rtcChannelName)
                     .build()
             ) { result ->
-                ALog.d(TAG, "call result is $result.")
-                observer?.onResult(result)
-                callInfoWithUIState.callParam.channelId(callEngine.callInfo.signalInfo.channelId)
-            }
-        }
-    }
-
-    /**
-     * 发起呼叫
-     */
-    fun doCall(
-        callParam: NECallParam,
-        observer: NEResultObserver<CommonResult<NECallInfo>>?
-    ) {
-        ALog.dApi(
-            TAG,
-            ParameterMap("doCall")
-                .append("callParam", callParam)
-                .append("observer", observer)
-        )
-        with(callParam) {
-            callEngine.call(
-                this
-            ) { result ->
-                ALog.d(TAG, "call result is $result.")
+                CallUILog.d(TAG, "call result is $result.")
                 observer?.onResult(result)
                 callInfoWithUIState.callParam.channelId(callEngine.callInfo.signalInfo.channelId)
             }
@@ -306,9 +289,9 @@ object CallUIOperationsMgr {
      * 接听
      */
     fun doAccept(observer: NEResultObserver<CommonResult<NECallInfo>>?) {
-        ALog.dApi(TAG, ParameterMap("doAccept").append("observer", observer))
+        CallUILog.dApi(TAG, ParameterMap("doAccept").append("observer", observer))
         callEngine.accept { result ->
-            ALog.d(TAG, "accept result is $result.")
+            CallUILog.d(TAG, "accept result is $result.")
             observer?.onResult(result)
         }
     }
@@ -321,14 +304,14 @@ object CallUIOperationsMgr {
         channelId: String? = null,
         extraInfo: String? = null
     ) {
-        ALog.dApi(
+        CallUILog.dApi(
             TAG,
             ParameterMap("doHangup").append("observer", observer).append("extraInfo", extraInfo)
         )
         callEngine.hangup(
             NEHangupParam(channelId ?: callInfoWithUIState.callParam.getChannelId(), extraInfo)
         ) { result ->
-            ALog.d(TAG, "hangup result is $result.")
+            CallUILog.d(TAG, "hangup result is $result.")
             observer?.onResult(result)
         }
     }
@@ -341,7 +324,7 @@ object CallUIOperationsMgr {
         switchCallState: Int,
         observer: NEResultObserver<CommonResult<Void>>?
     ) {
-        ALog.dApi(
+        CallUILog.dApi(
             TAG,
             ParameterMap("doSwitchCallType")
                 .append("callType", callType)
@@ -351,7 +334,7 @@ object CallUIOperationsMgr {
         callEngine.switchCallType(
             NESwitchParam(callType, switchCallState)
         ) { result ->
-            ALog.d(TAG, "switch type result is $result.")
+            CallUILog.d(TAG, "switch type result is $result.")
             observer?.onResult(result)
         }
     }
@@ -369,13 +352,13 @@ object CallUIOperationsMgr {
             }
         }
     ) {
-        ALog.dApi(
+        CallUILog.dApi(
             TAG,
             ParameterMap("setupLocalView").append("view", view).append("action", action)
         )
         action?.invoke(view)
         callEngine.setupLocalView(view).apply {
-            ALog.d(TAG, "setupLocalView result is $this.")
+            CallUILog.d(TAG, "setupLocalView result is $this.")
         }
     }
 
@@ -389,13 +372,13 @@ object CallUIOperationsMgr {
             it?.setScalingType(IVideoRender.ScalingType.SCALE_ASPECT_BALANCED)
         }
     ) {
-        ALog.dApi(
+        CallUILog.dApi(
             TAG,
             ParameterMap("setupRemoteView").append("view", view).append("action", action)
         )
         action?.invoke(view)
         callEngine.setupRemoteView(view).apply {
-            ALog.d(TAG, "setupRemoteView result is $this.")
+            CallUILog.d(TAG, "setupRemoteView result is $this.")
         }
     }
 
@@ -406,7 +389,7 @@ object CallUIOperationsMgr {
     fun doConfigSpeaker(enableSpeaker: Boolean = !isSpeakerOn()) {
         val action = {
             NERtcEx.getInstance().setSpeakerphoneOn(enableSpeaker).apply {
-                ALog.d(TAG, "doConfigSpeaker result is $this.")
+                CallUILog.d(TAG, "doConfigSpeaker result is $this.")
                 if (this == NERtcConstants.ErrorCode.OK) {
                     callInfoWithUIState.isLocalMuteSpeaker = !enableSpeaker
                 }
@@ -416,7 +399,7 @@ object CallUIOperationsMgr {
             action.invoke()
             return
         }
-        ALog.d(
+        CallUILog.d(
             TAG,
             ParameterMap("doConfigSpeaker").append("enableSpeaker", enableSpeaker).toString()
         )
@@ -435,7 +418,7 @@ object CallUIOperationsMgr {
     }
 
     private fun enableSystemSpeaker(enableSpeaker: Boolean) {
-        ALog.d(
+        CallUILog.d(
             TAG,
             ParameterMap("enableSystemSpeaker").append("enableSpeaker", enableSpeaker).toString()
         )
@@ -461,7 +444,7 @@ object CallUIOperationsMgr {
      * 判断扬声器是否开启
      */
     fun isSpeakerOn(): Boolean {
-        ALog.dApi(TAG, ParameterMap("isSpeakerOn"))
+        CallUILog.dApi(TAG, ParameterMap("isSpeakerOn"))
         (context.getSystemService(Context.AUDIO_SERVICE) as AudioManager).run {
             @Suppress("DEPRECATION")
             if (isBluetoothA2dpOn) {
@@ -473,7 +456,7 @@ object CallUIOperationsMgr {
         } else {
             NERtcEx.getInstance().isSpeakerphoneOn
         }
-        ALog.dApi(TAG, ParameterMap("isSpeakerOn").append("result", result))
+        CallUILog.dApi(TAG, ParameterMap("isSpeakerOn").append("result", result))
         return result
     }
 
@@ -482,9 +465,9 @@ object CallUIOperationsMgr {
      */
     @JvmOverloads
     fun doMuteAudio(mute: Boolean = !callInfoWithUIState.isLocalMuteAudio) {
-        ALog.dApi(TAG, ParameterMap("doMuteAudio").append("mute", mute))
+        CallUILog.dApi(TAG, ParameterMap("doMuteAudio").append("mute", mute))
         callEngine.muteLocalAudio(mute).apply {
-            ALog.d(TAG, "doMuteAudio result is $this.")
+            CallUILog.d(TAG, "doMuteAudio result is $this.")
             if (this == NERtcConstants.ErrorCode.OK) {
                 callInfoWithUIState.isLocalMuteAudio = mute
             }
@@ -496,9 +479,9 @@ object CallUIOperationsMgr {
      */
     @JvmOverloads
     fun doMuteVideo(mute: Boolean = !callInfoWithUIState.isLocalMuteVideo) {
-        ALog.dApi(TAG, ParameterMap("doMuteVideo").append("mute", mute))
+        CallUILog.dApi(TAG, ParameterMap("doMuteVideo").append("mute", mute))
         callEngine.muteLocalVideo(mute).apply {
-            ALog.d(TAG, "doMuteVideo result is $this.")
+            CallUILog.d(TAG, "doMuteVideo result is $this.")
             if (this == NERtcConstants.ErrorCode.OK) {
                 callInfoWithUIState.isLocalMuteVideo = mute
             }
@@ -509,9 +492,9 @@ object CallUIOperationsMgr {
      * 切换摄像头方向
      */
     fun doSwitchCamera() {
-        ALog.dApi(TAG, ParameterMap("doSwitchCamera"))
+        CallUILog.dApi(TAG, ParameterMap("doSwitchCamera"))
         callEngine.switchCamera().apply {
-            ALog.d(TAG, "doSwitchCamera result is $this.")
+            CallUILog.d(TAG, "doSwitchCamera result is $this.")
         }
     }
 
@@ -519,7 +502,7 @@ object CallUIOperationsMgr {
      * 开启/关闭背景虚化
      */
     fun doVirtualBlur(enable: Boolean = !callInfoWithUIState.isVirtualBlur) {
-        ALog.dApi(TAG, ParameterMap("doVirtualBlur").append("enable", enable))
+        CallUILog.dApi(TAG, ParameterMap("doVirtualBlur").append("enable", enable))
         doVirtualBlurInner(enable)
     }
 
@@ -527,7 +510,7 @@ object CallUIOperationsMgr {
      * 内部开启/关闭背景虚化
      */
     private fun doVirtualBlurInner(enable: Boolean) {
-        ALog.d(TAG, ParameterMap("doVirtualBlurInner").append("enable", enable).toValue())
+        CallUILog.d(TAG, ParameterMap("doVirtualBlurInner").append("enable", enable).toValue())
         NERtcEx.getInstance().enableVirtualBackground(
             enable,
             NERtcVirtualBackgroundSource().apply {
@@ -535,7 +518,7 @@ object CallUIOperationsMgr {
                 blur_degree = NERtcVirtualBackgroundSource.BLUR_DEGREE_HIGH
             }
         ).apply {
-            ALog.d(TAG, "doVirtualBlurInner result is $this.")
+            CallUILog.d(TAG, "doVirtualBlurInner result is $this.")
             if (this == NERtcConstants.ErrorCode.OK) {
                 callInfoWithUIState.isVirtualBlur = enable
             }
@@ -546,7 +529,7 @@ object CallUIOperationsMgr {
      * 开启视频预览
      */
     fun startVideoPreview() {
-        ALog.dApi(
+        CallUILog.dApi(
             TAG,
             ParameterMap("startVideoPreview").append("startPreviewCode", startPreviewCode)
         )
@@ -555,7 +538,7 @@ object CallUIOperationsMgr {
             startPreviewCode != NERtcConstants.ErrorCode.ENGINE_ERROR_DEVICE_PREVIEW_ALREADY_STARTED
         ) {
             startPreviewCode = NERtcEx.getInstance().startVideoPreview().apply {
-                ALog.d(TAG, "startVideoPreview result is $this.")
+                CallUILog.d(TAG, "startVideoPreview result is $this.")
             }
         }
     }
@@ -564,13 +547,13 @@ object CallUIOperationsMgr {
      * 停止视频预览
      */
     fun stopVideoPreview() {
-        ALog.dApi(
+        CallUILog.dApi(
             TAG,
             ParameterMap("stopVideoPreview").append("startPreviewCode", startPreviewCode)
         )
         if (startPreviewCode == NERtcConstants.ErrorCode.OK || startPreviewCode == NERtcConstants.ErrorCode.ENGINE_ERROR_DEVICE_PREVIEW_ALREADY_STARTED) {
             NERtcEx.getInstance().stopVideoPreview().apply {
-                ALog.d(TAG, "stopVideoPreview result is $this.")
+                CallUILog.d(TAG, "stopVideoPreview result is $this.")
             }
             startPreviewCode = null
         }
@@ -580,7 +563,7 @@ object CallUIOperationsMgr {
      * 取消来电通知
      */
     fun cancelCallNotification(context: Context, notificationId: Int = INCOMING_CALL_NOTIFY_ID) {
-        ALog.dApi(
+        CallUILog.dApi(
             TAG,
             ParameterMap("cancelCallNotification").append("context", context)
                 .append("notificationId", notificationId)
@@ -589,7 +572,7 @@ object CallUIOperationsMgr {
             (context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager)
                 ?.cancel(notificationId)
         } catch (exception: Exception) {
-            ALog.e(TAG, "call cancel notification", exception)
+            CallUILog.e(TAG, "call cancel notification", exception)
         }
     }
 
@@ -606,7 +589,7 @@ object CallUIOperationsMgr {
     fun currentSwitchTypeCallInfo(): NECallTypeChangeInfo? = toSwitchCallTypeInfo
 
     internal fun load(context: Context) {
-        ALog.dApi(TAG, ParameterMap("load"))
+        CallUILog.dApi(TAG, ParameterMap("load"))
         releaseCallInfoAndUIState(force = true)
         this.context = context.applicationContext
         callEngine.addCallDelegate(callEngineDelegate)
@@ -615,7 +598,7 @@ object CallUIOperationsMgr {
     }
 
     internal fun unload() {
-        ALog.dApi(TAG, ParameterMap("unload"))
+        CallUILog.dApi(TAG, ParameterMap("unload"))
         callEngine.removeCallDelegate(callEngineDelegate)
         NECallLocalActionMgr.getInstance().removeCallback(localActionObserver)
         NERtcCallbackProxyMgr.getInstance().removeCallback(neRtcCallback)
@@ -670,7 +653,7 @@ object CallUIOperationsMgr {
         private var context = context.applicationContext
 
         fun startService(callType: Int) {
-            serviceId = CallForegroundService.launchForegroundService(
+            serviceId = CallForegroundService.launchService(
                 context,
                 intent,
                 callType,
@@ -680,10 +663,10 @@ object CallUIOperationsMgr {
 
         fun stopService(callType: Int, force: Boolean = false) {
             if (force) {
-                CallForegroundService.stopService(context, callType)
+                CallForegroundService.terminateForegroundService(context, callType)
             } else {
                 serviceId?.run {
-                    CallForegroundService.stopService(context, callType, this)
+                    CallForegroundService.terminateForegroundService(context, callType, this)
                 }
             }
             serviceId = null

@@ -11,7 +11,6 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import com.netease.lava.nertc.sdk.video.NERtcVideoView
-import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.kit.call.NEResultObserver
 import com.netease.yunxin.kit.call.p2p.NECallEngine
 import com.netease.yunxin.kit.call.p2p.model.NECallEndInfo
@@ -45,6 +44,7 @@ import com.netease.yunxin.nertc.ui.p2p.fragment.caller.AudioCallerFragment
 import com.netease.yunxin.nertc.ui.p2p.fragment.caller.VideoCallerFragment
 import com.netease.yunxin.nertc.ui.p2p.fragment.onthecall.AudioOnTheCallFragment
 import com.netease.yunxin.nertc.ui.p2p.fragment.onthecall.VideoOnTheCallFragment
+import com.netease.yunxin.nertc.ui.utils.CallUILog
 import com.netease.yunxin.nertc.ui.utils.toastShort
 
 open class P2PCallFragmentActivity : CommonCallActivity() {
@@ -255,7 +255,10 @@ open class P2PCallFragmentActivity : CommonCallActivity() {
     ) {
         val fragment = getFragment(callState, callType)
         if (fragment == null) {
-            ALog.e(tag, "currentFragment is null, callState is $callState, callType is $callType.")
+            CallUILog.e(
+                tag,
+                "currentFragment is null, callState is $callState, callType is $callType."
+            )
             finish()
             return
         }

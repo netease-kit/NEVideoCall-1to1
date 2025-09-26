@@ -9,18 +9,14 @@ import android.content.Context
 import android.text.TextUtils
 import com.netease.nimlib.sdk.NIMClient
 import com.netease.nimlib.sdk.ResponseCode
-import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.kit.alog.ParameterMap
+import com.netease.yunxin.kit.call.group.GroupCallEndEvent
 import com.netease.yunxin.kit.call.group.GroupCallHangupEvent
-import com.netease.yunxin.kit.call.group.GroupCallLocalActionObserver
 import com.netease.yunxin.kit.call.group.GroupCallMember
 import com.netease.yunxin.kit.call.group.NEGroupCall
-import com.netease.yunxin.kit.call.group.NEGroupCallActionObserver
+import com.netease.yunxin.kit.call.group.NEGroupCallDelegate
 import com.netease.yunxin.kit.call.group.NEGroupCallInfo
-import com.netease.yunxin.kit.call.group.NEGroupCallbackMgr
 import com.netease.yunxin.kit.call.group.NEGroupConstants
-import com.netease.yunxin.kit.call.group.NEGroupIncomingCallReceiver
-import com.netease.yunxin.kit.call.group.result.BaseActionResult
 import com.netease.yunxin.kit.call.p2p.NECallEngine
 import com.netease.yunxin.kit.call.p2p.extra.NECallLocalActionMgr
 import com.netease.yunxin.kit.call.p2p.extra.NECallLocalActionObserver
@@ -37,6 +33,9 @@ import com.netease.yunxin.nertc.nertcvideocall.model.CallLocalAction
 import com.netease.yunxin.nertc.nertcvideocall.model.SwitchCallState
 import com.netease.yunxin.nertc.nertcvideocall.model.impl.state.CallState
 import com.netease.yunxin.nertc.ui.base.AVChatSoundPlayer
+import com.netease.yunxin.nertc.ui.group.GroupCallUIDelegate
+import com.netease.yunxin.nertc.ui.group.GroupCallUIManager
+import com.netease.yunxin.nertc.ui.utils.CallUILog
 
 /**
  * 邀请消息分发
@@ -70,29 +69,29 @@ open class CallKitUIBridgeService @JvmOverloads constructor(
     protected var callerAccId: String? = null
 
     /**
-     * 群组来电监听
-     */
-    private val groupCallReceiver = NEGroupIncomingCallReceiver { info ->
-        this@CallKitUIBridgeService.onReceiveGroupInvitation(info)
-    }
-
-    /**
-     * 群组本地行为监听
-     */
-    private val groupLocalActionObserver = GroupCallLocalActionObserver { actionId, result ->
-        this@CallKitUIBridgeService.onLocalAction(actionId, result)
-    }
-
-    /**
      * 群组通话行为监听
      */
-    private val groupActionObserver = object : NEGroupCallActionObserver {
-        override fun onMemberChanged(callId: String, userList: MutableList<GroupCallMember>?) {
+    private val groupActionObserver = object :
+        NEGroupCallDelegate {
+        override fun onReceiveGroupInvitation(info: NEGroupCallInfo) {
+            this@CallKitUIBridgeService.onReceiveGroupInvitation(info)
+        }
+        override fun onGroupMemberListChanged(callId: String, userList: MutableList<GroupCallMember>?) {
             this@CallKitUIBridgeService.onMemberChanged(callId, userList)
         }
 
         override fun onGroupCallHangup(hangupEvent: GroupCallHangupEvent) {
-            this@CallKitUIBridgeService.onGroupCallHangup(hangupEvent)
+            this@CallKitUIBridgeService.onGroupCallHangup(hangupEvent.callId)
+        }
+
+        override fun onGroupCallEnd(endEvent: GroupCallEndEvent) {
+            this@CallKitUIBridgeService.onGroupCallHangup(endEvent.callId)
+        }
+    }
+
+    private val groupCallUIDelegate = object : GroupCallUIDelegate {
+        override fun onLocalAction(actionId: Int) {
+            this@CallKitUIBridgeService.onLocalAction(actionId)
         }
     }
 
@@ -131,19 +130,18 @@ open class CallKitUIBridgeService @JvmOverloads constructor(
          */
         NECallEngine.sharedInstance().addCallDelegate(callEngineDelegate)
         NECallLocalActionMgr.getInstance().addCallback(localActionObserver)
-        NEGroupCall.instance().configGroupIncomingReceiver(groupCallReceiver, true)
-        NEGroupCall.instance().configGroupActionObserver(groupActionObserver, true)
-        NEGroupCallbackMgr.instance().addLocalActionObserver(groupLocalActionObserver)
+        NEGroupCall.instance().addGroupCallDelegate(groupActionObserver)
+        GroupCallUIManager.getInstance().addDelegate(groupCallUIDelegate)
     }
 
     // //////////////////////////////////// GroupCallLocalActionObserver ////////////////////////////
     /**
      * 群组本地行为监听
      */
-    open fun onLocalAction(actionId: Int, result: BaseActionResult?) {
-        ALog.dApi(
+    open fun onLocalAction(actionId: Int) {
+        CallUILog.dApi(
             logTag,
-            ParameterMap("onLocalAction").append("actionId", actionId).append("result", result)
+            ParameterMap("onLocalAction").append("actionId", actionId)
         )
         if (bgGroupInvitedInfo != null) {
             incomingCallEx.onIncomingCallInvalid(bgGroupInvitedInfo)
@@ -175,9 +173,9 @@ open class CallKitUIBridgeService @JvmOverloads constructor(
     /**
      * 群组通话结束挂断
      */
-    open fun onGroupCallHangup(hangupEvent: GroupCallHangupEvent) {
+    open fun onGroupCallHangup(callId: String) {
         if (bgGroupInvitedInfo != null && TextUtils.equals(
-                hangupEvent.callId,
+                callId,
                 bgGroupInvitedInfo!!.callId
             )
         ) {
@@ -191,10 +189,10 @@ open class CallKitUIBridgeService @JvmOverloads constructor(
      * 群组来电监听
      */
     open fun onReceiveGroupInvitation(info: NEGroupCallInfo) {
-        ALog.dApi(logTag, ParameterMap("onReceiveGroupInvitation").append("info", info))
+        CallUILog.dApi(logTag, ParameterMap("onReceiveGroupInvitation").append("info", info))
         // 检查参数合理性
         if (!isValidParam(info)) {
-            ALog.d(logTag, "onIncomingCall for group, param is invalid.")
+            CallUILog.d(logTag, "onIncomingCall for group, param is invalid.")
             return
         }
         if (!incomingCallEx.onIncomingCall(info)) {
@@ -207,7 +205,7 @@ open class CallKitUIBridgeService @JvmOverloads constructor(
      * 点对点本地行为监听
      */
     open fun onLocalAction(actionId: Int, resultCode: Int) {
-        ALog.d(logTag, "onLocalAction actionId is $actionId, resultCode is $resultCode.")
+        CallUILog.d(logTag, "onLocalAction actionId is $actionId, resultCode is $resultCode.")
         if (actionId == CallLocalAction.ACTION_CALL && NECallEngine.sharedInstance().callInfo.callStatus == CallState.STATE_CALL_OUT) {
             callerAccId = NIMClient.getCurrentAccount()
             canStopAudioPlay = true
@@ -230,10 +228,10 @@ open class CallKitUIBridgeService @JvmOverloads constructor(
      * 点对点通话行为监听
      */
     open fun onReceiveInvited(info: NEInviteInfo) {
-        ALog.dApi(logTag, ParameterMap("onReceiveInvited").append("info", info))
+        CallUILog.dApi(logTag, ParameterMap("onReceiveInvited").append("info", info))
         // 检查参数合理性
         if (!isValidParam(info)) {
-            ALog.d(logTag, "onIncomingCall, param is invalid.")
+            CallUILog.d(logTag, "onIncomingCall, param is invalid.")
             return
         }
         if (!incomingCallEx.onIncomingCall(info)) {
@@ -251,7 +249,7 @@ open class CallKitUIBridgeService @JvmOverloads constructor(
      * 点对点通话建立
      */
     open fun onCallConnected(info: NECallInfo) {
-        ALog.dApi(logTag, ParameterMap("onCallConnected").append("info", info))
+        CallUILog.dApi(logTag, ParameterMap("onCallConnected").append("info", info))
         incomingCallEx.onIncomingCallInvalid(bgInvitedInfo)
         bgInvitedInfo = null
         AVChatSoundPlayer.stop(context)
@@ -272,7 +270,7 @@ open class CallKitUIBridgeService @JvmOverloads constructor(
      * 点对点通话结束回调
      */
     open fun onCallEnd(info: NECallEndInfo) {
-        ALog.dApi(logTag, ParameterMap("onCallEnd").append("info", info))
+        CallUILog.dApi(logTag, ParameterMap("onCallEnd").append("info", info))
         incomingCallEx.onIncomingCallInvalid(bgInvitedInfo)
         when (info.reasonCode) {
             NEHangupReasonCode.CALLER_REJECTED -> if (callerAccId == NIMClient.getCurrentAccount()) {
@@ -318,7 +316,7 @@ open class CallKitUIBridgeService @JvmOverloads constructor(
             }
             result
         } ?: run {
-            ALog.d(logTag, "no background inviteInfo, mContext or uiService is null.")
+            CallUILog.d(logTag, "no background inviteInfo, mContext or uiService is null.")
             false
         }
     }
@@ -362,8 +360,7 @@ open class CallKitUIBridgeService @JvmOverloads constructor(
     internal open fun destroy() {
         NECallEngine.sharedInstance().removeCallDelegate(callEngineDelegate)
         NECallLocalActionMgr.getInstance().removeCallback(localActionObserver)
-        NEGroupCall.instance().configGroupIncomingReceiver(groupCallReceiver, false)
-        NEGroupCall.instance().configGroupActionObserver(groupActionObserver, false)
-        NEGroupCallbackMgr.instance().removeLocalActionObserver(groupLocalActionObserver)
+        NEGroupCall.instance().removeGroupCallDelegate(groupActionObserver)
+        GroupCallUIManager.getInstance().removeDelegate(groupCallUIDelegate)
     }
 }

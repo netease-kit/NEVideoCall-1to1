@@ -69,4 +69,6 @@ object Constants {
     const val KEY_CALL_PUSH_CONFIG = "call_pushConfig"
 
     const val KEY_CALL_PAGE_EXTRAS = "call_extras"
+
+    const val MAX_MEMBER_COUNT = 10
 }
