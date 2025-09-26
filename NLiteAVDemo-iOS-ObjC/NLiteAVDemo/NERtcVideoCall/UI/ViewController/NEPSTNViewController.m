@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #import "NEPSTNViewController.h"
+
 #import "NERtcCallKit+Demo.h"
 #import "SettingManager.h"
 
@@ -557,10 +558,10 @@
   self.operationView.microPhone.selected = NO;
   self.bigVideoView.videoView.hidden = NO;
   self.smallVideoView.videoView.hidden = NO;
-  self.smallVideoView.maskView.hidden = YES;
+  self.smallVideoView.coverView.hidden = YES;
   self.bigVideoView.imageView.hidden = YES;
   self.smallVideoView.imageView.hidden = YES;
-  self.bigVideoView.maskView.hidden = YES;
+  self.bigVideoView.coverView.hidden = YES;
   self.callType = NERtcCallTypeVideo;
   self.operationView.cameraBtn.selected = NO;
   if (self.status != NERtcCallStatusCalled) {
@@ -786,8 +787,8 @@
     [[NERtcCallKit sharedInstance] setupRemoteView:self.smallVideoView.videoView
                                            forUser:self.remoteUser.imAccid];
     NSLog(@"show my big view");
-    self.smallVideoView.maskView.hidden = YES;
-    self.bigVideoView.maskView.hidden = !self.operationView.cameraBtn.selected;
+    self.smallVideoView.coverView.hidden = YES;
+    self.bigVideoView.coverView.hidden = !self.operationView.cameraBtn.selected;
     self.bigVideoView.userID = self.localUser.imAccid;
     self.smallVideoView.userID = self.remoteUser.imAccid;
   } else {
@@ -795,8 +796,8 @@
     [[NERtcCallKit sharedInstance] setupRemoteView:self.bigVideoView.videoView
                                            forUser:self.remoteUser.imAccid];
     NSLog(@"show my small view");
-    self.bigVideoView.maskView.hidden = YES;
-    self.smallVideoView.maskView.hidden = !self.operationView.cameraBtn.selected;
+    self.bigVideoView.coverView.hidden = YES;
+    self.smallVideoView.coverView.hidden = !self.operationView.cameraBtn.selected;
     self.bigVideoView.userID = self.remoteUser.imAccid;
     self.smallVideoView.userID = self.localUser.imAccid;
   }
@@ -1116,10 +1117,10 @@
   //    NSString *tips = [self.localUser.imAccid
   //    isEqualToString:userId]?@"关闭了摄像头":@"对方关闭了摄像头";
   if ([self.bigVideoView.userID isEqualToString:userId]) {
-    self.bigVideoView.maskView.hidden = available;
+    self.bigVideoView.coverView.hidden = available;
   }
   if ([self.smallVideoView.userID isEqualToString:userId]) {
-    self.smallVideoView.maskView.hidden = available;
+    self.smallVideoView.coverView.hidden = available;
   }
   if (self.showMyBigView) {
     [self changeRemoteMute:self.isRemoteMute videoView:self.smallVideoView];

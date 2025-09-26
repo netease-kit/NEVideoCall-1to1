@@ -2,19 +2,19 @@
 // Use of this source code is governed by a MIT license that can be
 // found in the LICENSE file.
 
-#import "NEGroupUserController.h"
+#import "GroupUserController.h"
 #import "GroupUserViewCell.h"
-#import "NESectionHeaderView.h"
+#import "SectionHeaderView.h"
 
-@interface NEGroupUserController () <UICollectionViewDelegate,
-                                     UICollectionViewDataSource,
-                                     UICollectionViewDelegateFlowLayout>
+@interface GroupUserController () <UICollectionViewDelegate,
+                                   UICollectionViewDataSource,
+                                   UICollectionViewDelegateFlowLayout>
 
 @property(nonatomic, strong) UICollectionView *collection;
 
 @property(nonatomic, strong) NSMutableArray<NEUser *> *datas;
 
-@property(nonatomic, strong) NESectionHeaderView *sectionHeader;
+@property(nonatomic, strong) SectionHeaderView *sectionHeader;
 
 @property(nonatomic, assign) CGFloat space;
 
@@ -22,7 +22,7 @@
 
 @end
 
-@implementation NEGroupUserController
+@implementation GroupUserController
 
 - (instancetype)init {
   self = [super init];
@@ -46,13 +46,13 @@
   [self.view addSubview:self.sectionHeader];
   self.sectionHeader.hidden = YES;
   [self.view addSubview:self.collection];
-  self.collection.frame = CGRectMake(20, NESectionHeaderView.height + self.space,
+  self.collection.frame = CGRectMake(20, SectionHeaderView.height + self.space,
                                      self.view.frame.size.width - 40, self.view.frame.size.height);
   self.bottomOffset = 120;
 }
 
 - (void)addUsers:(NSArray<NEUser *> *)users {
-  NSLog(@"NEGroupUserController count : %lu", users.count);
+  NSLog(@"GroupUserController count : %lu", users.count);
   [self.datas addObjectsFromArray:users];
   [self.collection reloadData];
   if (self.datas.count > 0 && self.hideHeaderSection == NO) {
@@ -96,10 +96,10 @@
   return _collection;
 }
 
-- (NESectionHeaderView *)sectionHeader {
+- (SectionHeaderView *)sectionHeader {
   if (nil == _sectionHeader) {
-    _sectionHeader = [[NESectionHeaderView alloc] init];
-    _sectionHeader.frame = CGRectMake(0, 0, self.view.frame.size.width, NESectionHeaderView.height);
+    _sectionHeader = [[SectionHeaderView alloc] init];
+    _sectionHeader.frame = CGRectMake(0, 0, self.view.frame.size.width, SectionHeaderView.height);
     _sectionHeader.titleLabel.text = kWaittingCalledUser;
     _sectionHeader.dividerLine.hidden = NO;
   }
@@ -113,26 +113,24 @@
   if (object == self.collection) {
     if ([keyPath isEqualToString:@"contentSize"]) {
       if (self.view.frame.size.height == self.collection.contentSize.height +
-                                             NESectionHeaderView.height + self.space +
+                                             SectionHeaderView.height + self.space +
                                              self.bottomOffset) {
         return;
       }
       if (self.disableCancelUser == YES) {
-        self.view.frame =
-            CGRectMake(0, self.view.frame.origin.y, self.view.frame.size.width,
-                       self.collection.contentSize.height + NESectionHeaderView.height +
-                           self.space + self.bottomOffset);
+        self.view.frame = CGRectMake(0, self.view.frame.origin.y, self.view.frame.size.width,
+                                     self.collection.contentSize.height + SectionHeaderView.height +
+                                         self.space + self.bottomOffset);
         self.collection.frame =
-            CGRectMake(20, NESectionHeaderView.height + self.space, self.view.frame.size.width - 40,
-                       self.view.frame.size.height - NESectionHeaderView.height);
+            CGRectMake(20, SectionHeaderView.height + self.space, self.view.frame.size.width - 40,
+                       self.view.frame.size.height - SectionHeaderView.height);
       } else {
-        self.view.frame =
-            CGRectMake(0, 0, self.view.frame.size.width,
-                       self.collection.contentSize.height + NESectionHeaderView.height +
-                           self.space + self.bottomOffset);
+        self.view.frame = CGRectMake(0, 0, self.view.frame.size.width,
+                                     self.collection.contentSize.height + SectionHeaderView.height +
+                                         self.space + self.bottomOffset);
         self.collection.frame =
-            CGRectMake(20, NESectionHeaderView.height + self.space, self.view.frame.size.width - 40,
-                       self.view.frame.size.height - NESectionHeaderView.height);
+            CGRectMake(20, SectionHeaderView.height + self.space, self.view.frame.size.width - 40,
+                       self.view.frame.size.height - SectionHeaderView.height);
         self.weakTable.tableFooterView = self.view;
       }
     }

@@ -3,13 +3,19 @@
 // found in the LICENSE file.
 
 #import <UIKit/UIKit.h>
-#import "NEUser.h"
+#import "NEGroupUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface NEGroupInCallViewController : UIViewController
 
-- (void)changeUsers:(NSArray<NSArray<NEUser *> *> *)users;
+- (void)changeUsers:(NSArray<NSArray<NEGroupUser *> *> *)users;
+
+/// 切换大画面用户
+- (void)switchToLargeViewUser:(NEGroupUser *)user atIndex:(NSInteger)index;
+
+/// 取消大画面模式
+- (void)clearLargeView;
 
 @end
 

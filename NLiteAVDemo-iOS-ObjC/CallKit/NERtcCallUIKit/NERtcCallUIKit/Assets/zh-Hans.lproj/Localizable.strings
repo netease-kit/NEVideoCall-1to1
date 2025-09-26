@@ -40,3 +40,5 @@
 "device_not_support"="该设备不支持虚化功能";
 
 "connecting"="正在接通中...";
+
+"ui_member_exceed_limit"="暂支持最多10人通话";

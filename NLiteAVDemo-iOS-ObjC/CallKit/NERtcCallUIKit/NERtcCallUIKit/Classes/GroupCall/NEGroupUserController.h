@@ -3,13 +3,13 @@
 // found in the LICENSE file.
 
 #import <UIKit/UIKit.h>
-#import "NEUser.h"
+#import "NEGroupUser.h"
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol NEGroupUserDelegagte <NSObject>
 
 @optional
-- (void)didRemoveWithUser:(NEUser *)user;
+- (void)didRemoveWithUser:(NEGroupUser *)user;
 
 @end
 
@@ -23,13 +23,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, assign) BOOL disableCancelUser;
 
-- (void)addUsers:(NSArray<NEUser *> *)users;
+- (void)addUsers:(NSArray<NEGroupUser *> *)users;
 
-- (void)removeUsers:(NSArray<NEUser *> *)users;
+- (void)removeUsers:(NSArray<NEGroupUser *> *)users;
 
 - (void)removeAllUsers;
 
-- (NSMutableArray<NEUser *> *)getAllUsers;
+- (NSMutableArray<NEGroupUser *> *)getAllUsers;
 
 - (NSInteger)getCurrentCount;
 

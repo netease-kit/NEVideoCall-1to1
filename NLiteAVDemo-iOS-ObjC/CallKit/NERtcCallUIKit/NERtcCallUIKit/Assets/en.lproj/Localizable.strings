@@ -41,3 +41,5 @@
 "device_not_support"="This device does not support the blurring feature";
 
 "connecting"="Connecting...";
+
+"ui_member_exceed_limit"="currently supports call with up to 10 people";

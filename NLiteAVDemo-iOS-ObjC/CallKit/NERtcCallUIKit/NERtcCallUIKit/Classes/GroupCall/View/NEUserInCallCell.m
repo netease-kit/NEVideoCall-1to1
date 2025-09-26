@@ -2,10 +2,16 @@
 // Use of this source code is governed by a MIT license that can be
 // found in the LICENSE file.
 
-#import "UserInCallCell.h"
-#import "NSMacro.h"
+#import "NEUserInCallCell.h"
+#import <Masonry/Masonry.h>
+#import <NERtcCallKit/NERtcCallKit.h>
+#import <NERtcSDK/NERtcSDK.h>
+#import <SDWebImage/SDWebImage.h>
+#import <YXAlog_iOS/YXAlog.h>
+#import "NECallUIKitMacro.h"
+#import "NEGroupUser.h"
 
-@interface UserInCallCell ()
+@interface NEUserInCallCell ()
 
 @property(nonatomic, strong) UIImageView *headerImage;
 
@@ -13,7 +19,7 @@
 
 @property(nonatomic, strong) UILabel *connectingState;
 
-@property(nonatomic, strong) NEUser *user;
+@property(nonatomic, strong) NEGroupUser *user;
 
 @property(nonatomic, strong) UIView *preview;
 
@@ -21,7 +27,7 @@
 
 @end
 
-@implementation UserInCallCell
+@implementation NEUserInCallCell
 
 - (instancetype)initWithFrame:(CGRect)frame {
   self = [super initWithFrame:frame];
@@ -117,35 +123,56 @@
   return _preview;
 }
 
-- (void)configure:(NEUser *)user {
-  [self.headerImage sd_setImageWithURL:[NSURL URLWithString:user.avatar]];
-  self.nameLabel.text = user.mobile;
+- (void)configure:(NEGroupUser *)user {
+  // 设置头像
+  [self.headerImage
+      sd_setImageWithURL:[NSURL URLWithString:user.avatar]
+        placeholderImage:[UIImage imageNamed:@"avator"
+                                                  inBundle:[NSBundle bundleForClass:[NERtcCallUIKit
+                                                                                        class]]
+                             compatibleWithTraitCollection:nil]];
+  self.nameLabel.text = user.nickname;
+
+  // 设置连接状态
   if (user.state != GroupMemberStateWaitting) {
     self.connectingState.hidden = YES;
   } else {
     self.connectingState.hidden = NO;
   }
 
+  // 判断当前用户是否为本地用户
+  NSString *currentUserId = [NIMSDK.sharedSDK.v2LoginService getLoginUser];
+  BOOL isLocalUser = [currentUserId isEqualToString:user.imAccid];
+
   if (user.isOpenVideo == YES && user.isShowLocalVideo == YES) {
+    // 本地用户开启视频
     self.preview.hidden = NO;
     [[NERtcEngine sharedEngine] enableLocalVideo:YES];
     [NERtcEngine.sharedEngine setupLocalVideoCanvas:self.canvas];
     [NERtcEngine.sharedEngine startPreview];
-    NSLog(@"start preview : %@", self.preview);
+    YXAlogInfo(@"[NEUserInCallCell] 本地视频预览开始: %@", user.imAccid);
+
   } else if (user.isOpenVideo == YES) {
+    // 远程用户开启视频
     self.preview.hidden = NO;
-    [NERtcEngine.sharedEngine setupRemoteVideoCanvas:self.canvas forUserID:user.uid];
-    [NERtcEngine.sharedEngine subscribeRemoteVideo:YES
-                                         forUserID:user.uid
-                                        streamType:kNERtcRemoteVideoStreamTypeHigh];
+    if (user.uid > 0) {
+      [NERtcEngine.sharedEngine setupRemoteVideoCanvas:self.canvas forUserID:user.uid];
+    }
+    YXAlogInfo(@"[NEUserInCallCell] 远程视频订阅: userID=%llu, user=%@", user.uid, user.imAccid);
+
   } else {
-    if ([[NIMSDK.sharedSDK.v2LoginService getLoginUser] isEqualToString:user.imAccid]) {
+    // 关闭视频
+    if (isLocalUser) {
+      // 本地用户关闭视频
       [NERtcEngine.sharedEngine setupLocalVideoCanvas:nil];
       [NERtcEngine.sharedEngine stopPreview];
       self.preview.hidden = YES;
-      NSLog(@"stop preview : %@", self.preview);
+      YXAlogInfo(@"[NEUserInCallCell] 本地视频预览停止: %@", user.imAccid);
     } else {
-      [NERtcEngine.sharedEngine setupRemoteVideoCanvas:nil forUserID:user.uid];
+      // 远程用户关闭视频
+      if (user.uid > 0) {
+        [NERtcEngine.sharedEngine setupRemoteVideoCanvas:nil forUserID:user.uid];
+      }
     }
   }
 }

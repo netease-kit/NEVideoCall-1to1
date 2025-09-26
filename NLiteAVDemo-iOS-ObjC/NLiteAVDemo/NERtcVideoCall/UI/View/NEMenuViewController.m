@@ -5,7 +5,6 @@
 #import "NEMenuViewController.h"
 #import "NEAccount.h"
 #import "NECallStatusRecordModel.h"
-#import "NEGroupCallViewController.h"
 #import "NEGroupContactsController.h"
 #import "NEMenuCell.h"
 #import "NENavCustomView.h"
@@ -116,7 +115,12 @@ static NSString *cellID = @"menuCellID";
                            // 首次登录成功之后上传deviceToken
                            NSData *deviceToken =
                                [[NSUserDefaults standardUserDefaults] objectForKey:deviceTokenKey];
+                           NSData *pushkitDeviceToken = [[NSUserDefaults standardUserDefaults]
+                               objectForKey:pushKitDeviceTokenKey];
+
                            [[NERtcCallKit sharedInstance] updateApnsToken:deviceToken];
+                           [[NERtcCallKit sharedInstance] updatePushKitToken:pushkitDeviceToken];
+
                            [self updateUserInfo:[NEAccount shared].userModel];
                          }
                        }];
@@ -292,44 +296,6 @@ static NSString *cellID = @"menuCellID";
           [self.navigationController presentViewController:callVC animated:YES
     completion:nil];
     }*/
-}
-
-- (void)onGroupInvitedWithInfo:(NEGroupCallInfo *)info {
-  __weak typeof(self) weakSelf = self;
-  NSMutableArray<GroupCallMember *> *members = [[NSMutableArray alloc] init];
-  for (GroupCallMember *member in info.calleeList) {
-    NSLog(@"current member accid : %@", member.imAccid);
-  }
-  [members addObjectsFromArray:info.calleeList];
-
-  [DataManager.shareInstance
-      fetchUserWithMembers:members
-                completion:^(NSError *_Nullable error, NSArray<NEUser *> *_Nonnull users) {
-                  if ([NEGroupCallKit sharedInstance].callId == nil ||
-                      ![[NEGroupCallKit sharedInstance].callId isEqualToString:info.callId]) {
-                    NSLog(@"data come, but group call has end");
-                    return;
-                  }
-                  NSMutableArray *neUsers = [[NSMutableArray alloc] init];
-                  NEUser *neUser;
-                  for (NEUser *user in users) {
-                    if ([user.imAccid isEqualToString:info.callerInfo.imAccid]) {
-                      neUser = user;
-                    } else {
-                      [neUsers addObject:user];
-                    }
-                  }
-
-                  NEGroupCallViewController *groupCall =
-                      [[NEGroupCallViewController alloc] initWithCalled:YES withCaller:neUser];
-                  groupCall.callId = info.callId;
-                  groupCall.startTimestamp = info.startTimestamp;
-                  [groupCall addUser:neUsers];
-                  groupCall.modalPresentationStyle = UIModalPresentationOverFullScreen;
-                  [weakSelf.navigationController presentViewController:groupCall
-                                                              animated:YES
-                                                            completion:nil];
-                }];
 }
 
 #pragma mark - IM delegate

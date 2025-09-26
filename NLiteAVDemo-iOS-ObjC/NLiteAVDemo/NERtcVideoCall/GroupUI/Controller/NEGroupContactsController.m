@@ -3,27 +3,27 @@
 // found in the LICENSE file.
 
 #import "NEGroupContactsController.h"
-
+#import <NERtcCallUIKit/NERtcCallUIKit.h>
+#import <NERtcCallUIKit/NEUIGroupCallParam.h>
 #import "Attachment.h"
 #import "GroupSettingViewController.h"
+#import "GroupUserController.h"
 #import "NEAccount.h"
 #import "NECallStatusRecordCell.h"
-#import "NEGroupCallViewController.h"
-#import "NEGroupUserController.h"
 #import "NEPSTNViewController.h"
 #import "NERtcSettingViewController.h"
 #import "NESearchResultCell.h"
 #import "NESearchTask.h"
-#import "NESectionHeaderView.h"
 #import "NSArray+NTES.h"
 #import "NSMacro.h"
+#import "SectionHeaderView.h"
 
 @interface NEGroupContactsController () <UITextFieldDelegate,
                                          NIMChatManagerDelegate,
                                          UITableViewDelegate,
                                          UITableViewDataSource,
                                          SearchCellDelegate,
-                                         NEGroupUserDelegagte,
+                                         GroupUserDelegagte,
                                          V2NIMMessageListener>
 @property(nonatomic, strong) UIView *searchBarView;
 @property(nonatomic, strong) UITextField *textField;
@@ -44,13 +44,13 @@
 
 @property(nonatomic, strong) NSMutableDictionary<NSString *, NEUser *> *flagDic;
 
-@property(nonatomic, strong) NESectionHeaderView *resultHeader;
+@property(nonatomic, strong) SectionHeaderView *resultHeader;
 
-@property(nonatomic, strong) NESectionHeaderView *historyHeader;
+@property(nonatomic, strong) SectionHeaderView *historyHeader;
 
-@property(nonatomic, strong) NESectionHeaderView *recordHeader;
+@property(nonatomic, strong) SectionHeaderView *recordHeader;
 
-@property(nonatomic, strong) NEGroupUserController *userController;
+@property(nonatomic, strong) GroupUserController *userController;
 
 @property(nonatomic, strong) NEExpandButton *callBtn;
 
@@ -152,7 +152,7 @@
   [self.contentTable registerClass:[NECallStatusRecordCell class]
             forCellReuseIdentifier:@"NECallStatusRecordCell"];
 
-  self.userController = [[NEGroupUserController alloc] init];
+  self.userController = [[GroupUserController alloc] init];
   [self addChildViewController:self.userController];
   self.userController.view.frame = CGRectMake(0, 0, self.view.frame.size.width, 100);
   self.contentTable.tableFooterView = self.userController.view;
@@ -376,44 +376,27 @@
     [self backAction:nil];
   } else {
     NSLog(@"current user : %@", [NEAccount shared].userModel);
-    NEUser *caller = [[NEUser alloc] init];
-    caller.imAccid = [NIMSDK.sharedSDK.v2LoginService getLoginUser];
 
-    [NIMSDK.sharedSDK.v2UserService
-        getUserList:@[ caller.imAccid ]
-            success:^(NSArray<V2NIMUser *> *_Nonnull result) {
-              if (result.count < 1) {
-                return;
-              }
+    // 获取被叫用户ID列表
+    NSMutableArray<NSString *> *remoteUserIds = [[NSMutableArray alloc] init];
+    NSArray<NEUser *> *allValues = [self.flagDic allValues];
+    for (NEUser *user in allValues) {
+      if (user.imAccid.length > 0) {
+        [remoteUserIds addObject:user.imAccid];
+      }
+    }
 
-              V2NIMUser *user = result.firstObject;
-              caller.avatar = user.avatar;
-              caller.state = GroupMemberStateInChannel;
+    // 创建群组通话参数（使用最新的简化接口）
+    NEUIGroupCallParam *groupCallParam = [[NEUIGroupCallParam alloc] init];
+    groupCallParam.remoteUsers = remoteUserIds;
 
-              NEGroupCallViewController *callController =
-                  [[NEGroupCallViewController alloc] initWithCalled:NO withCaller:caller];
-
-              NSMutableArray *calledUsers = [[NSMutableArray alloc] init];
-              NSArray<NEUser *> *allValues = [self.flagDic allValues];
-              for (NEUser *user in allValues) {
-                NEUser *copyUser = [user getCopy];
-                copyUser.state = GroupMemberStateWaitting;
-                [calledUsers addObject:copyUser];
-              }
-
-              [calledUsers insertObject:caller atIndex:0];
-
-              [callController addUser:calledUsers];
-              callController.modalPresentationStyle = UIModalPresentationFullScreen;
-              [self.navigationController presentViewController:callController
-                                                      animated:YES
-                                                    completion:nil];
-            }
-            failure:^(V2NIMError *_Nonnull error){
-
-            }];
+    // 发起群组通话（主叫用户信息会自动获取）
+    [[NERtcCallUIKit sharedInstance] groupCallWithParam:groupCallParam];
   }
 }
+
+#pragma mark - 转换方法
+// 注意：convertToGroupUser 方法已移除，用户信息转换现在在 NERtcCallUIKit 内部处理
 
 #pragma mark - ui table view delegate
 
@@ -508,21 +491,21 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
   if (section == 0) {
     if (self.searchResultData.count > 0) {
-      return NESectionHeaderView.height;
+      return SectionHeaderView.height;
     } else {
-      return NESectionHeaderView.hasContentHeight;
+      return SectionHeaderView.hasContentHeight;
     }
   }
 
   if (section == 1) {
     if (self.searchHistoryData.count > 0) {
-      return NESectionHeaderView.height;
+      return SectionHeaderView.height;
     }
   }
 
   if (section == 2) {
     if (self.calledUsers.count > 0) {
-      return NESectionHeaderView.height;
+      return SectionHeaderView.height;
     }
   }
 
@@ -533,11 +516,11 @@
   if (section == 0) {
     if (self.searchResultData.count > 0) {
       self.resultHeader.frame =
-          CGRectMake(0, 0, self.view.frame.size.width, NESectionHeaderView.height);
+          CGRectMake(0, 0, self.view.frame.size.width, SectionHeaderView.height);
       [self.resultHeader.contentLabel setHidden:YES];
     } else {
       self.resultHeader.frame =
-          CGRectMake(0, 0, self.view.frame.size.width, NESectionHeaderView.hasContentHeight);
+          CGRectMake(0, 0, self.view.frame.size.width, SectionHeaderView.hasContentHeight);
       [self.resultHeader.contentLabel setHidden:NO];
     }
     return self.resultHeader;
@@ -603,29 +586,29 @@
   return 0;
 }
 
-- (NESectionHeaderView *)resultHeader {
+- (SectionHeaderView *)resultHeader {
   if (nil == _resultHeader) {
-    _resultHeader = [[NESectionHeaderView alloc] init];
-    _resultHeader.frame = CGRectMake(0, 0, self.view.frame.size.width, NESectionHeaderView.height);
+    _resultHeader = [[SectionHeaderView alloc] init];
+    _resultHeader.frame = CGRectMake(0, 0, self.view.frame.size.width, SectionHeaderView.height);
     _resultHeader.contentLabel.text = @"无";
     _resultHeader.titleLabel.text = @"搜索结果";
   }
   return _resultHeader;
 }
 
-- (NESectionHeaderView *)historyHeader {
+- (SectionHeaderView *)historyHeader {
   if (nil == _historyHeader) {
-    _historyHeader = [[NESectionHeaderView alloc] init];
-    _historyHeader.frame = CGRectMake(0, 0, self.view.frame.size.width, NESectionHeaderView.height);
+    _historyHeader = [[SectionHeaderView alloc] init];
+    _historyHeader.frame = CGRectMake(0, 0, self.view.frame.size.width, SectionHeaderView.height);
     _historyHeader.titleLabel.text = @"最近搜索";
   }
   return _historyHeader;
 }
 
-- (NESectionHeaderView *)recordHeader {
+- (SectionHeaderView *)recordHeader {
   if (nil == _recordHeader) {
-    _recordHeader = [[NESectionHeaderView alloc] init];
-    _recordHeader.frame = CGRectMake(0, 0, self.view.frame.size.width, NESectionHeaderView.height);
+    _recordHeader = [[SectionHeaderView alloc] init];
+    _recordHeader.frame = CGRectMake(0, 0, self.view.frame.size.width, SectionHeaderView.height);
     _recordHeader.titleLabel.text = kWaittingCalledUser;
   }
   return _recordHeader;
@@ -638,6 +621,42 @@
 }
 
 - (void)testAccid:(NSString *)accid {
+  //  NIMSession *session = [NIMSession session:accid type:NIMSessionTypeP2P];
+
+#warning ya
+  // 构造自定义消息附件
+  //  NIMCustomObject *object = [[NIMCustomObject alloc] init];
+  //  Attachment *attachment = [[Attachment alloc] init];
+  //  object.attachment = attachment;
+  //
+
+  //    V2NIMMessageCustomAttachment *attachment =  [[V2NIMMessageCustomAttachment alloc] init];
+
+  //  // 构造出具体消息并注入附件
+  //  NIMMessage *message = [[NIMMessage alloc] init];
+  //  message.messageObject = object;
+  //
+  //  // 错误反馈对象
+  //  NSError *error = nil;
+  //
+  //  // 发送消息
+  //  [[NIMSDK sharedSDK].chatManager sendMessage:message toSession:session error:&error];
+
+  //    + (V2NIMMessage *)createCustomMessageWithAttachment:(V2NIMMessageCustomAttachment
+  //    *)attachment
+  //                                                subType:(int)subType;
+
+  //    V2NIMMessage *message = [V2NIMMessageCreator createCustomMessageWithAttachment:attachment
+  //    subType:0]; V2NIMSendMessageParams *params = [[V2NIMSendMessageParams alloc] init];
+  //
+  //    [[[NIMSDK sharedSDK] v2MessageService] sendMessage:message conversationId:@"conversationId"
+  //    params:params success:^(V2NIMSendMessageResult * _Nonnull result) {
+  //
+  //    } failure:^(V2NIMError * _Nonnull error) {
+  //
+  //    } progress:^(NSUInteger) {
+  //
+  //    }];
 }
 
 #pragma mark - call view status delegate
@@ -646,4 +665,19 @@
   [[NSNotificationCenter defaultCenter] postNotificationName:NERECORDADD object:model];
 }
 
+//- (void)sendMessage:(NIMMessage *)message didCompleteWithError:(NSError *)error {
+//    NSLog(@"send complete : %@", error);
+//    if (error == nil) {
+//        [[UIApplication sharedApplication].keyWindow ne_makeToast:@"自定义消息发送成功"];
+//    }
+//}
+//
+//- (void)onRecvMessages:(NSArray<NIMMessage *> *)messages {
+//    NSLog(@"contacts onRecvMessages : %lu", (unsigned long)messages.count);
+//    for (NIMMessage *message in messages) {
+//        if (message.messageType == NIMMessageTypeCustom) {
+//            [[UIApplication sharedApplication].keyWindow ne_makeToast:@"收到消息"];
+//        }
+//    }
+//}
 @end

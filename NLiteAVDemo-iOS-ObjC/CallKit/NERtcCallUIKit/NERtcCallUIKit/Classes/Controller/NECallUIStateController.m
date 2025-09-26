@@ -25,6 +25,9 @@
 
 @property(nonatomic, assign, readwrite) CGSize buttonSize;
 
+/// 小画面拖拽开始时的中心点位置
+@property(nonatomic, assign) CGPoint smallVideoViewStartCenter;
+
 @end
 
 @implementation NECallUIStateController
@@ -79,9 +82,20 @@ navigation
   if (!_smallVideoView) {
     _smallVideoView = [[NEVideoView alloc] init];
     _smallVideoView.backgroundColor = [UIColor darkGrayColor];
+
+    // 添加点击手势（切换大小画面）
     UITapGestureRecognizer *tap =
         [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchVideoView:)];
     [_smallVideoView addGestureRecognizer:tap];
+
+    // 添加拖拽手势
+    UIPanGestureRecognizer *pan =
+        [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanGesture:)];
+    [_smallVideoView addGestureRecognizer:pan];
+
+    // 设置拖拽手势的优先级，确保点击和拖拽都能正常工作
+    [tap requireGestureRecognizerToFail:pan];
+
     _smallVideoView.translatesAutoresizingMaskIntoConstraints = NO;
   }
   return _smallVideoView;
@@ -99,6 +113,114 @@ navigation
     [self.mainController changeRemoteMute:self.mainController.isRemoteMute
                                 videoView:self.bigVideoView];
   }
+}
+
+- (void)handlePanGesture:(UIPanGestureRecognizer *)panGesture {
+  if (!self.smallVideoView || !self.smallVideoView.superview) {
+    return;
+  }
+
+  CGPoint translation = [panGesture translationInView:self.view];
+  CGPoint velocity = [panGesture velocityInView:self.view];
+
+  switch (panGesture.state) {
+    case UIGestureRecognizerStateBegan:
+      // 记录初始位置
+      self.smallVideoViewStartCenter = self.smallVideoView.center;
+      break;
+
+    case UIGestureRecognizerStateChanged:
+      // 更新小画面位置
+      [self updateSmallVideoViewPositionWithTranslation:translation];
+      break;
+
+    case UIGestureRecognizerStateEnded:
+    case UIGestureRecognizerStateCancelled:
+      // 处理拖拽结束，可能需要吸附到边缘
+      [self handlePanGestureEndedWithVelocity:velocity];
+      break;
+
+    default:
+      break;
+  }
+}
+
+- (void)updateSmallVideoViewPositionWithTranslation:(CGPoint)translation {
+  if (!self.smallVideoView || !self.smallVideoView.superview) {
+    return;
+  }
+
+  // 计算新位置
+  CGPoint newCenter = CGPointMake(self.smallVideoViewStartCenter.x + translation.x,
+                                  self.smallVideoViewStartCenter.y + translation.y);
+
+  // 获取小画面的尺寸
+  CGSize smallVideoSize = self.smallVideoView.bounds.size;
+  if (CGSizeEqualToSize(smallVideoSize, CGSizeZero)) {
+    smallVideoSize = CGSizeMake(120, 160);  // 默认尺寸
+  }
+
+  // 获取父视图的边界
+  CGRect parentBounds = self.view.bounds;
+
+  // 计算边界限制
+  CGFloat minX = smallVideoSize.width / 2.0;
+  CGFloat maxX = parentBounds.size.width - smallVideoSize.width / 2.0;
+  CGFloat minY = smallVideoSize.height / 2.0;
+  CGFloat maxY = parentBounds.size.height - smallVideoSize.height / 2.0;
+
+  // 限制在边界内
+  newCenter.x = MAX(minX, MIN(maxX, newCenter.x));
+  newCenter.y = MAX(minY, MIN(maxY, newCenter.y));
+
+  // 更新位置
+  self.smallVideoView.center = newCenter;
+}
+
+- (void)handlePanGestureEndedWithVelocity:(CGPoint)velocity {
+  if (!self.smallVideoView || !self.smallVideoView.superview) {
+    return;
+  }
+
+  // 获取当前中心点
+  CGPoint currentCenter = self.smallVideoView.center;
+  CGSize parentSize = self.view.bounds.size;
+
+  // 计算到各边缘的距离
+  CGFloat distanceToLeft = currentCenter.x;
+  CGFloat distanceToRight = parentSize.width - currentCenter.x;
+  CGFloat distanceToTop = currentCenter.y;
+  CGFloat distanceToBottom = parentSize.height - currentCenter.y;
+
+  // 找到最近的边缘
+  CGFloat minDistance =
+      MIN(MIN(distanceToLeft, distanceToRight), MIN(distanceToTop, distanceToBottom));
+
+  CGPoint targetCenter = currentCenter;
+
+  // 根据最近的边缘确定目标位置
+  if (minDistance == distanceToLeft) {
+    // 吸附到左边缘
+    targetCenter.x = self.smallVideoView.bounds.size.width / 2.0 + 10;  // 10像素边距
+  } else if (minDistance == distanceToRight) {
+    // 吸附到右边缘
+    targetCenter.x = parentSize.width - self.smallVideoView.bounds.size.width / 2.0 - 10;
+  } else if (minDistance == distanceToTop) {
+    // 吸附到上边缘
+    targetCenter.y = self.smallVideoView.bounds.size.height / 2.0 + 10;
+  } else {
+    // 吸附到下边缘
+    targetCenter.y = parentSize.height - self.smallVideoView.bounds.size.height / 2.0 - 10;
+  }
+
+  // 执行吸附动画
+  [UIView animateWithDuration:0.3
+                        delay:0
+                      options:UIViewAnimationOptionCurveEaseOut
+                   animations:^{
+                     self.smallVideoView.center = targetCenter;
+                   }
+                   completion:nil];
 }
 
 - (UIImageView *)remoteAvatorView {

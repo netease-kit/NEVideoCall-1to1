@@ -3,18 +3,28 @@
 // found in the LICENSE file.
 
 #import "NEGroupCallViewController.h"
+#import <Masonry/Masonry.h>
+#import <NECommonUIKit/UIView+YXToast.h>
+#import <NERtcCallKit/NERtcCallKit.h>
+#import <YXAlog_iOS/YXAlog.h>
+#import "NECallKitUtil.h"
+#import "NECallUIKitMacro.h"
+#import "NEDataManager.h"
+#import "NEExpandButton.h"
 #import "NEGroupCalledViewController.h"
-#import "NEGroupContactsController.h"
 #import "NEGroupInCallViewController.h"
-#import "NEGroupUserController.h"
+#import "NERtcCallUIKit.h"
+#import "NEVideoOperationView.h"
+
+NSString *const kGroupCallKitDismissNoti = @"kGroupCallKitDismissNoti";
 
 @interface NEGroupCallViewController () <NEGroupCalledDelegate, NEGroupCallKitDelegate>
 
-@property(nonatomic, strong) NSMutableArray<NEUser *> *datas;
+@property(nonatomic, strong) NSMutableArray<NEGroupUser *> *datas;
 
 @property(nonatomic, assign) BOOL isCalled;
 
-@property(nonatomic, strong) NEUser *caller;
+@property(nonatomic, strong) NEGroupUser *caller;
 
 @property(nonatomic, strong) NEGroupCalledViewController *calledController;
 
@@ -40,7 +50,7 @@
 
 @implementation NEGroupCallViewController
 
-- (instancetype)initWithCalled:(BOOL)isCalled withCaller:(NEUser *)caller {
+- (instancetype)initWithCalled:(BOOL)isCalled withCaller:(NEGroupUser *)caller {
   self = [super init];
   if (self) {
     self.datas = [[NSMutableArray alloc] init];
@@ -48,6 +58,7 @@
     self.isCalled = isCalled;
     self.factor = 1.0;
     self.timerCount = 0;
+    self.showInviteButton = NO;  // 默认显示邀请按钮
   }
   return self;
 }
@@ -67,14 +78,13 @@
     make.centerX.equalTo(self.view);
     make.top.equalTo(self.view).offset(60 * self.factor);
   }];
-    
   if (self.isCalled == YES) {
     [self setupCalledMaskUI];
   } else {
     [self startTimer];
     GroupCallParam *param = [[GroupCallParam alloc] init];
     NSMutableArray *calleeList = [[NSMutableArray alloc] init];
-    for (NEUser *user in self.datas) {
+    for (NEGroupUser *user in self.datas) {
       if ([user.imAccid isEqualToString:self.caller.imAccid]) {
         user.state = GroupMemberStateInChannel;
         continue;
@@ -85,31 +95,31 @@
     NSString *uuid = [self getRandomString];
     param.callId = uuid;
     self.callId = uuid;
-    NSLog(@"call id : %@", param.callId);
-    NSLog(@"call id length : %lu", (unsigned long)param.callId.length);
-    if ([[SettingManager shareInstance] isGroupPush] == YES) {
-      param.pushParam.pushMode = GroupPushModeOpen;
-      if ([[SettingManager shareInstance] customPushContent].length > 0) {
-        param.pushParam.pushContent = [[SettingManager shareInstance] customPushContent];
-      }
-    } else {
-      param.pushParam.pushMode = GroupPushModeClose;
+    YXAlogInfo(@"call id : %@", param.callId);
+    YXAlogInfo(@"call id length : %lu", (unsigned long)param.callId.length);
+
+    // 设置推送参数
+    if (self.pushParam) {
+      param.pushParam = self.pushParam;
+      YXAlogInfo(@"使用自定义推送参数 - pushMode: %ld, pushContent: %@",
+                 (long)self.pushParam.pushMode, self.pushParam.pushContent);
     }
 
     [[NEGroupCallKit sharedInstance]
          groupCall:param
         completion:^(NSError *_Nullable error, GroupCallResult *_Nullable result) {
           if (error != nil) {
-            [UIApplication.sharedApplication.keyWindow ne_makeToast:error.localizedDescription];
+            //            [UIApplication.sharedApplication.keyWindow
+            //            ne_makeToast:error.localizedDescription];
             [self didBack];
             return;
           }
-          NSLog(@"group call :%@  result : %@", error, result);
+          YXAlogInfo(@"group call :%@  result : %@", error, result);
         }];
   }
 }
 
-- (void)addUser:(NSArray<NEUser *> *)users {
+- (void)addUser:(NSArray<NEGroupUser *> *)users {
   [self.datas addObjectsFromArray:users];
 }
 
@@ -161,13 +171,17 @@
     make.top.equalTo(self.view).offset(56);
   }];
 
-  // 邀请
-  [self.view addSubview:self.inviteBtn];
-  [self.inviteBtn mas_makeConstraints:^(MASConstraintMaker *make) {
-    make.right.equalTo(self.view).offset(-12);
-    make.top.equalTo(self.view).offset(56);
-    make.width.height.mas_equalTo(40);
-  }];
+  // 邀请按钮 - 根据配置决定是否显示
+  if (self.showInviteButton) {
+    [self.view addSubview:self.inviteBtn];
+    [self.inviteBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+      make.right.equalTo(self.view).offset(-12);
+      make.top.equalTo(self.view).offset(56);
+      make.width.height.mas_equalTo(40);
+    }];
+  } else {
+    self.inviteBtn.hidden = YES;
+  }
 }
 
 - (void)startTimer {
@@ -206,12 +220,12 @@
   NSTimeInterval time = [date timeIntervalSince1970];
   int value = time - self.startTimestamp / 1000;
   self.timerCount = value;
-  NSLog(@"setCalledCount %d", self.timerCount);
+  YXAlogInfo(@"setCalledCount %d", self.timerCount);
 }
 
-- (NSMutableArray<NSArray<NEUser *> *> *)chunkArray:(NSArray<NEUser *> *)array
-                                           withSize:(NSInteger)size {
-  NSMutableArray<NSArray<NEUser *> *> *arrayOfArrays = [NSMutableArray array];
+- (NSMutableArray<NSArray<NEGroupUser *> *> *)chunkArray:(NSArray<NEGroupUser *> *)array
+                                                withSize:(NSInteger)size {
+  NSMutableArray<NSArray<NEGroupUser *> *> *arrayOfArrays = [NSMutableArray array];
   NSInteger itemsRemaining = [array count];
   NSInteger j = 0;
   while (itemsRemaining) {
@@ -226,13 +240,13 @@
 
 - (void)setLocalVideoEnable:(BOOL)enable {
   for (int i = 0; i < self.datas.count; i++) {
-    NEUser *user = [self.datas objectAtIndex:i];
+    NEGroupUser *user = [self.datas objectAtIndex:i];
     if (user.imAccid.length > 0 &&
         [user.imAccid isEqualToString:[NIMSDK.sharedSDK.v2LoginService getLoginUser]]) {
       user.isOpenVideo = enable;
       user.isShowLocalVideo = enable;
-      NSLog(@"setLocalVideoEnable %d", enable);
-      NSLog(@"setLocalVideoEnable accid : %@", user.imAccid);
+      YXAlogInfo(@"setLocalVideoEnable %d", enable);
+      YXAlogInfo(@"setLocalVideoEnable accid : %@", user.imAccid);
       break;
     }
   }
@@ -256,13 +270,44 @@
            [weakSelf didBack];
            return;
          }
-         NSLog(@"call member user list : %@", result.groupCallInfo.calleeList);
-         [DataManager.shareInstance
+         YXAlogInfo(@"call member user list : %@", result.groupCallInfo.calleeList);
+         [NEDataManager.shareInstance
              fetchUserWithMembers:result.groupCallInfo.calleeList
-                       completion:^(NSError *_Nullable error, NSArray<NEUser *> *_Nonnull users) {
-                         NSLog(@"call neuser list : %@", users);
+                       completion:^(NSError *_Nullable error,
+                                    NSArray<NEGroupUser *> *_Nonnull users) {
+                         // 保存原始 datas 的顺序
+                         NSMutableArray<NSString *> *originalAccidOrder =
+                             [[NSMutableArray alloc] init];
+                         for (NEGroupUser *user in weakSelf.datas) {
+                           [originalAccidOrder addObject:user.imAccid];
+                         }
+
+                         // 创建 users 的字典，以 imAccid 为 key
+                         NSMutableDictionary<NSString *, NEGroupUser *> *usersDict =
+                             [[NSMutableDictionary alloc] init];
+                         for (NEGroupUser *user in users) {
+                           [usersDict setObject:user forKey:user.imAccid];
+                         }
+
+                         // 按照原始顺序重新排列 users
+                         NSMutableArray<NEGroupUser *> *orderedUsers =
+                             [[NSMutableArray alloc] init];
+                         for (NSString *accid in originalAccidOrder) {
+                           NEGroupUser *user = [usersDict objectForKey:accid];
+                           if (user) {
+                             [orderedUsers addObject:user];
+                           }
+                         }
+
+                         // 添加新用户（不在原始顺序中的）
+                         for (NEGroupUser *user in users) {
+                           if (![originalAccidOrder containsObject:user.imAccid]) {
+                             [orderedUsers addObject:user];
+                           }
+                         }
+
                          [weakSelf.datas removeAllObjects];
-                         [weakSelf.datas addObjectsFromArray:users];
+                         [weakSelf.datas addObjectsFromArray:orderedUsers];
                          [weakSelf refreshCollection];
                        }];
        }];
@@ -283,7 +328,7 @@
 }
 
 - (void)refreshCollection {
-  NSLog(@"refreshCollection data count %lu", (unsigned long)self.datas.count);
+  YXAlogInfo(@"refreshCollection data count %lu", (unsigned long)self.datas.count);
   [self.inCallController changeUsers:[self chunkArray:self.datas withSize:4]];
 }
 /*
@@ -311,7 +356,7 @@ navigation
     if (self.isOpenLocalVideo == NO) {
       [NERtcCallKit.sharedInstance enableLocalVideo:YES];
       self.isOpenLocalVideo = YES;
-      NSLog(@"open local video");
+      YXAlogInfo(@"open local video");
     }
     [self setLocalVideoEnable:YES];
     [[NERtcCallKit sharedInstance] muteLocalVideo:NO];
@@ -323,7 +368,7 @@ navigation
 }
 
 - (void)hangupBtnClick:(UIButton *)button {
-  NSLog(@"hangup btn click");
+  YXAlogInfo(@"hangup btn click");
   //[self dismissViewControllerAnimated:YES completion:nil];
   [self didBack];
   GroupHangupParam *param = [[GroupHangupParam alloc] init];
@@ -343,37 +388,66 @@ navigation
 }
 
 - (void)inviteUsers {
-  __weak typeof(self) weakSelf = self;
-  NEGroupContactsController *group = [[NEGroupContactsController alloc] init];
-  group.isInvite = YES;
-  for (NEUser *user in self.datas) {
-    [group.inCallUserDic setObject:user forKey:user.imAccid];
-  }
-  group.totalCount = GroupCallUserLimit - self.datas.count;
-  group.hasJoinCount = self.datas.count;
-  group.completion = ^(NSArray<NEUser *> *_Nonnull users) {
-    GroupInviteParam *param = [[GroupInviteParam alloc] init];
-    param.callId = weakSelf.callId;
-    NSMutableArray *calleeList = [[NSMutableArray alloc] init];
-    for (NEUser *user in users) {
-      [calleeList addObject:user.imAccid];
-    }
-    param.calleeList = calleeList;
+  // 获取当前通话的callId
+  NSString *callId = self.callId ?: @"";
 
-    [[NEGroupCallKit sharedInstance]
-        groupInvite:param
-         completion:^(NSError *_Nullable error, GroupInviteResult *_Nullable result) {
-           NSLog(@"groupInvite : %@", error);
-           if (error != nil) {
-             [UIApplication.sharedApplication.keyWindow ne_makeToast:error.localizedDescription];
-             return;
-           }
-         }];
-  };
-  group.title = @"邀请";
-  group.modalPresentationStyle = UIModalPresentationFullScreen;
-  UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:group];
-  [self presentViewController:nav animated:YES completion:nil];
+  // 获取当前通话中的用户ID列表
+  NSMutableArray<NSString *> *inCallUserIds = [[NSMutableArray alloc] init];
+  for (NEGroupUser *user in self.datas) {
+    if (user.imAccid.length > 0) {
+      [inCallUserIds addObject:user.imAccid];
+    }
+  }
+
+  YXAlogInfo(@"🔄 NEGroupCallViewController 调用 inviteUsers，callId: %@, "
+             @"当前用户数: %ld",
+             callId, (long)inCallUserIds.count);
+
+  // 通过代理回调到 NERtcCallUIKit
+  if (self.delegate &&
+      [self.delegate respondsToSelector:@selector(inviteUsersWithCallId:inCallUsers:completion:)]) {
+    __weak typeof(self) weakSelf = self;
+    [self.delegate
+        inviteUsersWithCallId:callId
+                  inCallUsers:inCallUserIds
+                   completion:^(NSArray<NSString *> *_Nullable userIds) {
+                     if (userIds && userIds.count > 0) {
+                       // 检查总人数是否超过限制
+                       NSInteger totalUsers = inCallUserIds.count + userIds.count;
+                       if (totalUsers > kGroupCallMaxUsers) {
+                         YXAlogInfo(@"⚠️ 邀请用户后总人数 %ld 超过限制 %ld", (long)totalUsers,
+                                    (long)kGroupCallMaxUsers);
+                         dispatch_async(dispatch_get_main_queue(), ^{
+                           [NECallKitUtil
+                               makeToast:[NECallKitUtil
+                                             localizableWithKey:@"ui_member_exceed_limit"]];
+                         });
+                         return;
+                       }
+
+                       YXAlogInfo(@"🔄 邀请用户回调，获得 %ld 个用户，总人数: %ld",
+                                  (long)userIds.count, (long)totalUsers);
+                       GroupInviteParam *param = [[GroupInviteParam alloc] init];
+                       param.callId = weakSelf.callId;
+                       param.calleeList = userIds;
+
+                       [[NEGroupCallKit sharedInstance]
+                           groupInvite:param
+                            completion:^(NSError *_Nullable error,
+                                         GroupInviteResult *_Nullable result) {
+                              YXAlogInfo(@"groupInvite : %@", error);
+                              if (error != nil) {
+                                [UIApplication.sharedApplication.keyWindow
+                                    ne_makeToast:error.localizedDescription];
+                                return;
+                              }
+                            }];
+
+                     } else {
+                       YXAlogInfo(@"⚠️ 邀请用户回调，未获得用户");
+                     }
+                   }];
+  }
 }
 
 #pragma mark - lazy init
@@ -414,7 +488,11 @@ navigation
 - (NEExpandButton *)cameraBtn {
   if (!_cameraBtn) {
     _cameraBtn = [[NEExpandButton alloc] init];
-    [_cameraBtn setImage:[UIImage imageNamed:@"group_camera"] forState:UIControlStateNormal];
+    [_cameraBtn
+        setImage:[UIImage imageNamed:@"group_camera"
+                                          inBundle:[NSBundle bundleForClass:[NERtcCallUIKit class]]
+                     compatibleWithTraitCollection:nil]
+        forState:UIControlStateNormal];
     [_cameraBtn addTarget:self
                    action:@selector(changeCameraFrontOrBack)
          forControlEvents:UIControlEventTouchUpInside];
@@ -425,7 +503,11 @@ navigation
 - (NEExpandButton *)inviteBtn {
   if (!_inviteBtn) {
     _inviteBtn = [[NEExpandButton alloc] init];
-    [_inviteBtn setImage:[UIImage imageNamed:@"group_add"] forState:UIControlStateNormal];
+    [_inviteBtn
+        setImage:[UIImage imageNamed:@"group_add"
+                                          inBundle:[NSBundle bundleForClass:[NERtcCallUIKit class]]
+                     compatibleWithTraitCollection:nil]
+        forState:UIControlStateNormal];
     [_inviteBtn addTarget:self
                    action:@selector(inviteUsers)
          forControlEvents:UIControlEventTouchUpInside];
@@ -436,7 +518,7 @@ navigation
 #pragma mark group call delegate
 
 - (void)onGroupHangupWithReason:(NSString *)reason {
-  NSLog(@"Group controller onGroupHangupWithReason %@", reason);
+  YXAlogInfo(@"Group controller onGroupHangupWithReason %@", reason);
   if ([reason isEqualToString:kReasonPeerAccept]) {
     [UIApplication.sharedApplication.keyWindow ne_makeToast:@"其他端已接听"];
   }
@@ -444,19 +526,19 @@ navigation
 }
 
 - (void)onGroupUserDidChange:(NSArray<GroupCallMember *> *)members {
-  NSLog(@"onGroupUserDidChange member count %ld", [members count]);
+  YXAlogInfo(@"onGroupUserDidChange member count %ld", [members count]);
   __weak typeof(self) weakSelf = self;
   NSMutableArray *filters = [[NSMutableArray alloc] init];
   for (GroupCallMember *member in members) {
-    NSLog(@"memmber state : %lu member video : %d", member.state, member.isOpenVideo);
+    YXAlogInfo(@"memmber state : %lu member video : %d", member.state, member.isOpenVideo);
     if (member.state != GroupMemberStateHangup) {
       [filters addObject:member];
     }
   }
-  [[DataManager shareInstance]
+  [[NEDataManager shareInstance]
       fetchUserWithMembers:filters
-                completion:^(NSError *_Nullable error, NSArray<NEUser *> *_Nonnull users) {
-                  for (NEUser *user in users) {
+                completion:^(NSError *_Nullable error, NSArray<NEGroupUser *> *_Nonnull users) {
+                  for (NEGroupUser *user in users) {
                     if ([user.imAccid
                             isEqualToString:[NIMSDK.sharedSDK.v2LoginService getLoginUser]]) {
                       user.isShowLocalVideo = !self.operationView.cameraBtn.isSelected;
@@ -469,19 +551,22 @@ navigation
                 }];
 }
 
-- (void)onGroupEndCallWithReason:(NSString *)reason withCallId:(NSString *)callId{
-  NSLog(@"controller onGroupEndCallWithReason :%@  parameter call id : %@", self.callId, callId);
+- (void)onGroupEndCallWithReason:(NSInteger)reason
+                         message:(NSString *)message
+                          callId:(NSString *)callId {
+  YXAlogInfo(@"controller onGroupEndCallWithReason :%ld  parameter call id : %@ message : %@",
+             (long)reason, callId, message);
   if ([self.callId isEqualToString:callId]) {
     [self didBack];
   }
 }
 
 - (void)onGroupRemoteUserOpenVideo:(uint64_t)uid withOpen:(BOOL)isOpen {
-  NSLog(@"controller onGroupRemoteUserOpenVideo %lld  open : %d", uid, isOpen);
-  for (NEUser *user in self.datas) {
-    NSLog(@"remote video mute change uid : %lld", user.uid);
+  YXAlogInfo(@"controller onGroupRemoteUserOpenVideo %lld  open : %d", uid, isOpen);
+  for (NEGroupUser *user in self.datas) {
+    YXAlogInfo(@"remote video mute change uid : %lld", user.uid);
     if (user.uid == uid) {
-      NSLog(@"onGroupRemoteUserOpenVideo : %lld open: %d", uid, isOpen);
+      YXAlogInfo(@"onGroupRemoteUserOpenVideo : %lld open: %d", uid, isOpen);
       user.isOpenVideo = isOpen;
       [self refreshCollection];
       return;
@@ -494,9 +579,11 @@ navigation
 
 - (void)didBack {
   [[NEGroupCallKit sharedInstance] removeDelegate:self];
-  NSLog(@"didback :  %@", self.presentedViewController);
+  [[NSNotificationCenter defaultCenter] postNotificationName:kGroupCallKitDismissNoti object:nil];
+
+  YXAlogInfo(@"didback : %@", self.presentedViewController);
   if (self.presentedViewController != nil) {
-    NSLog(@"didback NEGroupContactsController");
+    YXAlogInfo(@"didback NEGroupContactsController");
     [self dismissViewControllerAnimated:YES completion:nil];
   }
   [self dismissViewControllerAnimated:YES completion:nil];

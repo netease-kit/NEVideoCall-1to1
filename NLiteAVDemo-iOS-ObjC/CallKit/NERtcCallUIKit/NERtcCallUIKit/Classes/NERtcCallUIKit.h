@@ -23,6 +23,8 @@
 #import "NEVideoCallingController.h"
 #import "NEVideoInCallController.h"
 
+#import "NEUIGroupCallParam.h"
+
 // 音频呼叫中UI状态
 extern NSString *_Nonnull kAudioCalling;
 // 视频呼叫中UI状态
@@ -33,6 +35,9 @@ extern NSString *_Nonnull kAudioInCall;
 extern NSString *_Nonnull kVideoInCall;
 // 被叫UI状态(音频&视频)
 extern NSString *_Nonnull kCalledState;
+
+// 群呼人数限制 10人
+extern const NSInteger kGroupCallMaxUsers;
 
 #endif /* NERtcCallUIKit_h */
 
@@ -50,6 +55,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)didCallComingWithInviteInfo:(NEInviteInfo *)inviteInfo
                       withCallParam:(NEUICallParam *)callParam
                      withCompletion:(void (^)(BOOL success))completion;
+
+/// 群组通话邀请用户回调
+- (void)inviteUsersWithCallId:(NSString *)callId
+                  inCallUsers:(NSArray<NSString *> *)inCallUsers
+                   completion:(void (^)(NSArray<NSString *> *_Nullable users))completion;
 
 @end
 
@@ -89,6 +99,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 版本号
 + (NSString *)version;
+
+/// 发起群呼叫
+- (void)groupCallWithParam:(NEUIGroupCallParam *)callParam;
 
 @end
 

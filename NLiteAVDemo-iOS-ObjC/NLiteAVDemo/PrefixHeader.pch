@@ -37,6 +37,9 @@ static NSInteger GroupCallUserLimit = 16;
 
 static NSString *kWaittingCalledUser = @"待呼叫用户";
 
+static NSString *pushKitDeviceTokenKey = @"pushkitDeviceToken";
+
+
 //#if DEBUG
 //static NSInteger RecordCountLimit = 16;
 //#else

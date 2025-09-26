@@ -14,6 +14,7 @@
 #import "NEPSTNViewController.h"
 #import "SettingManager.h"
 #import <PushKit/PushKit.h>
+#import "NEGroupContactsController.h"
 
 @interface AppDelegate () <NERtcCallKitDelegate,
                            UNUserNotificationCenterDelegate,
@@ -138,6 +139,72 @@ rotation:(NERtcVideoRotationType)rotation
   completion(YES);
 }
 
+- (void)inviteUsersWithCallId:(NSString *)callId
+                  inCallUsers:(NSArray<NSString *> *)inCallUsers
+                   completion:(void (^)(NSArray<NSString *> *_Nullable users))completion {
+
+  // 创建群组联系人控制器
+  NEGroupContactsController *group = [[NEGroupContactsController alloc] init];
+  group.isInvite = YES;
+
+  // 将用户ID字符串转换为 NEUser 并添加到 inCallUserDic
+  for (NSString *userId in inCallUsers) {
+    // 这里需要根据用户ID创建 NEUser 对象
+    // 由于我们只有用户ID，可以创建一个基本的 NEUser 对象
+    NEUser *neUser = [[NEUser alloc] init];
+    neUser.imAccid = userId;
+    neUser.mobile = @"";  // 需要后续获取
+    neUser.avatar = @"";  // 需要后续获取
+    [group.inCallUserDic setObject:neUser forKey:userId];
+  }
+  group.totalCount = GroupCallUserLimit - inCallUsers.count;
+  group.hasJoinCount = inCallUsers.count;
+
+  // 设置完成回调
+  __weak typeof(self) weakSelf = self;
+  group.completion = ^(NSArray<NEUser *> *_Nonnull users) {
+    // 将 NEUser 转换为用户ID字符串
+    NSMutableArray<NSString *> *userIds = [[NSMutableArray alloc] init];
+    for (NEUser *user in users) {
+      if (user.imAccid.length > 0) {
+        [userIds addObject:user.imAccid];
+      }
+    }
+
+    // 回调给调用方，返回用户ID字符串数组
+    if (completion) {
+      completion([userIds copy]);
+    }
+  };
+
+  group.title = @"邀请";
+  group.modalPresentationStyle = UIModalPresentationFullScreen;
+  UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:group];
+
+  // 获取当前窗口并展示
+  UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
+  UIViewController *rootVC = keyWindow.rootViewController;
+
+  if (!keyWindow) {
+    keyWindow = self.window;
+    rootVC = keyWindow.rootViewController;
+  }
+
+  if (rootVC) {
+    UIViewController *presentedVC = rootVC.presentedViewController;
+    if (presentedVC) {
+      [presentedVC presentViewController:nav animated:YES completion:nil];
+    } else {
+      [rootVC presentViewController:nav
+                          animated:YES
+                        completion:^{
+                           }];
+    }
+  }
+}
+
+
+
 - (void)registerAPNS {
   // 1.申请权限
   if (@available(iOS 10.0, *)) {
@@ -213,6 +280,8 @@ rotation:(NERtcVideoRotationType)rotation
   }
 
   [[NIMSDK sharedSDK] updatePushKitToken:credentials.token];
+  [[NSUserDefaults standardUserDefaults] setObject:credentials.token forKey:pushKitDeviceTokenKey];
+
 }
 
 - (void)pushRegistry:(PKPushRegistry *)registry
