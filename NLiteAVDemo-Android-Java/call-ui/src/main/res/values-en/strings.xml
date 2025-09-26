@@ -23,6 +23,8 @@
     <string name="tip_join_failed">Failed to join the call</string>
     <string name="tip_invite_was_sending">The call was not made successfully</string>
     <string name="tip_permission_request_failed">Failed to apply for permission, unable to use temporarily!</string>
+    <string name="tip_microphone_permission_request_failed">Failed to request microphone access. Please grant microphone permissions in the application settings.</string>
+    <string name="tip_camera_permission_request_failed">Failed to access camera. Please enable camera permissions in your system/app settings.</string>
     <string name="tip_dialog_finish_call_title">End the call</string>
     <string name="tip_dialog_finish_call_content">Do you want to end the call?</string>
     <string name="tip_dialog_finish_call_positive">Yes</string>
@@ -72,4 +74,6 @@
     <string name="ui_group_call_title">Video call</string>
     <string name="tip_group_wait_to_accept">Ringing</string>
     <string name="user_join_group_call_with_user_count">There are %d people participating in the call.</string>
+    <string name="ui_member_exceed_limit">currently supports call with up to 10 people</string>
+
 </resources>

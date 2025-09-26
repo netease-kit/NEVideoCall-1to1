@@ -8,12 +8,12 @@ package com.netease.yunxin.nertc.ui.p2p.fragment.onthecall
 
 import android.Manifest.permission.CAMERA
 import android.Manifest.permission.RECORD_AUDIO
-import android.graphics.Color
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -21,9 +21,11 @@ import com.bumptech.glide.Glide
 import com.netease.lava.api.IVideoRender
 import com.netease.lava.nertc.sdk.NERtcConstants
 import com.netease.lava.nertc.sdk.video.NERtcVideoView
-import com.netease.yunxin.kit.alog.ALog
+import com.netease.yunxin.kit.call.p2p.NECallEngine
 import com.netease.yunxin.kit.call.p2p.model.NECallEndInfo
+import com.netease.yunxin.kit.call.p2p.model.NECallEngineDelegateAbs
 import com.netease.yunxin.kit.call.p2p.model.NECallType
+import com.netease.yunxin.kit.call.p2p.model.NECallTypeChangeInfo
 import com.netease.yunxin.nertc.nertcvideocall.model.impl.NERtcCallbackExTemp
 import com.netease.yunxin.nertc.nertcvideocall.model.impl.NERtcCallbackProxyMgr
 import com.netease.yunxin.nertc.nertcvideocall.model.impl.state.CallState
@@ -33,12 +35,15 @@ import com.netease.yunxin.nertc.ui.base.CallParam
 import com.netease.yunxin.nertc.ui.base.fetchNickname
 import com.netease.yunxin.nertc.ui.base.loadAvatarByAccId
 import com.netease.yunxin.nertc.ui.databinding.FragmentP2pVideoOnTheCallBinding
+import com.netease.yunxin.nertc.ui.floating.FloatingWindowWrapper
+import com.netease.yunxin.nertc.ui.p2p.ActivityFloatingView
 import com.netease.yunxin.nertc.ui.p2p.CallUIOperationsMgr
 import com.netease.yunxin.nertc.ui.p2p.P2PUIConfig
 import com.netease.yunxin.nertc.ui.p2p.fragment.BaseP2pCallFragment
 import com.netease.yunxin.nertc.ui.p2p.fragment.P2PUIUpdateType.CHANGE_CALL_TYPE
 import com.netease.yunxin.nertc.ui.p2p.fragment.P2PUIUpdateType.FROM_FLOATING_WINDOW
 import com.netease.yunxin.nertc.ui.p2p.fragment.P2PUIUpdateType.INIT
+import com.netease.yunxin.nertc.ui.utils.CallUILog
 import com.netease.yunxin.nertc.ui.utils.formatSecondTime
 import com.netease.yunxin.nertc.ui.utils.toastShort
 import kotlinx.coroutines.CoroutineScope
@@ -53,6 +58,26 @@ open class VideoOnTheCallFragment : BaseP2pCallFragment() {
     protected val logTag = "VideoOnTheCallFragment"
 
     protected lateinit var binding: FragmentP2pVideoOnTheCallBinding
+    private var permissionAllowed = false
+
+    // 悬浮窗相关
+    private var floatingWindowWrapper: FloatingWindowWrapper? = null
+    private lateinit var activityFloatingView: ActivityFloatingView
+    private var floatingVideoView: NERtcVideoView? = null
+    private var isFloatingWindowShowing = false
+
+    protected val delegate = object : NECallEngineDelegateAbs() {
+        override fun onCallTypeChange(info: NECallTypeChangeInfo?) {
+            super.onCallTypeChange(info)
+            info ?: return
+
+            if (info.callType == NECallType.AUDIO) {
+                hideFloatingWindow()
+            } else if (info.callType == NECallType.VIDEO) {
+                showFloatingWindow()
+            }
+        }
+    }
 
     protected open val rtcCallback = object : NERtcCallbackExTemp() {
         override fun onVirtualBackgroundSourceEnabled(enabled: Boolean, reason: Int) {
@@ -78,19 +103,18 @@ open class VideoOnTheCallFragment : BaseP2pCallFragment() {
         }
     }
 
-    private var permissionAllowed = false
-
     override fun toCreateRootView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View = FragmentP2pVideoOnTheCallBinding.inflate(inflater, container, false).run {
+        NECallEngine.sharedInstance().addCallDelegate(delegate)
         binding = this
         this.root
     }
 
     override fun toBindView() {
         bindView(viewKeyVideoViewBig, binding.videoViewBig)
-        bindView(viewKeyVideoViewSmall, binding.videoViewSmall)
-        bindView(viewKeyImageVideoShadeSmall, binding.ivSmallVideoShade)
+        // 初始化悬浮窗
+        initFloatingWindow()
         bindView(viewKeyImageVideoShadeBig, binding.ivBigVideoShade)
 
         bindView(viewKeyMuteImageAudio, binding.ivMuteAudio)
@@ -238,6 +262,13 @@ open class VideoOnTheCallFragment : BaseP2pCallFragment() {
         NERtcCallbackProxyMgr.getInstance().removeCallback(rtcCallback)
     }
 
+    override fun onDestroy() {
+        NECallEngine.sharedInstance().removeCallDelegate(delegate)
+        super.onDestroy()
+        CallUILog.d(logTag, "onDestroy")
+        hideFloatingWindow()
+    }
+
     override fun onCallEnd(info: NECallEndInfo) {
         bridge.configTimeTick(null)
     }
@@ -262,18 +293,20 @@ open class VideoOnTheCallFragment : BaseP2pCallFragment() {
     }
 
     protected open fun doSwitchCanvas() {
-        val videoViewSmall = getView<NERtcVideoView>(viewKeyVideoViewSmall)
         val videoViewBig = getView<NERtcVideoView>(viewKeyVideoViewBig)
         if (bridge.isLocalMuteVideo) {
             videoViewBig?.clearImage()
-            videoViewSmall?.clearImage()
+            floatingVideoView?.clearImage()
         }
         if (bridge.isLocalSmallVideo) {
-            bridge.setupRemoteView(videoViewSmall, action = {
-                it?.run {
-                    setScalingType(IVideoRender.ScalingType.SCALE_ASPECT_BALANCED)
-                }
-            })
+            // 悬浮窗显示远程视频
+            floatingVideoView?.let { videoView ->
+                bridge.setupRemoteView(videoView, action = {
+                    it?.run {
+                        setScalingType(IVideoRender.ScalingType.SCALE_ASPECT_BALANCED)
+                    }
+                })
+            }
             bridge.setupLocalView(videoViewBig, action = {
                 it?.run {
                     setZOrderMediaOverlay(true)
@@ -281,8 +314,15 @@ open class VideoOnTheCallFragment : BaseP2pCallFragment() {
                 }
             })
         } else {
+            // 悬浮窗显示本地视频
+            floatingVideoView?.let { videoView ->
+                bridge.setupLocalView(videoView, action = {
+                    it?.run {
+                        setScalingType(IVideoRender.ScalingType.SCALE_ASPECT_BALANCED)
+                    }
+                })
+            }
             bridge.setupRemoteView(videoViewBig)
-            bridge.setupLocalView(videoViewSmall)
         }
         CallUIOperationsMgr.updateUIState(isLocalSmallVideo = !bridge.isLocalSmallVideo)
 
@@ -291,15 +331,13 @@ open class VideoOnTheCallFragment : BaseP2pCallFragment() {
     }
 
     protected open fun updateCloseVideoTipUI(userAccId: String?, muteVideo: Boolean?) {
-        val ivSmallVideoShade = getView<ImageView>(viewKeyImageVideoShadeSmall)
         val ivBigVideoShade = getView<ImageView>(viewKeyImageVideoShadeBig)
         val tvRemoteVideoCloseTip = getView<TextView>(viewKeyTextRemoteVideoCloseTip)
 
         if (bridge.isLocalSmallVideo) {
             if (TextUtils.equals(userAccId, bridge.callParam.currentAccId)) {
                 muteVideo?.run {
-                    loadImg(bridge.uiConfig?.closeVideoLocalUrl, ivSmallVideoShade)
-                    ivSmallVideoShade?.visibility = if (this) View.VISIBLE else View.GONE
+                    activityFloatingView.changeMuteVideo(true, this)
                 }
             } else {
                 muteVideo?.run {
@@ -335,8 +373,7 @@ open class VideoOnTheCallFragment : BaseP2pCallFragment() {
                 }
             } else {
                 muteVideo?.run {
-                    loadImg(bridge.uiConfig?.closeVideoRemoteUrl, ivSmallVideoShade)
-                    ivSmallVideoShade?.visibility = if (this) View.VISIBLE else View.GONE
+                    activityFloatingView.changeMuteVideo(false, this)
                 }
             }
         }
@@ -344,11 +381,11 @@ open class VideoOnTheCallFragment : BaseP2pCallFragment() {
 
     protected open fun loadImg(url: String?, imageView: ImageView?) {
         imageView ?: run {
-            ALog.e(logTag, "loadImg", "imageView is null.")
+            CallUILog.e(logTag, "loadImg imageView is null.")
             return
         }
         val currentContext = context?.applicationContext ?: run {
-            ALog.e(logTag, "loadImg", "context is null.")
+            CallUILog.e(logTag, "loadImg context is null.")
             return
         }
         Glide.with(currentContext).load(url)
@@ -361,9 +398,6 @@ open class VideoOnTheCallFragment : BaseP2pCallFragment() {
     protected open fun toInitState() {
         getView<View>(viewKeySwitchTypeTipGroup)?.run {
             visibility = View.GONE
-        }
-        getView<View>(viewKeyImageVideoShadeSmall)?.run {
-            setBackgroundColor(Color.BLACK)
         }
         getView<TextView>(viewKeyTextTimeCountdown)?.run {
             bridge.configTimeTick(
@@ -404,9 +438,9 @@ open class VideoOnTheCallFragment : BaseP2pCallFragment() {
         getView<NERtcVideoView>(viewKeyVideoViewBig)?.run {
             bridge.setupRemoteView(this)
         }
-        getView<NERtcVideoView>(viewKeyVideoViewSmall)?.run {
-            bridge.setupLocalView(this)
-        }
+//        getView<NERtcVideoView>(viewKeyVideoViewSmall)?.run {
+//            bridge.setupLocalView(this)
+//        }
     }
 
     protected open fun toFromFloatingWindowState() {
@@ -465,5 +499,79 @@ open class VideoOnTheCallFragment : BaseP2pCallFragment() {
         }
         updateCloseVideoTipUI(bridge.callParam.currentAccId, muteVideo = bridge.isLocalMuteVideo)
         updateCloseVideoTipUI(bridge.callParam.otherAccId, muteVideo = bridge.isRemoteMuteVideo)
+    }
+
+    /**
+     * 初始化悬浮窗 - Activity级别，无需权限
+     */
+    private fun initFloatingWindow() {
+        try {
+            activityFloatingView = createFloatingContentView()
+            val builder = FloatingWindowWrapper.Builder()
+                .windowYPos(200)
+                .windowType(WindowManager.LayoutParams.TYPE_APPLICATION)
+                .onClickListener { doSwitchCanvas() }
+            floatingWindowWrapper = builder.build(requireContext())
+            floatingWindowWrapper?.showView(activityFloatingView)
+
+            isFloatingWindowShowing = true
+            CallUILog.d(logTag, "Floating window initialized successfully (Activity level)")
+        } catch (e: Exception) {
+            CallUILog.e(logTag, "Failed to initialize floating window: ${e.message}")
+        }
+    }
+
+    /**
+     * 创建悬浮窗内容视图
+     */
+    private fun createFloatingContentView(): ActivityFloatingView {
+        val contentView = ActivityFloatingView(requireContext())
+        floatingVideoView = contentView.findViewById(R.id.videoViewSmall)
+        if (bridge.isLocalSmallVideo) {
+            bridge.setupLocalView(floatingVideoView)
+        } else {
+            bridge.setupRemoteView(floatingVideoView)
+        }
+        return contentView
+    }
+
+    /**
+     * 显示悬浮窗
+     */
+    private fun showFloatingWindow() {
+        if (isFloatingWindowShowing) {
+            return
+        }
+        initFloatingWindow()
+    }
+
+    /**
+     * 隐藏悬浮窗
+     */
+    private fun hideFloatingWindow() {
+        if (!isFloatingWindowShowing) {
+            return
+        }
+
+        try {
+            floatingWindowWrapper?.dismissView()
+            floatingWindowWrapper = null
+            floatingVideoView = null
+            isFloatingWindowShowing = false
+            CallUILog.d(logTag, "Floating window hidden")
+        } catch (e: Exception) {
+            CallUILog.e(logTag, "Failed to hide floating window: ${e.message}")
+        }
+    }
+
+    /**
+     * 切换悬浮窗显示状态
+     */
+    private fun toggleFloatingWindow() {
+        if (isFloatingWindowShowing) {
+            hideFloatingWindow()
+        } else {
+            showFloatingWindow()
+        }
     }
 }

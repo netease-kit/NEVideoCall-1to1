@@ -1,0 +1,62 @@
+[versions]
+# Android & Kotlin
+androidMaterial = "1.11.0"
+androidxAppCompat = "1.6.1"
+androidxConstraintLayout = "2.1.4"
+androidxLifecycle = "2.7.0"
+androidxRecyclerView = "1.3.2"
+androidxViewPager2 = "1.0.0"
+androidxCore = "1.12.0"
+kotlin = "1.9.22"
+kotlinxCoroutines = "1.7.3"
+androidGradlePlugin = "8.2.2"
+
+# Testing
+junit4 = "4.13.2"
+
+# Networking
+retrofit = "2.9.0"
+okhttp = "4.12.0"
+
+# Image Loading
+glide = "4.13.1"
+glideTransformations = "4.3.0"
+
+# NetEase SDKs
+nertcVersion = "5.9.10"
+v2NimVersion = "10.9.45"
+alog = "1.1.1"
+commonUiVersion = "1.0.0"
+
+[libraries]
+# Android & Kotlin
+android-material = { group = "com.google.android.material", name = "material", version.ref = "androidMaterial" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppCompat" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidxConstraintLayout" }
+androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "androidxLifecycle" }
+androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "androidxLifecycle" }
+androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "androidxRecyclerView" }
+androidx-viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "androidxViewPager2" }
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
+kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+android-gradle-plugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
+
+# Networking
+retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+
+# Image Loading
+glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+glide-transformations = { group = "jp.wasabeef", name = "glide-transformations", version.ref = "glideTransformations" }
+
+# NetEase SDKs
+yunxin-kit-alog = { group = "com.netease.yunxin.kit", name = "alog", version.ref = "alog" }
+
+[bundles]
+# Optional bundles for commonly used dependency groups
+retrofit = ["retrofit-core", "retrofit-converter-gson"]
+okhttp = ["okhttp", "okhttp-logging-interceptor"]

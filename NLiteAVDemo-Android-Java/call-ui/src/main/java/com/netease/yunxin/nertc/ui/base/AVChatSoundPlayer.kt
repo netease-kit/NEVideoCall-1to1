@@ -6,8 +6,8 @@
 package com.netease.yunxin.nertc.ui.base
 
 import android.content.Context
-import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.nertc.ui.CallKitUI
+import com.netease.yunxin.nertc.ui.utils.CallUILog
 
 /**
  * SoundPool 铃声尽量不要超过1M
@@ -31,7 +31,7 @@ object AVChatSoundPlayer {
     @JvmStatic
     @Synchronized
     fun play(context: Context, type: RingerTypeEnum) {
-        ALog.d(TAG, "play type is ${type.name}")
+        CallUILog.d(TAG, "play type is ${type.name}")
         helper?.play(context, type)
     }
 
@@ -40,7 +40,7 @@ object AVChatSoundPlayer {
      */
     @JvmStatic
     fun stop(context: Context, type: RingerTypeEnum) {
-        ALog.d(TAG, "stop, type is ${type.name}")
+        CallUILog.d(TAG, "stop, type is ${type.name}")
         helper?.stop(context, type)
     }
 
@@ -49,7 +49,7 @@ object AVChatSoundPlayer {
      */
     @JvmStatic
     fun stop(context: Context) {
-        ALog.d(TAG, "stop, context is $context")
+        CallUILog.d(TAG, "stop, context is $context")
         helper?.stop(context)
     }
 

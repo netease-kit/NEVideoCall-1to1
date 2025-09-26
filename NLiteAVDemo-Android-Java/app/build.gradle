@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
+    namespace "com.netease.yunxin.app.videocall"
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
 
@@ -31,6 +32,10 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    
+    buildFeatures {
+        buildConfig true
+    }
     packagingOptions {
         pickFirst 'lib/arm64-v8a/libc++_shared.so'
         pickFirst 'lib/armeabi-v7a/libc++_shared.so'
@@ -54,16 +59,14 @@ android {
 }
 
 dependencies {
-    implementation(libs.appcompat)
-    implementation(libs.constraintlayout)
-    implementation(libs.glide)
-    implementation(libs.recyclerview)
-    implementation(libs.okhttp)
-    implementation(libs.okhttpLoggingInterceptor)
-    implementation(libs.retrofitCore)
-    implementation(libs.retrofitConverterGson)
-    implementation(libs.nertc.nenn)
-    implementation(libs.nertc.segment)
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.constraintlayout
+    implementation libs.glide
+    implementation libs.androidx.recyclerview
+    implementation libs.okhttp
+    implementation libs.okhttp.logging.interceptor
+    implementation libs.retrofit.core
+    implementation libs.retrofit.converter.gson
 //    implementation project(':call-ui')
-    implementation ('com.netease.yunxin.kit.call:call-ui:3.6.0')
+    implementation 'com.netease.yunxin.kit.call:call-ui:3.7.0'
 }

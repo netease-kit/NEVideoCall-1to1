@@ -11,9 +11,9 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.netease.lava.api.IVideoRender
 import com.netease.lava.nertc.sdk.NERtcEx
-import com.netease.lava.nertc.sdk.video.NERtcVideoView
-import com.netease.yunxin.kit.alog.ALog
+import com.netease.lava.nertc.sdk.video.NERtcTextureView
 import com.netease.yunxin.kit.alog.ParameterMap
+import com.netease.yunxin.nertc.ui.utils.CallUILog
 import java.util.*
 
 class GroupVideoViewPool {
@@ -21,8 +21,8 @@ class GroupVideoViewPool {
         const val TAG = "GroupVideoViewPool"
     }
     private val maxSize = 8
-    private val rtcVideoMap = mutableMapOf<Long, NERtcVideoView?>()
-    private val queue = LinkedList<NERtcVideoView>()
+    private val rtcVideoMap = mutableMapOf<Long, NERtcTextureView?>()
+    private val queue = LinkedList<NERtcTextureView>()
     private var context: Context? = null
 
     fun init(context: Context) {
@@ -33,7 +33,7 @@ class GroupVideoViewPool {
         if (!forceRecycler && maxSize <= rtcVideoMap.size) {
             return
         }
-        ALog.d(
+        CallUILog.d(
             "GroupVideoViewPool",
             ParameterMap("recycleRtcVideo").append("rtcUid", rtcUid).toValue()
         )
@@ -42,8 +42,8 @@ class GroupVideoViewPool {
         rtcVideoMap[rtcUid] = null
     }
 
-    fun obtainRtcVideo(rtcUid: Long, isSelf: Boolean): NERtcVideoView {
-        ALog.i(TAG, "obtainRtcVideo rtcUid is $rtcUid isSelf is $isSelf")
+    fun obtainRtcVideo(rtcUid: Long, isSelf: Boolean): NERtcTextureView {
+        CallUILog.i(TAG, "obtainRtcVideo rtcUid is $rtcUid isSelf is $isSelf")
         var videoView = rtcVideoMap[rtcUid]
         videoView = pickVideoView(videoView)
         rtcVideoMap[rtcUid] = videoView
@@ -61,7 +61,7 @@ class GroupVideoViewPool {
         context = null
     }
 
-    private fun removeSelf(neRtcVideoView: NERtcVideoView?) {
+    private fun removeSelf(neRtcVideoView: NERtcTextureView?) {
         if (neRtcVideoView != null) {
             if (neRtcVideoView.parent != null) {
                 (neRtcVideoView.parent as ViewGroup).removeView(neRtcVideoView)
@@ -70,14 +70,14 @@ class GroupVideoViewPool {
         }
     }
 
-    private fun pickVideoView(videoView: NERtcVideoView?): NERtcVideoView {
+    private fun pickVideoView(videoView: NERtcTextureView?): NERtcTextureView {
         var videoView1 = videoView
         if (videoView1 == null) {
             videoView1 = queue.poll()
         }
         if (videoView1 == null) {
-            videoView1 = NERtcVideoView(context!!).apply {
-                setZOrderMediaOverlay(true)
+            videoView1 = NERtcTextureView(context!!).apply {
+//                setZOrderMediaOverlay(true)
                 layoutParams = ViewGroup.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT

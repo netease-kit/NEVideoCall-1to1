@@ -118,7 +118,9 @@ open class AudioCalleeFragment : BaseP2pCallFragment() {
                     },
                     { _, _ ->
                         context?.run {
-                            getString(R.string.tip_permission_request_failed).toastShort(this)
+                            getString(R.string.tip_camera_permission_request_failed).toastShort(
+                                this
+                            )
                         }
                     }
                 )

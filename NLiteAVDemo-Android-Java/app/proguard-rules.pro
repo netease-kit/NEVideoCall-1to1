@@ -34,8 +34,15 @@
 
 -keep class com.netease.lava.** {*;}
 -keep class com.netease.yunxin.** {*;}
+-keep class com.netease.compiler.** {*;}
+-keep class com.huawei.multimedia.** {*;}
 
 -dontwarn com.netease.yunxin.kit.**
 -keep class com.netease.yunxin.kit.** {*;}
 -keep public class * extends com.netease.yunxin.kit.corekit.XKitInitOptions
 -keep class * implements com.netease.yunxin.kit.corekit.XKitService {*;}
+
+# R8 missing classes rules - generated automatically
+-dontwarn com.huawei.multimedia.**
+-dontwarn com.netease.compiler.**
+-dontwarn org.ahocorasick.trie.Trie

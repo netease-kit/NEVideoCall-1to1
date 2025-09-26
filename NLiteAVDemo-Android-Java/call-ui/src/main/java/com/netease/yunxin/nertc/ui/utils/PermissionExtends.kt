@@ -17,7 +17,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.nertc.ui.base.KEY_PERMISSION_RESULT_DENIED
 import com.netease.yunxin.nertc.ui.base.KEY_PERMISSION_RESULT_DENIED_FOREVER
 import com.netease.yunxin.nertc.ui.base.KEY_PERMISSION_RESULT_GRANTED
@@ -64,7 +63,7 @@ fun Context.requestPermission(
     ) { intentResultInfo ->
         val intent: Intent? = intentResultInfo.value
         if (intent == null) {
-            ALog.e(TAG, "requestPermission, intent is null")
+            CallUILog.e(TAG, "requestPermission, intent is null")
             return@launchTask
         }
         val grantedList =
@@ -97,7 +96,7 @@ fun AppCompatActivity.requestPermission(
     val launcher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissionMap ->
-        ALog.d(TAG, "$permissionMap")
+        CallUILog.d(TAG, "$permissionMap")
         val grantedList = mutableListOf<String>()
         val deniedList = mutableListOf<String>()
         val deniedForeverList = mutableListOf<String>()
@@ -135,7 +134,7 @@ fun Fragment.requestPermission(
     val launcher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissionMap ->
-        ALog.d(TAG, "$permissionMap")
+        CallUILog.d(TAG, "$permissionMap")
         val grantedList = mutableListOf<String>()
         val deniedList = mutableListOf<String>()
         val deniedForeverList = mutableListOf<String>()
@@ -169,7 +168,7 @@ fun Fragment.registerPermissionRequesterEx(): PermissionRequester {
     permissionRequester.launcher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissionMap ->
-        ALog.d(TAG, "$permissionMap")
+        CallUILog.d(TAG, "$permissionMap")
         permissionRequester.handlePermissionResult(permissionMap)
     }
     permissionRequester.shouldShowRequestPermissionRationale = {
@@ -187,7 +186,7 @@ fun AppCompatActivity.registerPermissionRequesterEx(): PermissionRequester {
     permissionRequester.launcher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissionMap ->
-        ALog.d(TAG, "$permissionMap")
+        CallUILog.d(TAG, "$permissionMap")
         permissionRequester.handlePermissionResult(permissionMap)
     }
     permissionRequester.shouldShowRequestPermissionRationale = {
@@ -204,7 +203,7 @@ class PermissionRequester {
     private var permissionList: List<String> = emptyList()
 
     internal fun handlePermissionResult(permissionMap: Map<String, Boolean>) {
-        ALog.d(TAG, "$permissionMap")
+        CallUILog.d(TAG, "$permissionMap")
         val grantedList = mutableListOf<String>()
         val deniedList = mutableListOf<String>()
         val deniedForeverList = mutableListOf<String>()

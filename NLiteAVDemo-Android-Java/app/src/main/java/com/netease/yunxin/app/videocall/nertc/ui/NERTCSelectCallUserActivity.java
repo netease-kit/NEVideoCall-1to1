@@ -40,10 +40,12 @@ import com.netease.yunxin.app.videocall.nertc.model.CallOrder;
 import com.netease.yunxin.app.videocall.nertc.ui.adapter.CallOrderAdapter;
 import com.netease.yunxin.app.videocall.nertc.ui.adapter.RecentUserAdapter;
 import com.netease.yunxin.app.videocall.nertc.ui.adapter.ToBeCallUserAdapter;
+import com.netease.yunxin.kit.call.group.GroupCallEndEvent;
 import com.netease.yunxin.kit.call.group.GroupCallHangupEvent;
 import com.netease.yunxin.kit.call.group.GroupCallMember;
 import com.netease.yunxin.kit.call.group.NEGroupCall;
-import com.netease.yunxin.kit.call.group.NEGroupCallActionObserver;
+import com.netease.yunxin.kit.call.group.NEGroupCallDelegate;
+import com.netease.yunxin.kit.call.group.NEGroupCallInfo;
 import com.netease.yunxin.kit.call.group.param.GroupCallParam;
 import com.netease.yunxin.kit.call.p2p.NECallEngine;
 import com.netease.yunxin.kit.call.p2p.model.NECallType;
@@ -88,13 +90,27 @@ public class NERTCSelectCallUserActivity extends AppCompatActivity {
 
   private int callModeType;
 
-  private final NEGroupCallActionObserver observer =
-      new NEGroupCallActionObserver() {
+  private final NEGroupCallDelegate observer =
+      new NEGroupCallDelegate() {
         @Override
-        public void onMemberChanged(String callId, List<GroupCallMember> userList) {}
+        public void onReceiveGroupInvitation(NEGroupCallInfo neGroupCallInfo) {
+
+        }
+
+        @Override
+        public void onGroupMemberListChanged(String s, List<GroupCallMember> list) {
+
+        }
 
         @Override
         public void onGroupCallHangup(GroupCallHangupEvent hangupEvent) {
+          if (callModeType == CallModeType.RTC_GROUP_INVITE) {
+            finish();
+          }
+        }
+
+        @Override
+        public void onGroupCallEnd(GroupCallEndEvent groupCallEndEvent) {
           if (callModeType == CallModeType.RTC_GROUP_INVITE) {
             finish();
           }
@@ -129,7 +145,7 @@ public class NERTCSelectCallUserActivity extends AppCompatActivity {
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    NEGroupCall.instance().configGroupActionObserver(observer, true);
+    NEGroupCall.instance().addGroupCallDelegate(observer);
     callModeType = getIntent().getIntExtra(KEY_CALL_MODE_TYPE, CallModeType.RTC_1V1_VIDEO_CALL);
     List<String> connectionUserList = getIntent().getStringArrayListExtra(KEY_CALL_USER_LIST);
     if (connectionUserList != null) {
@@ -436,13 +452,13 @@ public class NERTCSelectCallUserActivity extends AppCompatActivity {
   protected void onPause() {
     super.onPause();
     if (isFinishing()) {
-      NEGroupCall.instance().configGroupActionObserver(observer, false);
+      NEGroupCall.instance().removeGroupCallDelegate(observer);
     }
   }
 
   @Override
   protected void onDestroy() {
     super.onDestroy();
-    NEGroupCall.instance().configGroupActionObserver(observer, false);
+    NEGroupCall.instance().removeGroupCallDelegate(observer);
   }
 }

@@ -11,7 +11,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import com.netease.yunxin.kit.alog.ALog
+import com.netease.yunxin.nertc.ui.utils.CallUILog
 import kotlin.math.ceil
 import kotlin.math.min
 
@@ -67,8 +67,8 @@ class GroupMemberPageAdapter(private val context: Context) :
             return
         }
         val oldData = userList.getClone()
-        ALog.i(TAG, "setData oldData is $oldData")
-        ALog.i(TAG, "setData newData is $itemList")
+        CallUILog.i(TAG, "setData oldData is $oldData")
+        CallUILog.i(TAG, "setData newData is $itemList")
         onActionForData?.invoke()
         val diffResult = DiffUtil.calculateDiff(DiffUtilCallback(oldData, itemList))
 
@@ -104,7 +104,7 @@ class GroupMemberPageAdapter(private val context: Context) :
         item: GroupHelperMemberInfo?
     ): Int {
         item ?: return -1
-        ALog.i(TAG, "update index is $index, item is $item.")
+        CallUILog.i(TAG, "update index is $index, item is $item.")
         return if (index == null || index < 0 || index >= size) {
             val result = find {
                 (it.uid == item.uid || it.accId == item.accId)
@@ -143,9 +143,9 @@ class GroupMemberPageAdapter(private val context: Context) :
         focus: Boolean? = null,
         enableVideo: Boolean? = null
     ) {
-        ALog.i(TAG, "updateState uid is $uid, focus is $focus, enableVideo is $enableVideo.")
+        CallUILog.i(TAG, "updateState uid is $uid, focus is $focus, enableVideo is $enableVideo.")
         val index = findPosition(uid)
-        ALog.i(TAG, "updateState index is $index, userList is $userList")
+        CallUILog.i(TAG, "updateState index is $index, userList is $userList")
         if (index < 0) {
             return
         }
@@ -204,7 +204,7 @@ class GroupMemberPageAdapter(private val context: Context) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val pageData = getItemList(position) ?: return
-        ALog.d(TAG, "page data is $pageData.")
+        CallUILog.d(TAG, "page data is $pageData.")
         holder.pageView.refreshData(pageData, videoViewPool, position == currentPageIndex)
     }
 

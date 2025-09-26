@@ -23,6 +23,8 @@
     <string name="tip_join_failed">加入通话失败</string>
     <string name="tip_invite_was_sending">呼叫未成功发出</string>
     <string name="tip_permission_request_failed">权限申请失败，暂无法使用！</string>
+    <string name="tip_microphone_permission_request_failed">麦克风权限申请失败，请前往应用设置界面进行麦克风权限设置</string>
+    <string name="tip_camera_permission_request_failed">相机权限申请失败，请前往应用设置界面进行相应的相机权限</string>
     <string name="tip_dialog_finish_call_title">结束通话</string>
     <string name="tip_dialog_finish_call_content">是否结束通话？</string>
     <string name="tip_dialog_finish_call_positive">是</string>
@@ -72,4 +74,5 @@
     <string name="ui_group_call_title">视频通话</string>
     <string name="tip_group_wait_to_accept">待接听</string>
     <string name="user_join_group_call_with_user_count">还有%d人参与通话</string>
+    <string name="ui_member_exceed_limit">暂支持最多10人通话</string>
 </resources>

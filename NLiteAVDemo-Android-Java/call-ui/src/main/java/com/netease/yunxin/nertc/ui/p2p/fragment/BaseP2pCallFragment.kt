@@ -6,12 +6,13 @@
 
 package com.netease.yunxin.nertc.ui.p2p.fragment
 
+import android.Manifest.permission.CAMERA
+import android.Manifest.permission.RECORD_AUDIO
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.netease.yunxin.kit.alog.ALog
 import com.netease.yunxin.kit.call.NEResultObserver
 import com.netease.yunxin.kit.call.p2p.model.NECallEndInfo
 import com.netease.yunxin.kit.call.p2p.model.NECallEngineDelegate
@@ -27,6 +28,7 @@ import com.netease.yunxin.nertc.ui.R
 import com.netease.yunxin.nertc.ui.base.CallParam
 import com.netease.yunxin.nertc.ui.p2p.P2PUIConfig
 import com.netease.yunxin.nertc.ui.p2p.fragment.P2PUIUpdateType.INIT
+import com.netease.yunxin.nertc.ui.utils.CallUILog
 import com.netease.yunxin.nertc.ui.utils.PermissionRequester
 import com.netease.yunxin.nertc.ui.utils.PermissionTipDialog
 import com.netease.yunxin.nertc.ui.utils.isGranted
@@ -57,11 +59,6 @@ open class BaseP2pCallFragment : Fragment(), NECallEngineDelegate {
      * 视频通话关闭视频时大视频的覆盖涂层控件
      */
     protected val viewKeyImageVideoShadeBig = "ivBigVideoShade"
-
-    /**
-     * 视频通话关闭视频时小视频的覆盖涂层控件
-     */
-    protected val viewKeyImageVideoShadeSmall = "ivSmallVideoShade"
 
     /**
      * 语音通话时大的背景图控件
@@ -262,7 +259,7 @@ open class BaseP2pCallFragment : Fragment(), NECallEngineDelegate {
         override fun onResult(result: CommonResult<Void>?) {
             if (result?.isSuccessful != true) {
                 context?.run { getString(R.string.tip_switch_call_type_failed).toastShort(this) }
-                ALog.e(
+                CallUILog.e(
                     logTag,
                     "doSwitchCallType to ${NECallType.VIDEO} error, result is $result."
                 )
@@ -350,9 +347,9 @@ open class BaseP2pCallFragment : Fragment(), NECallEngineDelegate {
                     logApiInvoke("actionForPermissionGranted")
                 }
             },
-            onDenied = { _, _ ->
-                actionForPermissionDenied()
-                activity?.finish()
+            onDenied = { deniedForeverList, deniedList ->
+                permissionTipDialog?.dismiss()
+                actionForPermissionDenied(deniedForeverList, deniedList)
                 logApiInvoke("actionForPermissionDenied")
             },
             permissionList = permissionList
@@ -386,9 +383,15 @@ open class BaseP2pCallFragment : Fragment(), NECallEngineDelegate {
     protected open fun actionForPermissionGranted() {
     }
 
-    protected open fun actionForPermissionDenied() {
+    protected open fun actionForPermissionDenied(deniedForeverList: List<String>, deniedList: List<String>) {
         context?.run {
-            getString(R.string.tip_permission_request_failed).toastShort(this)
+            if ((deniedForeverList + deniedList).contains(RECORD_AUDIO)) {
+                getString(R.string.tip_microphone_permission_request_failed).toastShort(this)
+            } else if ((deniedForeverList + deniedList).contains(CAMERA)) {
+                getString(R.string.tip_camera_permission_request_failed).toastShort(this)
+            } else {
+                getString(R.string.tip_permission_request_failed).toastShort(this)
+            }
         }
     }
 
@@ -467,6 +470,6 @@ open class BaseP2pCallFragment : Fragment(), NECallEngineDelegate {
     open fun onJoinChannel(res: Int, cid: Long, time: Long, uid: Long) {}
 
     private fun logApiInvoke(name: String?) {
-        ALog.dApi(logTag, "${this@BaseP2pCallFragment}:$name was invoked.")
+        CallUILog.d(logTag, "${this@BaseP2pCallFragment}:$name was invoked.")
     }
 }
