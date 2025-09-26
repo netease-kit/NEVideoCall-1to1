@@ -1,3 +1,7 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 package com.netease.yunxin.flutter.plugins.callkit.ui.utils;
 
 import android.app.AppOpsManager;
@@ -11,11 +15,13 @@ import android.provider.Settings;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-public class Permission {
+public class FloatWindowsPermission {
 
   // 权限常量定义
   public static final String FLOAT_PERMISSION = "android.permission.SYSTEM_ALERT_WINDOW";
   public static final String BG_START_PERMISSION = "android.permission.SYSTEM_ALERT_WINDOW";
+  public static final String CAMERA_PERMISSION = "android.permission.CAMERA";
+  public static final String RECORD_AUDIO_PERMISSION = "android.permission.RECORD_AUDIO";
 
   // 静态 Context 引用，需要在插件初始化时设置
   private static Context sApplicationContext;

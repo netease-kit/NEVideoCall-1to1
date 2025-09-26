@@ -1,6 +1,10 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 import 'package:netease_callkit/netease_callkit.dart';
 import 'package:netease_callkit_ui/ne_callkit_ui.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:netease_callkit_ui/src/platform/call_kit_platform_interface.dart';
 
 enum PermissionResult {
   granted,
@@ -39,32 +43,54 @@ class PermissionUtils {
       return "${CallKitUIL10n.localizations.applyForMicrophoneAndCameraPermissions}\n${CallKitUIL10n.localizations.needToAccessMicrophoneAndCameraPermissions}";
     }
   }
+}
+
+class Permission {
+  static String getPermissionRequestTitle(NECallType type) {
+    if (NECallType.audio == type) {
+      return CallKitUIL10n.localizations.applyForMicrophonePermission;
+    } else {
+      return CallKitUIL10n.localizations.applyForMicrophoneAndCameraPermissions;
+    }
+  }
+
+  static String getPermissionRequestDescription(NECallType type) {
+    if (NECallType.audio == type) {
+      return CallKitUIL10n.localizations.needToAccessMicrophonePermission;
+    } else {
+      return CallKitUIL10n
+          .localizations.needToAccessMicrophoneAndCameraPermissions;
+    }
+  }
+
+  static String getPermissionRequestSettingsTip(NECallType type) {
+    if (NECallType.audio == type) {
+      return "${CallKitUIL10n.localizations.applyForMicrophonePermission}\n${CallKitUIL10n.localizations.needToAccessMicrophonePermission}";
+    } else {
+      return "${CallKitUIL10n.localizations.applyForMicrophoneAndCameraPermissions}\n${CallKitUIL10n.localizations.needToAccessMicrophoneAndCameraPermissions}";
+    }
+  }
 
   static Future<PermissionResult> request(NECallType type) async {
     PermissionResult result = PermissionResult.denied;
-    Map<Permission, PermissionStatus> statuses;
     if (NECallType.video == type) {
-      statuses = await [
-        Permission.microphone,
-        Permission.camera,
-      ].request();
+      result = await NECallKitPlatform.instance.requestPermissions(
+          permissions: [PermissionType.camera, PermissionType.microphone],
+          title: getPermissionRequestTitle(type),
+          description: getPermissionRequestDescription(type),
+          settingsTip: getPermissionRequestDescription(type));
     } else {
-      statuses = await [
-        Permission.microphone,
-      ].request();
-    }
-
-    bool isAllGranted = !statuses.values.any((status) => !status.isGranted);
-
-    if (isAllGranted) {
-      result = PermissionResult.granted;
-    } else {
-      result = PermissionResult.denied;
+      result = await NECallKitPlatform.instance.requestPermissions(
+          permissions: [PermissionType.microphone],
+          title: getPermissionRequestTitle(type),
+          description: getPermissionRequestDescription(type),
+          settingsTip: getPermissionRequestDescription(type));
     }
     return result;
   }
 
   static Future<bool> has({required List<PermissionType> permissions}) async {
-    return await Permission.camera.status.isGranted;
+    return await NECallKitPlatform.instance
+        .hasPermissions(permissions: permissions);
   }
 }

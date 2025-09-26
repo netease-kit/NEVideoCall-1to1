@@ -1,3 +1,7 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 import 'package:flutter/cupertino.dart';
 import 'package:netease_callkit_ui/src/call_define.dart';
 
@@ -8,7 +12,7 @@ class User {
   String remark = '';
   NECallRole callRole = NECallRole.none;
   NECallStatus callStatus = NECallStatus.none;
-  bool audioAvailable = false;
+  bool audioAvailable = true;
   bool videoAvailable = false;
   int playOutVolume = 0;
   int viewID = 0;

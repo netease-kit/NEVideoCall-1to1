@@ -1,3 +1,7 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 package com.netease.yunxin.flutter.plugins.callkit.ui.service;
 
 import android.app.Activity;
@@ -11,6 +15,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.netease.yunxin.flutter.plugins.callkit.ui.event.EventManager;
+import com.netease.yunxin.flutter.plugins.callkit.ui.utils.Constants;
 import java.util.List;
 
 public final class ServiceInitializer extends ContentProvider {
@@ -46,7 +52,11 @@ public final class ServiceInitializer extends ContentProvider {
                 @Override
                 public void onActivityStarted(Activity activity) {
                   foregroundActivities++;
-                  if (foregroundActivities == 1 && !isChangingConfiguration) {}
+                  if (foregroundActivities == 1 && !isChangingConfiguration) {
+                    EventManager.getInstance()
+                        .notifyEvent(
+                            Constants.KEY_CALLKIT_PLUGIN, Constants.SUB_KEY_ENTER_FOREGROUND, null);
+                  }
                   isChangingConfiguration = false;
                 }
 

@@ -1,3 +1,8 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
+import 'package:netease_callkit/netease_callkit.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:netease_callkit_ui/src/platform/call_kit_method_channel.dart';
 import 'package:netease_callkit_ui/src/utils/permission.dart';
@@ -16,8 +21,8 @@ abstract class NECallKitPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<void> startForegroundService() async {
-    await instance.startForegroundService();
+  Future<void> startForegroundService(NECallType type) async {
+    await instance.startForegroundService(type);
   }
 
   Future<void> stopForegroundService() async {
@@ -46,6 +51,10 @@ abstract class NECallKitPlatform extends PlatformInterface {
 
   Future<bool> hasFloatPermission() async {
     return await instance.hasFloatPermission();
+  }
+
+  Future<void> requestFloatPermission() async {
+    await instance.requestFloatPermission();
   }
 
   Future<bool> isAppInForeground() async {

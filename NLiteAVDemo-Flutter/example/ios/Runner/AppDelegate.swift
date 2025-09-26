@@ -1,5 +1,6 @@
 // Copyright (c) 2022 NetEase, Inc. All rights reserved.
-// Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
 
 import UIKit
 import Flutter
@@ -17,9 +18,9 @@ import AVFoundation
   ) -> Bool {
     GeneratedPluginRegistrant.register(with: self)
     registerAPNS()
-      if #available(iOS 17.4, *) {
-          registerPushKit()
-      }
+//      if #available(iOS 17.4, *) {
+//          registerPushKit()
+//      }
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
     

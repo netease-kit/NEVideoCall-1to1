@@ -36,7 +36,7 @@ android {
         pickFirst 'lib/armeabi-v7a/libc++_shared.so'
     }
 
-    def appKey = "56813bdfbaa1c2a29bbea391ffbbe27a"
+    def appKey = "Here, please fill your appKey!!!"
 
     // app key for code
     defaultConfig {
@@ -65,5 +65,5 @@ dependencies {
     implementation(libs.nertc.nenn)
     implementation(libs.nertc.segment)
 //    implementation project(':call-ui')
-    implementation ('com.netease.yunxin.kit.call:call-ui:3.5.5')
+    implementation ('com.netease.yunxin.kit.call:call-ui:3.6.0')
 }

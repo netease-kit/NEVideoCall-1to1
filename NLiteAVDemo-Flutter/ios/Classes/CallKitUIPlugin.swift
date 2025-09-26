@@ -70,12 +70,99 @@ import UIKit
   // MARK: - Permission Methods
 
   private func handleHasPermissions(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    result(true)
+    guard let args = call.arguments as? [String: Any],
+          let permissionNumbers = args["permission"] as? [NSNumber] else {
+      result(FlutterError(code: "INVALID_ARGUMENTS", message: "permission parameter is required", details: nil))
+      return
+    }
+
+    // 将 NSNumber 数组转换为字符串数组
+    let permissions = permissionNumbers.compactMap { number -> String? in
+      switch number.intValue {
+      case 0:
+        return "camera"
+      case 1:
+        return "microphone"
+      case 2:
+        return "bluetooth"
+      default:
+        return nil
+      }
+    }
+
+    let hasAllPermissions = PermissionManager.shared.checkAllPermissions(permissions: permissions)
+    result(hasAllPermissions)
   }
 
   private func handleRequestPermissions(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    guard let args = call.arguments as? [String: Any],
+          let permissionNumbers = args["permission"] as? [NSNumber] else {
+      result(FlutterError(code: "INVALID_ARGUMENTS", message: "permission parameter is required", details: nil))
+      return
+    }
+
+    // 将 NSNumber 数组转换为字符串数组
+    let permissions = permissionNumbers.compactMap { number -> String? in
+      switch number.intValue {
+      case 0:
+        return "camera"
+      case 1:
+        return "microphone"
+      case 2:
+        return "bluetooth"
+      default:
+        return nil
+      }
+    }
+
+    let title = args["title"] as? String ?? ""
+    let description = args["description"] as? String ?? ""
+    let settingsTip = args["settingsTip"] as? String ?? ""
+
+    PermissionManager.shared.requestPermissions(permissions: permissions, title: title, description: description, settingsTip: settingsTip) { permissionResult in
+      result(permissionResult.rawValue)
+    }
+  }
+
+  // MARK: - Wake Lock Methods
+
+  private func handleEnableWakeLock(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    guard let args = call.arguments as? [String: Any],
+          let enable = args["enable"] as? Bool else {
+      result(FlutterError(code: "INVALID_ARGUMENTS", message: "enable parameter is required", details: nil))
+      return
+    }
+
+    if enable {
+      UIApplication.shared.isIdleTimerDisabled = true
+      print("CallKitUIPlugin: Wake lock enabled")
+    } else {
+      UIApplication.shared.isIdleTimerDisabled = false
+      print("CallKitUIPlugin: Wake lock disabled")
+    }
+
     result(true)
   }
+
+  // MARK: - Float Window Methods
+
+  private func handleStartFloatWindow(result: @escaping FlutterResult) {
+    print("CallKitUIPlugin: startFloatWindow called")
+    NEWindowManager.instance.showFloatWindow()
+    result(true)
+  }
+
+  private func handleStopFloatWindow(result: @escaping FlutterResult) {
+    print("CallKitUIPlugin: stopFloatWindow called")
+    NEWindowManager.instance.closeFloatWindow()
+    result(true)
+  }
+
+  private func handleHasFloatPermission(result: @escaping FlutterResult) {
+    result(true)
+  }
+
+  // MARK: - Ring Methods
 
   private func handleStartRing(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     guard let args = call.arguments as? [String: Any],
@@ -84,12 +171,15 @@ import UIKit
       return
     }
 
-    do {
-      // 停止当前播放的铃声
-      stopRing()
+    stopRing()
 
+    if NECallState.instance.selfUser.value.callRole == NECallRole.called {
+      CallingVibrator.startVibration()
+    }
+
+    do {
       // 配置音频会话
-      try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers])
+      try AVAudioSession.sharedInstance().setCategory(.soloAmbient)
       try AVAudioSession.sharedInstance().setActive(true)
 
       // 创建音频播放器
@@ -108,12 +198,16 @@ import UIKit
   }
 
   private func handleStopRing(result: @escaping FlutterResult) {
+    print("CallKitUIPlugin: stopRing called")
     stopRing()
-    print("CallKitUIPlugin: Stopped ring tone")
     result(true)
   }
 
   private func stopRing() {
+    if NECallState.instance.selfUser.value.callRole == NECallRole.called {
+      CallingVibrator.stopVirbration()
+    }
+
     audioPlayer?.stop()
     audioPlayer = nil
 
@@ -125,63 +219,7 @@ import UIKit
     }
   }
 
-  // MARK: - FloatWindow Methods
-
-  private func handleStartFloatWindow(result: @escaping FlutterResult) {
-    print("CallKitUIPlugin: Starting float window")
-
-    NEWindowManager.instance.showFloatWindow()
-    print("CallKitUIPlugin: Float window started")
-    result(true)
-  }
-
-  private func handleStopFloatWindow(result: @escaping FlutterResult) {
-    print("CallKitUIPlugin: Stopping float window")
-
-    NEWindowManager.instance.closeFloatWindow()
-    print("CallKitUIPlugin: Float window stopped")
-    result(true)
-  }
-
-  private func handleHasFloatPermission(result: @escaping FlutterResult) {
-    print("CallKitUIPlugin: Checking float permission")
-
-    let hasPermission = true
-
-    print("CallKitUIPlugin: Float permission check result: \(hasPermission)")
-    result(hasPermission)
-  }
-
-  // MARK: - WakeLock Methods
-
-  private func handleEnableWakeLock(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    print("CallKitUIPlugin: handleEnableWakeLock called")
-
-    guard let args = call.arguments as? [String: Any],
-          let enable = args["enable"] as? Bool else {
-      result(FlutterError(code: "INVALID_ARGUMENTS", message: "enable parameter is required", details: nil))
-      return
-    }
-
-    if enable {
-      enableWakeLock()
-    } else {
-      disableWakeLock()
-    }
-
-    print("CallKitUIPlugin: WakeLock \(enable ? "enabled" : "disabled")")
-    result(true)
-  }
-
-  private func enableWakeLock() {
-    UIApplication.shared.isIdleTimerDisabled = true
-  }
-
-  private func disableWakeLock() {
-    UIApplication.shared.isIdleTimerDisabled = false
-  }
-
-  // MARK: - UpdateCallStateToNative Methods
+  // MARK: - Call State Methods
 
   private func handleUpdateCallStateToNative(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     print("CallKitUIPlugin: Updating call state to native")
@@ -264,15 +302,6 @@ extension SwiftCallKitUIPlugin {
     if let registrar = registrar {
       let channel = FlutterMethodChannel(name: "call_kit_ui", binaryMessenger: registrar.messenger())
       channel.invokeMethod("backCallingPageFromFloatWindow", arguments: nil)
-    }
-  }
-
-  func launchCallingPageFromIncomingBanner() {
-    print("CallKitUIPlugin: launchCallingPageFromIncomingBanner called")
-    // 调用 Flutter 端的 launchCallingPageFromIncomingBanner 方法
-    if let registrar = registrar {
-      let channel = FlutterMethodChannel(name: "call_kit_ui", binaryMessenger: registrar.messenger())
-      channel.invokeMethod("launchCallingPageFromIncomingBanner", arguments: nil)
     }
   }
 }

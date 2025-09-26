@@ -1,3 +1,7 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -11,6 +15,7 @@ import 'package:netease_callkit_ui/src/ui/call_navigator_observer.dart';
 import 'package:netease_callkit_ui/src/ui/widget/calls/calls_function_widget.dart';
 import 'package:netease_callkit_ui/src/ui/widget/calls/calls_user_widget_data.dart';
 import 'package:netease_callkit_ui/src/ui/widget/common/timing_widget.dart';
+import 'package:netease_callkit_ui/src/ui/widget/common/float_permission_dialog.dart';
 import 'calls_single_call_widget.dart';
 
 class CallsWidget extends StatefulWidget {
@@ -47,7 +52,7 @@ class _CallsWidgetState extends State<CallsWidget>
 
     CallsMultiUserWidgetData.blockCount++;
 
-    for (var remoteUser in CallState.instance.remoteUserList) {
+    for (var _ in CallState.instance.remoteUserList) {
       CallsMultiUserWidgetData.blockCount++;
     }
     setState(() {
@@ -233,10 +238,15 @@ class _CallsWidgetState extends State<CallsWidget>
     if (Platform.isAndroid) {
       bool result = await NECallKitPlatform.instance.hasFloatPermission();
       if (!result) {
+        // 显示浮窗权限对话框
+        await FloatPermissionDialog.show(context);
         return;
       }
+      CallManager.instance.openFloatWindow();
+      NECallKitNavigatorObserver.getInstance().exitCallingPage();
+    } else if (Platform.isIOS) {
+      CallManager.instance.openFloatWindow();
+      NECallKitNavigatorObserver.getInstance().exitCallingPage();
     }
-    CallManager.instance.openFloatWindow();
-    NECallKitNavigatorObserver.getInstance().exitCallingPage();
   }
 }

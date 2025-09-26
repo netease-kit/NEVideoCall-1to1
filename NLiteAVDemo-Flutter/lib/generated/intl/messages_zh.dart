@@ -1,3 +1,7 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 // DO NOT EDIT. This is code generated via package:intl/generate_localized.dart
 // This is a library that provides messages for a zh locale. All the
 // messages from the main program should be duplicated here with the same
@@ -41,10 +45,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "microphoneIsOn": MessageLookupByLibrary.simpleMessage("麦克风已开启"),
         "needToAccessMicrophoneAndCameraPermissions":
             MessageLookupByLibrary.simpleMessage(
-                "需要访问您的麦克风和摄像头权限，开启后用于语音通话、多人语音通话、视频通话、多人视频通话等功能。"),
+                "需要访问您的麦克风和摄像头权限，开启后用于语音通话、视频通话等功能。请点击“前往设置”按钮进入权限相关页面，进行设置。"),
         "needToAccessMicrophonePermission":
             MessageLookupByLibrary.simpleMessage(
-                "需要访问您的麦克风权限，开启后用于语音通话、多人语音通话、视频通话、多人视频通话等功能。"),
+                "需要访问您的麦克风权限，开启后用于语音通话、视频通话等功能。请点击“前往设置”按钮进入权限相关页面，进行设置。"),
         "remoteUserReject": MessageLookupByLibrary.simpleMessage("对方已拒绝"),
         "speakerIsOff": MessageLookupByLibrary.simpleMessage("扬声器已关闭"),
         "speakerIsOn": MessageLookupByLibrary.simpleMessage("扬声器已开启"),
@@ -52,6 +56,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "userBusy": MessageLookupByLibrary.simpleMessage("对方占线"),
         "userInCall": MessageLookupByLibrary.simpleMessage("用户已在通话中"),
         "waiting": MessageLookupByLibrary.simpleMessage("等待接听"),
-        "youHaveANewCall": MessageLookupByLibrary.simpleMessage("您有一个新的通话")
+        "youHaveANewCall": MessageLookupByLibrary.simpleMessage("您有一个新的通话"),
+        "noFloatWindowPermission":
+            MessageLookupByLibrary.simpleMessage("浮窗权限未获取"),
+        "needFloatWindowPermission":
+            MessageLookupByLibrary.simpleMessage("你的手机没有授权应用获得浮窗权限,通话最小化不能正常使用")
       };
 }

@@ -266,6 +266,6 @@ class _HomePageRouteState extends State<HomePageRoute> {
   // 添加通话记录并保存
   Future<void> _addCallRecord(CallRecord record) async {
     CallKitUILog.i(_tag, "_addCallRecord: $record");
-    _callRecordService.addCallRecord(record);
+    await _callRecordService.addRecordToCurrentAccount(record);
   }
 }

@@ -1,11 +1,13 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 import 'package:flutter/material.dart';
 import 'package:netease_callkit_ui/ne_callkit_ui.dart';
 import 'package:netease_callkit_ui/src/impl/boot.dart';
 import 'package:netease_callkit_ui/src/extensions/calling_bell_feature.dart';
 import 'package:netease_callkit_ui/src/platform/call_kit_platform_interface.dart';
 import 'package:netease_callkit_ui/src/ui/call_main_widget.dart';
-
-import '../impl/boot.dart';
 
 class NECallKitNavigatorObserver extends NavigatorObserver {
   static const _tag = "NECallKitNavigatorObserver";
@@ -26,20 +28,14 @@ class NECallKitNavigatorObserver extends NavigatorObserver {
   void enterCallingPage() async {
     CallKitUILog.i(
         _tag, 'NECallKitNavigatorObserver enterCallingPage：[isClose：$isClose]');
-    print(
-        'NECallKitNavigatorObserver enterCallingPage: isClose=$isClose, navigator=${navigator}');
     if (!isClose) {
-      print('NECallKitNavigatorObserver enterCallingPage: 页面已打开，直接返回');
       return;
     }
     currentPage = CallPage.callingPage;
-    print('NECallKitNavigatorObserver enterCallingPage: 准备导航到通话页面');
     NECallKitNavigatorObserver.getInstance()
         .navigator
         ?.push(MaterialPageRoute(builder: (widget) {
-      print('NECallKitNavigatorObserver enterCallingPage: 创建 NECallKitWidget');
       return NECallKitWidget(close: () {
-        print('NECallKitNavigatorObserver enterCallingPage: 关闭回调被调用');
         if (!isClose) {
           isClose = true;
           NECallKitPlatform.instance.stopForegroundService();
@@ -49,7 +45,6 @@ class NECallKitNavigatorObserver extends NavigatorObserver {
       });
     }));
     isClose = false;
-    print('NECallKitNavigatorObserver enterCallingPage: 导航完成，isClose设置为false');
   }
 
   void exitCallingPage() async {

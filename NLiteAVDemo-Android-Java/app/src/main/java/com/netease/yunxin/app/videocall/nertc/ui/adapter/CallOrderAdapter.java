@@ -21,6 +21,7 @@ import com.netease.yunxin.app.videocall.R;
 import com.netease.yunxin.app.videocall.login.model.AuthManager;
 import com.netease.yunxin.app.videocall.login.model.LoginModel;
 import com.netease.yunxin.app.videocall.nertc.model.CallOrder;
+import com.netease.yunxin.app.videocall.nertc.ui.SettingActivity;
 import com.netease.yunxin.app.videocall.nertc.utils.TimeUtils;
 import com.netease.yunxin.kit.call.p2p.NECallEngine;
 import com.netease.yunxin.kit.call.p2p.model.NECallType;
@@ -156,7 +157,7 @@ public class CallOrderAdapter extends RecyclerView.Adapter<CallOrderAdapter.View
               }
               CallParam param =
                   new CallParam.Builder()
-                      .callType(NECallType.VIDEO)
+                      .callType(SettingActivity.ENABLE_AUDIO_CALL ? NECallType.AUDIO : NECallType.VIDEO)
                       .calledAccId(order.getSessionId())
                       .callExtraInfo(extraInfo.toString())
                       .build();

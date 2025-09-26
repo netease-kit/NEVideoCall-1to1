@@ -39,7 +39,6 @@
     <string name="tip_call_was_finished">通话结束</string>
     <string name="tip_other_client_other_accept">其他端已经接听</string>
     <string name="tip_other_client_other_reject">其他端已经拒绝</string>
-
     <string name="ui_dialog_permission_title">权限使用说明</string>
     <string name="ui_dialog_permission_content">请确保已经授权相机摄像头以及麦克风权限，主要用来进行音视频通话。</string>
     <string name="ui_dialog_switch_call_type_content_video">对方请求将音频转为视频，需要打开您的摄像头。</string>
@@ -57,6 +56,8 @@
     <string name="ui_switch_call_type_reject_tip">对方拒绝了您的请求</string>
     <string name="ui_switch_to_audio">切换到语音通话</string>
     <string name="ui_switch_to_video">切换到视频通话</string>
+    <string name="ui_audio_call">音频通话</string>
+    <string name="ui_video_call">视频通话</string>
     <string name="ui_accept">接听</string>
     <string name="ui_reject">拒接</string>
     <string name="ui_cancel">取消</string>
@@ -71,5 +72,10 @@
     <string name="ui_tip_accepting">正在接通中…</string>
     <string name="ui_group_call_title">视频通话</string>
     <string name="tip_group_wait_to_accept">待接听</string>
+    <string name="ui_permission_dialog_title">权限申请</string>
+    <string name="ui_permission_dialog_positive_setting_text">去设置</string>
+    <string name="ui_float_permission_hint">请同时打开\"后台弹出界面\"和\"显示悬浮窗\"权限</string>
+    <string name="ui_float_permission_hint_harmony">请同时打开\"后台弹窗\"和\"悬浮窗\"权限</string>
     <string name="user_join_group_call_with_user_count">还有%d人参与通话</string>
+    <string name="ui_foreground_service_notification">音视频通话前台服务通知</string>
 </resources>

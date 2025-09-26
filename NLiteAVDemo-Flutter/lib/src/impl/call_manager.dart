@@ -1,3 +1,7 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 import 'dart:async';
 import 'dart:io';
 
@@ -5,9 +9,7 @@ import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:netease_callkit/netease_callkit.dart';
 import 'package:netease_callkit_ui/ne_callkit_ui.dart';
-import 'package:netease_callkit_ui/src/call_define.dart';
 import 'package:netease_callkit_ui/src/event/event_notify.dart';
-import 'package:netease_callkit_ui/src/impl/call_state.dart';
 import 'package:netease_callkit_ui/src/data/constants.dart';
 import 'package:netease_callkit_ui/src/data/user.dart';
 import 'package:netease_callkit_ui/src/extensions/calling_bell_feature.dart';
@@ -18,7 +20,6 @@ import 'package:netease_callkit_ui/src/utils/permission.dart';
 import 'package:netease_callkit_ui/src/utils/preference.dart';
 import 'package:netease_callkit_ui/src/utils/string_stream.dart';
 import 'package:nim_core_v2/nim_core.dart';
-import 'package:path_provider/path_provider.dart';
 
 class CallManager {
   static const String _tag = 'CallManager';
@@ -30,18 +31,24 @@ class CallManager {
   // 保存 appKey
   String? _appKey;
 
+  // 保存额外配置
+  NEExtraConfig? _extraConfig;
+
   // 获取 appKey
   String? get appKey => _appKey;
 
+  // 获取额外配置
+  NEExtraConfig? get extraConfig => _extraConfig;
+
   CallManager() {
     NEEventNotify().register(setStateEventOnCallReceived, (arg) async {
-      if (Platform.isAndroid &&
-          await NECallKitPlatform.instance.isAppInForeground()) {
+      if ((Platform.isAndroid &&
+              await NECallKitPlatform.instance.isAppInForeground()) ||
+          Platform.isIOS) {
+        NECallKitNavigatorObserver.getInstance().enterCallingPage();
         var permissionResult =
-            await PermissionUtils.request(CallState.instance.mediaType);
-
+            await Permission.request(CallState.instance.mediaType);
         if (PermissionResult.granted == permissionResult) {
-          NECallKitNavigatorObserver.getInstance().enterCallingPage();
         } else {
           CallManager.instance.reject();
           CallingBellFeature.stopRing();
@@ -52,18 +59,26 @@ class CallManager {
     });
   }
 
-  Future<void> initEngine(String appKey, String accountId) async {
-    CallKitUILog.i(
-        _tag, 'CallManager initEngine(appKey:$appKey, accountId: $accountId)');
+  Future<void> setupEngine(String appKey, String accountId,
+      {NEExtraConfig? extraConfig}) async {
+    CallKitUILog.i(_tag,
+        'CallManager setupEngine(appKey:$appKey, accountId: $accountId, extraConfig: $extraConfig)');
     CallState.instance.selfUser.id = accountId;
+    // 获取 lckConfig，如果没有则使用默认配置（默认关闭）
+    NELCKConfig? lckConfig = extraConfig?.lckConfig ??
+        NELCKConfig(enableLiveCommunicationKit: false);
+
     NESetupConfig config = NESetupConfig(
       appKey: appKey,
       enableJoinRtcWhenCall: false,
       initRtcMode: NECallInitRtcMode.global,
+      lckConfig: lckConfig, // 传递 lckConfig 到 NESetupConfig
     );
     final result = await NECallEngine.instance.setup(config);
 
     if (result.code == 0) {
+      CallKitUILog.i(_tag,
+          'CallManager initEngine success with lckConfig: enable=${lckConfig.enableLiveCommunicationKit}, ringtone=${lckConfig.ringtoneName}');
     } else {
       CallManager.instance.showToast('Init Engine Fail');
     }
@@ -80,7 +95,7 @@ class CallManager {
 
     // 使用 NECallParams 中的 pushConfig
     NECallPushConfig? pushConfig = params?.pushConfig;
-    final permissionResult = await PermissionUtils.request(callMediaType);
+    final permissionResult = await Permission.request(callMediaType);
     if (PermissionResult.granted == permissionResult) {
       final callResult = await NECallEngine.instance
           .call(accountId, callMediaType, pushConfig: pushConfig);
@@ -102,15 +117,13 @@ class CallManager {
       } else if (callResult.code == 20002) {
         CallManager.instance.showToast(CallKitUIL10n.localizations.userInCall);
       } else {
-        CallManager.instance.showToast(
-            callResult.code.toString() + " " + (callResult.msg ?? ""));
+        CallKitUILog.i(_tag,
+            "callResult.code: ${callResult.code}, callResult.msg: ${callResult.msg}");
       }
       CallKitUILog.i(_tag,
           "callResult.code: ${callResult.code}, callResult.msg: ${callResult.msg}");
       return NEResult(code: callResult.code, message: callResult.msg);
     } else {
-      CallManager.instance
-          .showToast(CallKitUIL10n.localizations.insufficientPermissions);
       CallKitUILog.i(_tag, "Permission result fail");
       return NEResult(code: -1, message: "Permission result fail");
     }
@@ -118,6 +131,7 @@ class CallManager {
 
   Future<NEResult> accept() async {
     final result = await NECallEngine.instance.accept();
+    CallKitUILog.i(_tag, "accept result = $result");
     if (result.code == 0) {
       CallState.instance.selfUser.callStatus = NECallStatus.accept;
     } else {
@@ -129,6 +143,7 @@ class CallManager {
 
   Future<NEResult> reject() async {
     final result = await NECallEngine.instance.hangup("");
+    CallKitUILog.i(_tag, "reject result = $result");
     CallState.instance.selfUser.callStatus = NECallStatus.none;
     NECallKitPlatform.instance.updateCallStateToNative();
     return NEResult(code: result.code, message: result.msg);
@@ -136,12 +151,14 @@ class CallManager {
 
   Future<void> switchCallMediaType(
       NECallType mediaType, NECallSwitchState state) async {
+    CallKitUILog.i(_tag, "switchCallMediaType mediaType = $mediaType");
     NECallEngine.instance.switchCallType(mediaType, state);
     NECallKitPlatform.instance.updateCallStateToNative();
   }
 
   Future<NEResult> hangup() async {
     final result = await NECallEngine.instance.hangup("");
+    CallKitUILog.i(_tag, "hangup result = $result");
     CallState.instance.selfUser.callStatus = NECallStatus.none;
     NECallKitPlatform.instance.updateCallStateToNative();
     CallState.instance.cleanState();
@@ -149,12 +166,13 @@ class CallManager {
   }
 
   Future<NEResult> openCamera(NECamera camera, int viewId) async {
+    CallKitUILog.i(_tag, "openCamera camera = $camera");
     NEResult result = NEResult(code: 0, message: 'success');
     if (Platform.isAndroid) {
       CallKitUILog.i(_tag, 'CallManager openCamera');
       PermissionResult permissionResult = PermissionResult.granted;
-      if (await PermissionUtils.has(permissions: [PermissionType.camera])) {
-        permissionResult = await PermissionUtils.request(NECallType.video);
+      if (await Permission.has(permissions: [PermissionType.camera])) {
+        permissionResult = await Permission.request(NECallType.video);
       }
       if (PermissionResult.granted == permissionResult) {
         var ret = await NECallEngine.instance.enableLocalVideo(true);
@@ -186,12 +204,14 @@ class CallManager {
   }
 
   Future<void> switchCamera(NECamera camera) async {
+    CallKitUILog.i(_tag, 'switchCamera camera = $camera');
     NECallEngine.instance.switchCamera();
     CallState.instance.camera = camera;
     NECallKitPlatform.instance.updateCallStateToNative();
   }
 
   Future<NEResult> openMicrophone([bool notify = true]) async {
+    CallKitUILog.i(_tag, 'openMicrophone notify = $notify');
     final result = await NECallEngine.instance.muteLocalAudio(false);
     CallState.instance.isMicrophoneMute = false;
     NECallKitPlatform.instance.updateCallStateToNative();
@@ -199,12 +219,14 @@ class CallManager {
   }
 
   Future<void> closeMicrophone([bool notify = true]) async {
+    CallKitUILog.i(_tag, 'closeMicrophone notify = $notify');
     NECallEngine.instance.muteLocalAudio(true);
     CallState.instance.isMicrophoneMute = true;
     NECallKitPlatform.instance.updateCallStateToNative();
   }
 
   Future<void> setSpeakerphoneOn(bool enable) async {
+    CallKitUILog.i(_tag, 'setSpeakerphoneOn enable = $enable');
     NECallEngine.instance.setSpeakerphoneOn(enable);
     NECallKitPlatform.instance.updateCallStateToNative();
   }
@@ -232,13 +254,16 @@ class CallManager {
   }
 
   Future<NEResult> login(String appKey, String accountId, String token,
-      {NECertificateConfig? certificateConfig}) async {
+      {NECertificateConfig? certificateConfig,
+      NEExtraConfig? extraConfig}) async {
     CallKitUILog.i(_tag,
-        'CallManager login(appKey:$appKey, accountId:$accountId, certificateConfig:$certificateConfig) version:${Constants.pluginVersion}');
+        'CallManager login(appKey:$appKey, accountId:$accountId, certificateConfig:$certificateConfig, extraConfig:$extraConfig) version:${Constants.pluginVersion}');
 
-    // 保存 appKey
+    // 保存 appKey 和 extraConfig
     _appKey = appKey;
-    print('CallManager login: appKey saved = $_appKey');
+    _extraConfig = extraConfig ?? NEExtraConfig(); // 默认生成一个配置
+    CallKitUILog.i(_tag,
+        'CallManager login: appKey saved = $_appKey, extraConfig = $_extraConfig');
 
     late NIMSDKOptions options;
     if (Platform.isAndroid) {
@@ -293,7 +318,6 @@ class CallManager {
   }
 
   Future<void> setBlurBackground(bool enable) async {
-    int level = enable ? Constants.blurLevelHigh : Constants.blurLevelClose;
     CallState.instance.enableBlurBackground = enable;
   }
 
@@ -311,9 +335,10 @@ class CallManager {
 
   void handleLoginSuccess(String accountId, String token) {
     CallKitUILog.i(_tag, 'CallManager handleLoginSuccess()');
-    print(
+    CallKitUILog.i(_tag,
         'CallManager handleLoginSuccess: appKey = $_appKey, accountId = $accountId');
-    CallManager.instance.initEngine(_appKey!, accountId);
+    CallManager.instance
+        .setupEngine(_appKey!, accountId, extraConfig: _extraConfig);
   }
 
   void handleLogoutSuccess() {
@@ -326,7 +351,14 @@ class CallManager {
   }
 
   void handleAppEnterForeground() async {
-    CallKitUILog.i(_tag, 'CallManager handleAppEnterForeground()');
+    CallKitUILog.i(
+        _tag,
+        'CallManager handleAppEnterForeground() '
+        'callStatus = ${CallState.instance.selfUser.callStatus},'
+        'currentPage = ${NECallKitNavigatorObserver.currentPage},'
+        'isOpenFloatWindow = ${CallState.instance.isOpenFloatWindow},'
+        'isInNativeIncomingBanner = ${CallState.instance.isInNativeIncomingBanner},'
+        'isScreenLocked = ${await CallManager.instance.isScreenLocked()}');
     if (CallState.instance.selfUser.callStatus != NECallStatus.none &&
         NECallKitNavigatorObserver.currentPage == CallPage.none &&
         CallState.instance.isOpenFloatWindow == false &&
@@ -349,6 +381,10 @@ class CallManager {
     NECallKitPlatform.instance.startFloatWindow();
     CallState.instance.isOpenFloatWindow = true;
     NECallKitNavigatorObserver.isClose = true;
+  }
+
+  Future<void> requestFloatPermission() async {
+    await NECallKitPlatform.instance.requestFloatPermission();
   }
 
   void backCallingPageFormFloatWindow() {

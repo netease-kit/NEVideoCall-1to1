@@ -1,3 +1,7 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 package com.netease.yunxin.flutter.plugins.callkit.ui.service;
 
 import android.app.ActivityManager;
@@ -11,16 +15,17 @@ import android.os.Build;
 import android.os.IBinder;
 import android.text.TextUtils;
 import androidx.core.app.NotificationCompat;
+import com.netease.yunxin.flutter.plugins.callkit.ui.R;
 import java.util.List;
 
-public class ForegroundService extends Service {
+public class AudioCallForegroundService extends Service {
   private static final int NOTIFICATION_ID = 1001;
 
   public static void start(Context context) {
-    if (isServiceRunning(context, ForegroundService.class.getName())) {
+    if (isServiceRunning(context, AudioCallForegroundService.class.getName())) {
       return;
     }
-    Intent starter = new Intent(context, ForegroundService.class);
+    Intent starter = new Intent(context, AudioCallForegroundService.class);
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       context.startForegroundService(starter);
     } else {
@@ -29,7 +34,7 @@ public class ForegroundService extends Service {
   }
 
   public static void stop(Context context) {
-    Intent intent = new Intent(context, ForegroundService.class);
+    Intent intent = new Intent(context, AudioCallForegroundService.class);
     context.stopService(intent);
   }
 
@@ -62,9 +67,9 @@ public class ForegroundService extends Service {
   private Notification createForegroundNotification() {
     NotificationManager notificationManager =
         (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-    String notificationChannelId = "notification_channel_id_01";
+    String notificationChannelId = "notification_channel_id_call_01";
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      String channelName = "NECallKit Foreground Service Notification";
+      String channelName = getString(R.string.ui_foreground_service_notification);
       NotificationChannel notificationChannel =
           new NotificationChannel(
               notificationChannelId, channelName, NotificationManager.IMPORTANCE_LOW);

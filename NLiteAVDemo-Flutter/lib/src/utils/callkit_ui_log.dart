@@ -9,15 +9,6 @@ import 'package:yunxin_alog/yunxin_alog.dart';
 const moduleName = 'CallKit_UI_Flutter';
 
 class CallKitUILog {
-  static Future<bool> init() async {
-    var logRootPath = await _defaultLogRootPath;
-    var rootPath = logRootPath.endsWith('/') ? logRootPath : '$logRootPath/';
-    String roomSDKPath = '${rootPath}callkit/';
-    if (!(await _createDirectory(rootPath))) return false;
-    final success = Alog.init(ALogLevel.verbose, roomSDKPath, "callkit");
-    return success;
-  }
-
   static void i(String tag, String content) {
     Alog.i(tag: tag, moduleName: moduleName, content: content);
   }
@@ -42,18 +33,18 @@ class CallKitUILog {
       }
     } catch (e) {
       isCreate = false;
-      print('error $e');
+      Alog.e(tag: 'CallKitUILog', content: 'error $e');
     }
     return isCreate;
   }
 
   static Future<String> get _defaultLogRootPath async {
-    var directory;
+    Directory? directory;
     if (Platform.isIOS) {
       directory = await getApplicationDocumentsDirectory();
     } else {
       directory = await getExternalStorageDirectory();
     }
-    return '${directory.path}/log/';
+    return '${directory?.path}/log/';
   }
 }

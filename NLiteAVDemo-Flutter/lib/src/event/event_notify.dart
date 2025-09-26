@@ -1,3 +1,7 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 typedef NEEventCallback = void Function(dynamic arg);
 
 class NEEventNotify {
@@ -10,7 +14,7 @@ class NEEventNotify {
   final _messageQueue = <Object, List<NEEventCallback>>{};
 
   void register(String eventName, NEEventCallback? callback) {
-    if (eventName != null && callback != null) {
+    if (callback != null) {
       if (_messageQueue[eventName] == null) {
         _messageQueue[eventName] = <NEEventCallback>[];
       }
@@ -19,7 +23,7 @@ class NEEventNotify {
   }
 
   void unregister(String eventName, NEEventCallback? callback) {
-    if (eventName != null && callback != null) {
+    if (callback != null) {
       var list = _messageQueue[eventName];
       if (list != null) {
         list.remove(callback);

@@ -1,3 +1,7 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:netease_callkit/netease_callkit.dart';
@@ -23,33 +27,78 @@ class CallsIndividualUserWidget extends StatefulWidget {
   State<StatefulWidget> createState() => _CallsIndividualUserWidgetState();
 }
 
-class _CallsIndividualUserWidgetState extends State<CallsIndividualUserWidget> {
+class _CallsIndividualUserWidgetState extends State<CallsIndividualUserWidget>
+    with SingleTickerProviderStateMixin {
   static const String _tag = "CallsIndividualUserWidget";
   NEEventCallback? setSateCallBack;
-  final Key _localKey = GlobalKey(debugLabel: "local");
-  final Key _remoteKey = GlobalKey(debugLabel: "remote");
+  // 为大画面和小画面创建独立的Key，避免GlobalKey冲突
+  final Key _localBigKey = GlobalKey(debugLabel: "local_big");
+  final Key _remoteBigKey = GlobalKey(debugLabel: "remote_big");
+  final Key _localSmallKey = GlobalKey(debugLabel: "local_small");
+  final Key _remoteSmallKey = GlobalKey(debugLabel: "remote_small");
 
-  late final Widget _localVideoView = NECallkitVideoView(
-      key: _localKey,
-      onPlatformViewCreated: (viewId) {
-        CallState.instance.selfUser.viewID = viewId;
-        CallManager.instance.setupLocalView(viewId);
-        if (CallState.instance.isCameraOpen) {
-          CallManager.instance.openCamera(CallState.instance.camera, viewId);
-        }
-      });
+  // 添加动画控制器和状态管理
+  late AnimationController _animationController;
 
-  late final Widget _remoteVideoView = NECallkitVideoView(
-      key: _remoteKey,
-      onPlatformViewCreated: (viewId) {
-        CallState.instance.remoteUserList[0].viewID = viewId;
-        CallManager.instance
-            .setupRemoteView(CallState.instance.remoteUserList[0].id, viewId);
-      });
+  // 用于防止视频切换时的闪烁
+  bool _isTransitioning = false;
+
+  // 创建大画面专用的视频view
+  Widget _createBigVideoView(bool isLocal) {
+    return NECallkitVideoView(
+        key: isLocal ? _localBigKey : _remoteBigKey,
+        onPlatformViewCreated: (viewId) {
+          if (isLocal) {
+            CallState.instance.selfUser.viewID = viewId;
+            CallManager.instance.setupLocalView(viewId);
+            if (CallState.instance.isCameraOpen) {
+              CallManager.instance
+                  .openCamera(CallState.instance.camera, viewId);
+            }
+          } else {
+            if (CallState.instance.remoteUserList.isNotEmpty) {
+              CallState.instance.remoteUserList[0].viewID = viewId;
+              CallManager.instance.setupRemoteView(
+                  CallState.instance.remoteUserList[0].id, viewId);
+            }
+          }
+        });
+  }
+
+  // 创建小画面专用的视频view
+  Widget _createSmallVideoView(bool isLocal) {
+    return NECallkitVideoView(
+        key: isLocal ? _localSmallKey : _remoteSmallKey,
+        onPlatformViewCreated: (viewId) {
+          if (isLocal) {
+            CallState.instance.selfUser.viewID = viewId;
+            CallManager.instance.setupLocalView(viewId);
+            if (CallState.instance.isCameraOpen) {
+              CallManager.instance
+                  .openCamera(CallState.instance.camera, viewId);
+            }
+          } else {
+            if (CallState.instance.remoteUserList.isNotEmpty) {
+              CallState.instance.remoteUserList[0].viewID = viewId;
+              CallManager.instance.setupRemoteView(
+                  CallState.instance.remoteUserList[0].id, viewId);
+            }
+          }
+        });
+  }
 
   @override
   void initState() {
     super.initState();
+
+    // 初始化动画控制器
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    _animationController.forward();
+
     setSateCallBack = (arg) {
       if (mounted) {
         setState(() {});
@@ -61,7 +110,13 @@ class _CallsIndividualUserWidgetState extends State<CallsIndividualUserWidget> {
   @override
   dispose() {
     super.dispose();
+    _animationController.dispose();
+    // 清理所有视频view
     CallManager.instance.setupLocalView(-1);
+    if (CallState.instance.remoteUserList.isNotEmpty) {
+      CallManager.instance
+          .setupRemoteView(CallState.instance.remoteUserList[0].id, -1);
+    }
     NEEventNotify().unregister(setStateEvent, setSateCallBack);
   }
 
@@ -71,7 +126,6 @@ class _CallsIndividualUserWidgetState extends State<CallsIndividualUserWidget> {
       body: Container(
         color: _getBackgroundColor(),
         child: Stack(
-          alignment: Alignment.topLeft,
           fit: StackFit.expand,
           children: [
             _buildBackground(),
@@ -208,10 +262,13 @@ class _CallsIndividualUserWidgetState extends State<CallsIndividualUserWidget> {
               child: Stack(
                 children: [
                   CallState.instance.selfUser.callStatus == NECallStatus.accept
-                      ? Visibility(
-                          visible: (isLocalViewBig
-                              ? !isCameraOpen
-                              : !remoteVideoAvailable),
+                      ? AnimatedOpacity(
+                          duration: const Duration(milliseconds: 300),
+                          opacity: (isLocalViewBig
+                                  ? !isCameraOpen
+                                  : !remoteVideoAvailable)
+                              ? 1.0
+                              : 0.0,
                           child: Center(
                               child: Container(
                             height: 80,
@@ -234,12 +291,33 @@ class _CallsIndividualUserWidgetState extends State<CallsIndividualUserWidget> {
                           )),
                         )
                       : Container(),
-                  Opacity(
-                      opacity: isLocalViewBig
-                          ? _getOpacityByVis(isCameraOpen)
-                          : _getOpacityByVis(remoteVideoAvailable),
-                      child:
-                          isLocalViewBig ? _localVideoView : _remoteVideoView)
+                  // 大画面视频 - 使用独立的视频view避免GlobalKey冲突
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 120),
+                    transitionBuilder:
+                        (Widget child, Animation<double> animation) {
+                      return ScaleTransition(
+                        scale: Tween<double>(begin: 0.8, end: 1.0).animate(
+                            CurvedAnimation(
+                                parent: animation, curve: Curves.easeOut)),
+                        child: FadeTransition(
+                          opacity: animation,
+                          child: child,
+                        ),
+                      );
+                    },
+                    child: Container(
+                      key:
+                          ValueKey(isLocalViewBig ? 'local_big' : 'remote_big'),
+                      width: double.infinity,
+                      height: double.infinity,
+                      child: Opacity(
+                          opacity: isLocalViewBig
+                              ? _getOpacityByVis(isCameraOpen)
+                              : _getOpacityByVis(remoteVideoAvailable),
+                          child: _createBigVideoView(isLocalViewBig)),
+                    ),
+                  )
                 ],
               ),
             ))
@@ -250,16 +328,8 @@ class _CallsIndividualUserWidgetState extends State<CallsIndividualUserWidget> {
     if (CallState.instance.mediaType == NECallType.audio) {
       return const SizedBox();
     }
-    bool isRemoteViewSmall = true;
 
-    if (CallState.instance.selfUser.callStatus == NECallStatus.accept) {
-      if (CallState.instance.isChangedBigSmallVideo) {
-        isRemoteViewSmall = false;
-      } else {
-        isRemoteViewSmall = true;
-      }
-    }
-
+    // 获取视频状态信息
     var remoteAvatar = '';
     var remoteVideoAvailable = false;
     var remoteAudioAvailable = false;
@@ -276,63 +346,19 @@ class _CallsIndividualUserWidgetState extends State<CallsIndividualUserWidget> {
         CallState.instance.selfUser.avatar, Constants.defaultAvatar);
     var isCameraOpen = CallState.instance.isCameraOpen;
 
-    var smallVideoWidget =
-        CallState.instance.selfUser.callStatus == NECallStatus.accept
-            ? Container(
-                height: 216,
-                width: 110,
-                color: Colors.black54,
-                child: Stack(
-                  alignment: AlignmentDirectional.center,
-                  children: [
-                    Visibility(
-                      visible: (isRemoteViewSmall
-                          ? !remoteVideoAvailable
-                          : !isCameraOpen),
-                      child: Center(
-                        child: Container(
-                          height: 50,
-                          width: 50,
-                          clipBehavior: Clip.hardEdge,
-                          decoration: const BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(8)),
-                          ),
-                          child: Image(
-                            image: NetworkImage(
-                                isRemoteViewSmall ? remoteAvatar : selfAvatar),
-                            fit: BoxFit.cover,
-                            errorBuilder: (ctx, err, stackTrace) => Image.asset(
-                              'assets/images/user_icon.png',
-                              package: 'netease_callkit_ui',
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Opacity(
-                        opacity: isRemoteViewSmall
-                            ? _getOpacityByVis(remoteVideoAvailable)
-                            : _getOpacityByVis(isCameraOpen),
-                        child: isRemoteViewSmall
-                            ? _remoteVideoView
-                            : _localVideoView),
-                    Positioned(
-                      left: 5,
-                      bottom: 5,
-                      width: 20,
-                      height: 20,
-                      child: (isRemoteViewSmall && !remoteAudioAvailable)
-                          ? Image.asset(
-                              'assets/images/audio_unavailable_grey.png',
-                              package: 'netease_callkit_ui',
-                            )
-                          : const SizedBox(),
-                    )
-                  ],
-                ))
-            : Container();
+    // 判断当前应该显示哪个视频
+    bool isRemoteViewSmall = true;
+    if (CallState.instance.selfUser.callStatus == NECallStatus.accept) {
+      if (CallState.instance.isChangedBigSmallVideo) {
+        isRemoteViewSmall = false;
+      } else {
+        isRemoteViewSmall = true;
+      }
+    }
 
-    return Positioned(
+    return AnimatedPositioned(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
         top: CallsIndividualUserWidgetData.smallViewTop - 40,
         right: CallsIndividualUserWidgetData.smallViewRight,
         child: GestureDetector(
@@ -340,7 +366,8 @@ class _CallsIndividualUserWidgetState extends State<CallsIndividualUserWidget> {
             _changeVideoView();
           },
           onPanUpdate: (DragUpdateDetails e) {
-            if (CallState.instance.mediaType == NECallType.video) {
+            if (CallState.instance.mediaType == NECallType.video &&
+                !_isTransitioning) {
               CallsIndividualUserWidgetData.smallViewRight -= e.delta.dx;
               CallsIndividualUserWidgetData.smallViewTop += e.delta.dy;
               if (CallsIndividualUserWidgetData.smallViewTop < 100) {
@@ -362,23 +389,158 @@ class _CallsIndividualUserWidgetState extends State<CallsIndividualUserWidget> {
               setState(() {});
             }
           },
-          child: SizedBox(
-            width: 110,
-            child: smallVideoWidget,
-          ),
+          child: CallState.instance.selfUser.callStatus == NECallStatus.accept
+              ? AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  height: 216,
+                  width: 110,
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Stack(
+                    alignment: AlignmentDirectional.center,
+                    children: [
+                      // 小画面视频 - 使用独立的视频view和优化的动画
+                      Positioned.fill(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 120),
+                            transitionBuilder:
+                                (Widget child, Animation<double> animation) {
+                              return ScaleTransition(
+                                scale: Tween<double>(begin: 0.8, end: 1.0)
+                                    .animate(CurvedAnimation(
+                                        parent: animation,
+                                        curve: Curves.easeOut)),
+                                child: FadeTransition(
+                                  opacity: animation,
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: Container(
+                              key: ValueKey(isRemoteViewSmall
+                                  ? 'remote_small'
+                                  : 'local_small'),
+                              width: 110,
+                              height: 216,
+                              color: Colors.transparent, // 移除背景色，避免黑边
+                              child: Opacity(
+                                  opacity: isRemoteViewSmall
+                                      ? _getOpacityByVis(remoteVideoAvailable)
+                                      : _getOpacityByVis(isCameraOpen),
+                                  child: _createSmallVideoView(
+                                      !isRemoteViewSmall)),
+                            ),
+                          ),
+                        ),
+                      ),
+                      // 远程用户头像 - 当远程视频不可用时显示
+                      AnimatedOpacity(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                        opacity: (isRemoteViewSmall && !remoteVideoAvailable)
+                            ? 1.0
+                            : 0.0,
+                        child: Center(
+                          child: Container(
+                            height: 50,
+                            width: 50,
+                            clipBehavior: Clip.hardEdge,
+                            decoration: const BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(8)),
+                            ),
+                            child: Image(
+                              image: NetworkImage(remoteAvatar),
+                              fit: BoxFit.cover,
+                              errorBuilder: (ctx, err, stackTrace) =>
+                                  Image.asset(
+                                'assets/images/user_icon.png',
+                                package: 'netease_callkit_ui',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      // 本地用户头像 - 当本地视频不可用时显示
+                      AnimatedOpacity(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                        opacity:
+                            (!isRemoteViewSmall && !isCameraOpen) ? 1.0 : 0.0,
+                        child: Center(
+                          child: Container(
+                            height: 50,
+                            width: 50,
+                            clipBehavior: Clip.hardEdge,
+                            decoration: const BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(8)),
+                            ),
+                            child: Image(
+                              image: NetworkImage(selfAvatar),
+                              fit: BoxFit.cover,
+                              errorBuilder: (ctx, err, stackTrace) =>
+                                  Image.asset(
+                                'assets/images/user_icon.png',
+                                package: 'netease_callkit_ui',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      // 音频不可用图标
+                      Positioned(
+                        left: 5,
+                        bottom: 5,
+                        width: 20,
+                        height: 20,
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 300),
+                          opacity: (isRemoteViewSmall && !remoteAudioAvailable)
+                              ? 1.0
+                              : 0.0,
+                          child: Image.asset(
+                            'assets/images/audio_unavailable_grey.png',
+                            package: 'netease_callkit_ui',
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                )
+              : Container(),
         ));
   }
 
   _changeVideoView() {
     if (CallState.instance.mediaType == NECallType.audio ||
-        CallState.instance.selfUser.callStatus == NECallStatus.waiting) {
+        CallState.instance.selfUser.callStatus == NECallStatus.waiting ||
+        _isTransitioning) {
       return;
     }
 
-    setState(() {
-      CallState.instance.isChangedBigSmallVideo =
-          !CallState.instance.isChangedBigSmallVideo;
-    });
+    // 设置过渡状态，防止在动画期间进行拖拽或重复触发
+    _isTransitioning = true;
+
+    // 直接切换状态，让AnimatedSwitcher处理动画
+    CallState.instance.isChangedBigSmallVideo =
+        !CallState.instance.isChangedBigSmallVideo;
+
+    if (mounted) {
+      setState(() {});
+
+      // 120ms后重置过渡状态（与AnimatedSwitcher动画时长一致）
+      Future.delayed(const Duration(milliseconds: 120), () {
+        if (mounted) {
+          _isTransitioning = false;
+        }
+      });
+    }
   }
 
   double _getOpacityByVis(bool vis) {

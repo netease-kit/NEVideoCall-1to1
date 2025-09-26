@@ -1,3 +1,7 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -14,7 +18,10 @@ import 'package:netease_callkit_ui/src/utils/permission.dart';
 import 'calls_widget.dart';
 
 class CallsFunctionWidget {
+  static const String _tag = "CallsFunctionWidget";
   static Widget buildIndividualFunctionWidget(Function close) {
+    CallKitUILog.i(_tag,
+        "buildIndividualFunctionWidget current callStatus = ${CallState.instance.selfUser.callStatus}");
     if (NECallStatus.waiting == CallState.instance.selfUser.callStatus) {
       if (NECallRole.caller == CallState.instance.selfUser.callRole) {
         if (NECallType.audio == CallState.instance.mediaType) {
@@ -528,12 +535,15 @@ class CallsFunctionWidget {
   }
 
   static _handleAccept(Function close) async {
+    CallKitUILog.i(_tag, '_handleAccept');
     PermissionResult permissionRequestResult = PermissionResult.requesting;
-    if (Platform.isAndroid) {
+    if (Platform.isAndroid || Platform.isIOS) {
       permissionRequestResult =
-          await PermissionUtils.request(CallState.instance.mediaType);
+          await Permission.request(CallState.instance.mediaType);
     }
-    if (permissionRequestResult == PermissionResult.granted || Platform.isIOS) {
+    if (permissionRequestResult == PermissionResult.granted) {
+      CallKitUILog.i(_tag,
+          '_handleAccept permissionRequestResult = $permissionRequestResult');
       var result = await CallManager.instance.accept();
       if (result.code == 0) {
         CallState.instance.selfUser.callStatus = NECallStatus.accept;

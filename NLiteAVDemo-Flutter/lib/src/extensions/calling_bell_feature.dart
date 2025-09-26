@@ -1,3 +1,7 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:flutter/foundation.dart';
@@ -18,9 +22,11 @@ class CallingBellFeature {
   static String assetsPrefix = "assets/audios/";
   static String callerRingName = "avchat_connecting.mp3";
   static String calledRingName = "avchat_ring.mp3";
+  static bool cancelStartRing = false;
 
   static Future<void> startRing() async {
     CallKitUILog.i(_tag, 'CallingBellFeature startRing');
+    cancelStartRing = false;
     String filePath =
         await PreferenceUtils.getInstance().getString(keyRingPath);
     if (filePath.isNotEmpty &&
@@ -43,7 +49,9 @@ class CallingBellFeature {
       await file.create();
       await file.writeAsBytes(byteData.buffer.asUint8List());
     }
-    NECallKitPlatform.instance.startRing(file.path);
+    if (!cancelStartRing) {
+      NECallKitPlatform.instance.startRing(file.path);
+    }
   }
 
   static Future<String> getAssetsFilePath(String assetName) async {
@@ -63,6 +71,7 @@ class CallingBellFeature {
 
   static Future<void> stopRing() async {
     CallKitUILog.i(_tag, 'CallingBellFeature stopRing');
+    cancelStartRing = true;
     NECallKitPlatform.instance.stopRing();
   }
 

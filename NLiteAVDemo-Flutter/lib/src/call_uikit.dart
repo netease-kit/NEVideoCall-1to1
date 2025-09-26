@@ -1,9 +1,17 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
+import 'dart:io';
+
 import 'package:netease_callkit/netease_callkit.dart';
+import 'package:netease_callkit_ui/ne_callkit_ui.dart';
 import 'package:netease_callkit_ui/src/call_define.dart';
 import 'package:netease_callkit_ui/src/impl/call_manager.dart';
 import 'package:netease_callkit_ui/src/ui/call_navigator_observer.dart';
 
 class NECallKitUI {
+  static const String _tag = 'NECallKitUI';
   static final NECallKitUI _instance = NECallKitUI();
 
   static NECallKitUI get instance => _instance;
@@ -11,16 +19,28 @@ class NECallKitUI {
   static NECallKitNavigatorObserver navigatorObserver =
       NECallKitNavigatorObserver.getInstance();
 
+  /// init NECallKit
+  ///
+  /// @param appKey      appKey
+  /// @param accountId      accountId
+  Future<void> setupEngine(String appKey, String accountId,
+      {NEExtraConfig? extraConfig}) async {
+    return await CallManager.instance
+        .setupEngine(appKey, accountId, extraConfig: extraConfig);
+  }
+
   /// login NECallKit
   ///
   /// @param appKey      appKey
-  /// @param userId        userId
-  /// @param userSig       userSig
+  /// @param accountId   accountId
+  /// @param token       token
   /// @param certificateConfig 证书配置参数
-  Future<NEResult> login(String appKey, String userId, String userSig,
-      {NECertificateConfig? certificateConfig}) async {
-    return await CallManager.instance
-        .login(appKey, userId, userSig, certificateConfig: certificateConfig);
+  /// @param extraConfig 额外配置参数，包含 lckConfig 等
+  Future<NEResult> login(String appKey, String accountId, String token,
+      {NECertificateConfig? certificateConfig,
+      NEExtraConfig? extraConfig}) async {
+    return await CallManager.instance.login(appKey, accountId, token,
+        certificateConfig: certificateConfig, extraConfig: extraConfig);
   }
 
   /// logout NECallKit
@@ -68,6 +88,10 @@ class NECallKitUI {
   }
 
   void enableIncomingBanner(bool enable) {
-    CallManager.instance.enableIncomingBanner(enable);
+    if (Platform.isAndroid) {
+      CallManager.instance.enableIncomingBanner(enable);
+    } else {
+      CallKitUILog.e(_tag, 'CallManager enableIncomingBanner not support');
+    }
   }
 }

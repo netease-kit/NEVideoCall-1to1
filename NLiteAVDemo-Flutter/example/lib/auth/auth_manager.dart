@@ -11,6 +11,7 @@ import 'package:netease_callkit_ui/ne_callkit_ui.dart';
 import '../utils/global_preferences.dart';
 import '../auth/auth_state.dart';
 import 'login_info.dart';
+import 'package:netease_callkit/netease_callkit.dart';
 
 class AuthManager {
   static const String _tag = 'AuthManager';
@@ -70,10 +71,19 @@ class AuthManager {
       pkCername: AppConfig().voipCerName,
     );
 
+    final extraConfig = NEExtraConfig(
+      lckConfig: NELCKConfig(
+        enableLiveCommunicationKit: true,
+        ringtoneName: 'avchat_ring.mp3',
+      ),
+    );
+
     NECallKitUI.instance.enableFloatWindow(SettingsConfig.enableFloatWindow);
     NECallKitUI.instance
+        .enableIncomingBanner(SettingsConfig.showIncomingBanner);
+    NECallKitUI.instance
         .login(AppConfig().appKey, loginInfo.accountId, loginInfo.accountToken,
-            certificateConfig: certificateConfig)
+            certificateConfig: certificateConfig, extraConfig: extraConfig)
         .then((value) {
       if (value.code == 0) {
         AuthStateManager().updateState(state: AuthState.authed);

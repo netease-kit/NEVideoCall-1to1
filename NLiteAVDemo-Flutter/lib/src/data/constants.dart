@@ -1,3 +1,7 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 class Constants {
   static const String pluginVersion = '3.0.0';
   static const String defaultAvatar =

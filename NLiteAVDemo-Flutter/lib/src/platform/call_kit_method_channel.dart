@@ -1,7 +1,12 @@
+// Copyright (c) 2022 NetEase, Inc. All rights reserved.
+// Use of this source code is governed by a MIT license that can be
+// found in the LICENSE file.
+
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:netease_callkit/netease_callkit.dart';
 import 'package:netease_callkit_ui/src/call_define.dart';
 import 'package:netease_callkit_ui/src/event/event_notify.dart';
 import 'package:netease_callkit_ui/src/impl/call_manager.dart';
@@ -21,9 +26,10 @@ class MethodChannelNECallKit extends NECallKitPlatform {
   final methodChannel = const MethodChannel('call_kit_ui');
 
   @override
-  Future<void> startForegroundService() async {
+  Future<void> startForegroundService(NECallType type) async {
     if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
-      await methodChannel.invokeMethod('startForegroundService', {});
+      await methodChannel
+          .invokeMethod('startForegroundService', {"mediaType": type.index});
     }
   }
 
@@ -93,6 +99,13 @@ class MethodChannelNECallKit extends NECallKitPlatform {
   }
 
   @override
+  Future<void> requestFloatPermission() async {
+    if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
+      await methodChannel.invokeMethod('requestFloatPermission', {});
+    }
+  }
+
+  @override
   Future<bool> isAppInForeground() async {
     if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
       return await methodChannel.invokeMethod('isAppInForeground', {});
@@ -117,7 +130,6 @@ class MethodChannelNECallKit extends NECallKitPlatform {
     return true;
   }
 
-  @override
   Future<bool> initResources(Map resources) async {
     try {
       if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
