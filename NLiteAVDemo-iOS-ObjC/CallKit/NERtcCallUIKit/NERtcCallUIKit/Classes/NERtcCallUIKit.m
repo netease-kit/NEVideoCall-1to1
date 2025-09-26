@@ -11,6 +11,9 @@
 #import <YXAlog_iOS/YXAlog.h>
 #import "NEBufferDisplayView.h"
 #import "NECallKitUtil.h"
+#import "NEDataManager.h"
+#import "NEGroupCallViewController.h"
+#import "NEUIGroupCallParam.h"
 #import "NetManager.h"
 
 NSString *kAudioCalling = @"kAudioCalling";
@@ -31,12 +34,17 @@ NSString *kCallStatusQueryKey = @"imkit://call/state/isIdle";
 
 NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
 
+// 群呼人数限制常量
+const NSInteger kGroupCallMaxUsers = 10;
+
 @interface NERtcCallUIKit () <NECallEngineDelegate,
                               XKitService,
                               NERtcEngineDelegateEx,
                               NERtcEngineVideoFrameObserver,
                               NERtcEngineVideoRenderSink,
-                              AVPictureInPictureControllerDelegate>
+                              AVPictureInPictureControllerDelegate,
+                              NEGroupCallKitDelegate,
+                              NEGroupCallViewControllerDelegate>
 
 @property(nonatomic, strong) NECallUIKitConfig *config;
 
@@ -159,6 +167,13 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
                                                object:nil];
     self.smallVideoSize = CGSizeMake(90, 160);
     self.smallAudioSize = CGSizeMake(70, 70);
+
+    // 群呼
+    [[NEGroupCallKit sharedInstance] addDelegate:self];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didGroupCallDismiss:)
+                                                 name:kGroupCallKitDismissNoti
+                                               object:nil];
   }
   return self;
 }
@@ -779,7 +794,197 @@ NSString *kCallStatusCallBackKey = @"imkit://call/state/result";
 #pragma mark - Version
 
 + (NSString *)version {
-  return @"3.6.0";
+  return @"3.7.0";
+}
+
+#pragma mark - Group Call
+- (void)groupCallWithParam:(NEUIGroupCallParam *)callParam {
+  NSString *selfAccid = [NIMSDK.sharedSDK.v2LoginService getLoginUser];
+
+  // 对 remoteUsers 进行去重处理
+  NSMutableArray<NSString *> *uniqueRemoteUsers = [[NSMutableArray alloc] init];
+  NSMutableSet<NSString *> *userSet = [[NSMutableSet alloc] init];
+
+  for (NSString *userId in callParam.remoteUsers) {
+    if (userId.length > 0 && ![userSet containsObject:userId]) {
+      [userSet addObject:userId];
+      [uniqueRemoteUsers addObject:userId];
+    }
+  }
+
+  // 自己不算在内
+  if (uniqueRemoteUsers.count > kGroupCallMaxUsers - 1) {
+    YXAlogInfo(@"call uikit group call remote users exceed limit");
+    [NECallKitUtil makeToast:[NECallKitUtil localizableWithKey:@"ui_member_exceed_limit"]];
+    return;
+  }
+
+  // 创建包含主叫用户ID的完整用户ID列表
+  NSMutableArray<NSString *> *allUserIds = [[NSMutableArray alloc] init];
+  [allUserIds addObject:selfAccid];                    // 添加主叫用户ID
+  [allUserIds addObjectsFromArray:uniqueRemoteUsers];  // 添加去重后的被叫用户ID列表
+
+  // 通过 getUserList 获取所有用户信息
+  __weak typeof(self) weakSelf = self;
+  [NIMSDK.sharedSDK.v2UserService getUserList:allUserIds
+      success:^(NSArray<V2NIMUser *> *_Nonnull result) {
+        NSMutableArray<NEGroupUser *> *allUsers = [[NSMutableArray alloc] init];
+        NEGroupUser *caller = nil;
+
+        // 转换 V2NIMUser 为 NEGroupUser
+        for (V2NIMUser *user in result) {
+          NEGroupUser *groupUser = [weakSelf convertV2NIMUserToGroupUser:user];
+
+          if ([groupUser.imAccid isEqualToString:selfAccid]) {
+            groupUser.state = GroupMemberStateInChannel;
+            caller = groupUser;
+          } else {
+            groupUser.state = GroupMemberStateWaitting;
+          }
+
+          [allUsers addObject:groupUser];
+        }
+
+        // 创建群呼控制器
+        NEGroupCallViewController *callController =
+            [[NEGroupCallViewController alloc] initWithCalled:NO withCaller:caller];
+        callController.delegate = weakSelf;
+
+        // 根据全局配置设置邀请按钮显示状态
+        if (weakSelf.config && weakSelf.config.uiConfig) {
+          callController.showInviteButton =
+              weakSelf.config.uiConfig.enableGroupCallInviteOthersWhenCalling;
+        } else {
+          callController.showInviteButton = NO;  // 默认不显示邀请按钮
+        }
+
+        // 设置推送参数
+        if (callParam.pushParam) {
+          callController.pushParam = callParam.pushParam;
+        }
+
+        [callController addUser:allUsers];
+        [weakSelf showGroupCallView:callController];
+      }
+      failure:^(V2NIMError *_Nonnull error) {
+        YXAlogInfo(@"获取用户信息失败: %@", error.desc);
+        // 即使获取用户信息失败，也显示界面，但用户列表为空
+        NEGroupCallViewController *callController =
+            [[NEGroupCallViewController alloc] initWithCalled:NO withCaller:nil];
+        callController.delegate = weakSelf;
+        [weakSelf showGroupCallView:callController];
+      }];
+}
+
+- (void)showGroupCallView:(NEGroupCallViewController *)callVC {
+  UINavigationController *nav = [self getKeyWindowNav];
+  UINavigationController *callNav =
+      [[UINavigationController alloc] initWithRootViewController:callVC];
+  callNav.modalPresentationStyle = UIModalPresentationFullScreen;
+  [callNav.navigationBar setHidden:YES];
+  [nav presentViewController:callNav animated:YES completion:nil];
+  YXAlogInfo(@"call uikit show group call view");
+}
+
+- (void)didGroupCallDismiss:(NSNotification *)notification {
+  YXAlogInfo(@"Group call uikit didDismiss caller : %d called : %d", self.isCalling, self.isCalled);
+  UINavigationController *nav = (UINavigationController *)self.keywindow.rootViewController;
+
+  __weak typeof(self) weakSelf = self;
+  [nav dismissViewControllerAnimated:YES
+                          completion:^{
+                            NSLog(@"self window %@", weakSelf.keywindow);
+                            YXAlogInfo(@"call uikit didDismiss completion");
+                          }];
+  [self.keywindow resignKeyWindow];
+  self.keywindow = nil;
+  if (self.parentView != nil && self.callViewController.view != self.parentView) {
+    [self.callViewController.view removeFromSuperview];
+  }
+  self.parentView = nil;
+}
+
+#pragma mark group call delegate
+- (void)onGroupInvitedWithInfo:(NEGroupCallInfo *)info {
+  NSMutableArray<GroupCallMember *> *members = [[NSMutableArray alloc] init];
+  for (GroupCallMember *member in info.calleeList) {
+    YXAlogInfo(@"current member accid : %@", member.imAccid);
+  }
+  [members addObjectsFromArray:info.calleeList];
+
+  __weak typeof(self) weakSelf = self;
+  [NEDataManager.shareInstance
+      fetchUserWithMembers:members
+                completion:^(NSError *_Nullable error, NSArray<NEGroupUser *> *_Nonnull users) {
+                  if ([NEGroupCallKit sharedInstance].callId == nil ||
+                      ![[NEGroupCallKit sharedInstance].callId isEqualToString:info.callId]) {
+                    YXAlogInfo(@"data come, but group call has end");
+                    return;
+                  }
+                  NSMutableArray *neUsers = [[NSMutableArray alloc] init];
+                  NEGroupUser *neUser;
+                  for (NEGroupUser *user in users) {
+                    if ([user.imAccid isEqualToString:info.callerInfo.imAccid]) {
+                      neUser = user;
+                    } else {
+                      [neUsers addObject:user];
+                    }
+                  }
+
+                  NEGroupCallViewController *groupCall =
+                      [[NEGroupCallViewController alloc] initWithCalled:YES withCaller:neUser];
+                  groupCall.callId = info.callId;
+                  groupCall.startTimestamp = info.startTimestamp;
+
+                  // 根据全局配置设置邀请按钮显示状态
+                  if (weakSelf.config && weakSelf.config.uiConfig) {
+                    groupCall.showInviteButton =
+                        weakSelf.config.uiConfig.enableGroupCallInviteOthersWhenCalling;
+                  }
+
+                  [groupCall addUser:neUsers];
+                  groupCall.modalPresentationStyle = UIModalPresentationOverFullScreen;
+                  groupCall.delegate = weakSelf;  // 设置代理
+
+                  [weakSelf showGroupCallView:groupCall];
+                }];
+}
+
+#pragma mark - 转换方法
+/// 将 V2NIMUser 转换为 NEGroupUser
+- (NEGroupUser *)convertV2NIMUserToGroupUser:(V2NIMUser *)v2User {
+  if (!v2User) {
+    return nil;
+  }
+
+  NEGroupUser *groupUser = [[NEGroupUser alloc] init];
+
+  // 基本属性转换
+  groupUser.mobile = v2User.mobile ?: @"";
+  groupUser.avatar = v2User.avatar ?: @"";
+  groupUser.nickname = v2User.name ?: @"";
+  groupUser.imAccid = v2User.accountId ?: @"";
+
+  // 群组呼叫状态初始化
+  groupUser.state = GroupMemberStateWaitting;
+  groupUser.uid = 0;  // 需要后续设置
+  groupUser.isShowLocalVideo = 0;
+  groupUser.isOpenVideo = NO;
+
+  return groupUser;
+}
+
+#pragma mark - NEGroupCallViewControllerDelegate
+
+- (void)inviteUsersWithCallId:(NSString *)callId
+                  inCallUsers:(NSArray<NSString *> *)inCallUsers
+                   completion:(void (^)(NSArray<NSString *> *_Nullable users))completion {
+  YXAlogInfo(@"NERtcCallUIKit 收到邀请用户请求，callId: %@, 当前通话用户数: %ld", callId,
+             (long)inCallUsers.count);
+  if (self.delegate &&
+      [self.delegate respondsToSelector:@selector(inviteUsersWithCallId:inCallUsers:completion:)]) {
+    [self.delegate inviteUsersWithCallId:callId inCallUsers:inCallUsers completion:completion];
+  }
 }
 
 @end

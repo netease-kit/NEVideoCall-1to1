@@ -3,11 +3,12 @@
 // found in the LICENSE file.
 
 #import <UIKit/UIKit.h>
+#import "NEGroupUser.h"
 NS_ASSUME_NONNULL_BEGIN
 
-@interface UserInCallCell : UICollectionViewCell
+@interface NEGroupUserViewCell : UICollectionViewCell
 
-- (void)configure:(NEUser *)user;
+- (void)configureWithUser:(NEGroupUser *)user;
 
 @end
 

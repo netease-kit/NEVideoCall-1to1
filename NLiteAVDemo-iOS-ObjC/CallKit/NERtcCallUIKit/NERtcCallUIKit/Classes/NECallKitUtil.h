@@ -15,6 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)setLanguage:(NECallUILanguage)language;
 
++ (void)makeToast:(NSString *)message;
+
 @end
 
 NS_ASSUME_NONNULL_END

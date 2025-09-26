@@ -55,6 +55,9 @@ typedef NS_ENUM(NSInteger, NECallUILanguage) {
 /// 国际化配置
 @property(nonatomic, assign) NECallUILanguage language;
 
+/// 是否开启群组通话邀请其他人功能，默认NO，不开启
+@property(nonatomic, assign) BOOL enableGroupCallInviteOthersWhenCalling;
+
 @end
 
 @interface NECallUIKitConfig : NSObject

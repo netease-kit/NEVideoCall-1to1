@@ -2,10 +2,10 @@
 // Use of this source code is governed by a MIT license that can be
 // found in the LICENSE file.
 
-#import "NESectionHeaderView.h"
+#import "SectionHeaderView.h"
 #import "NSMacro.h"
 
-@implementation NESectionHeaderView
+@implementation SectionHeaderView
 
 /*
 // Only override drawRect: if you perform custom drawing.

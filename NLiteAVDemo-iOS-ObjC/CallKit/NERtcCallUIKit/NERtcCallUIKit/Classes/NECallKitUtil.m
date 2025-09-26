@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #import "NECallKitUtil.h"
+#import <NECommonUIKit/UIView+YXToast.h>
 #import "NERtcCallUIKit.h"
 
 static NECallUILanguage _language = NECallUILanguageAuto;
@@ -49,4 +50,25 @@ static NECallUILanguage _language = NECallUILanguageAuto;
                                                                          table:@"Localizable"];
 }
 
++ (void)makeToast:(NSString *)message {
+  UIWindow *window = nil;
+  if (@available(iOS 13.0, *)) {
+    for (UIWindowScene *scene in UIApplication.sharedApplication.connectedScenes.allObjects) {
+      if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPhone ||
+          scene.activationState == UISceneActivationStateForegroundActive) {
+        window = [[UIWindow alloc] initWithWindowScene:(UIWindowScene *)scene];
+      }
+    }
+  }
+
+  if (!window) {
+    window = UIApplication.sharedApplication.keyWindow;
+  }
+
+  if (window) {
+    window.windowLevel = UIWindowLevelStatusBar - 1;
+    [window makeKeyAndVisible];
+    [window ne_makeToast:message];
+  }
+}
 @end

@@ -11,9 +11,9 @@
 #import "NERtcSettingViewController.h"
 #import "NESearchResultCell.h"
 #import "NESearchTask.h"
-#import "NESectionHeaderView.h"
 #import "NSArray+NTES.h"
 #import "NSMacro.h"
+#import "SectionHeaderView.h"
 
 @interface NERtcContactsViewController () <UITextFieldDelegate,
                                            NIMChatManagerDelegate,
@@ -40,11 +40,11 @@
 /// 通话记录
 @property(nonatomic, strong) NSMutableArray *recordData;
 
-@property(nonatomic, strong) NESectionHeaderView *resultHeader;
+@property(nonatomic, strong) SectionHeaderView *resultHeader;
 
-@property(nonatomic, strong) NESectionHeaderView *historyHeader;
+@property(nonatomic, strong) SectionHeaderView *historyHeader;
 
-@property(nonatomic, strong) NESectionHeaderView *recordHeader;
+@property(nonatomic, strong) SectionHeaderView *recordHeader;
 
 @end
 
@@ -459,21 +459,21 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
   if (section == 0) {
     if (self.searchResultData.count > 0) {
-      return NESectionHeaderView.height;
+      return SectionHeaderView.height;
     } else {
-      return NESectionHeaderView.hasContentHeight;
+      return SectionHeaderView.hasContentHeight;
     }
   }
 
   if (section == 1) {
     if (self.searchHistoryData.count > 0) {
-      return NESectionHeaderView.height;
+      return SectionHeaderView.height;
     }
   }
 
   if (section == 2) {
     if (self.recordData.count > 0) {
-      return NESectionHeaderView.height;
+      return SectionHeaderView.height;
     }
   }
 
@@ -484,11 +484,11 @@
   if (section == 0) {
     if (self.searchResultData.count > 0) {
       self.resultHeader.frame =
-          CGRectMake(0, 0, self.view.frame.size.width, NESectionHeaderView.height);
+          CGRectMake(0, 0, self.view.frame.size.width, SectionHeaderView.height);
       [self.resultHeader.contentLabel setHidden:YES];
     } else {
       self.resultHeader.frame =
-          CGRectMake(0, 0, self.view.frame.size.width, NESectionHeaderView.hasContentHeight);
+          CGRectMake(0, 0, self.view.frame.size.width, SectionHeaderView.hasContentHeight);
       [self.resultHeader.contentLabel setHidden:NO];
     }
     return self.resultHeader;
@@ -544,29 +544,29 @@
   return _contentTable;
 }
 
-- (NESectionHeaderView *)resultHeader {
+- (SectionHeaderView *)resultHeader {
   if (nil == _resultHeader) {
-    _resultHeader = [[NESectionHeaderView alloc] init];
-    _resultHeader.frame = CGRectMake(0, 0, self.view.frame.size.width, NESectionHeaderView.height);
+    _resultHeader = [[SectionHeaderView alloc] init];
+    _resultHeader.frame = CGRectMake(0, 0, self.view.frame.size.width, SectionHeaderView.height);
     _resultHeader.contentLabel.text = @"无";
     _resultHeader.titleLabel.text = @"搜索结果";
   }
   return _resultHeader;
 }
 
-- (NESectionHeaderView *)historyHeader {
+- (SectionHeaderView *)historyHeader {
   if (nil == _historyHeader) {
-    _historyHeader = [[NESectionHeaderView alloc] init];
-    _historyHeader.frame = CGRectMake(0, 0, self.view.frame.size.width, NESectionHeaderView.height);
+    _historyHeader = [[SectionHeaderView alloc] init];
+    _historyHeader.frame = CGRectMake(0, 0, self.view.frame.size.width, SectionHeaderView.height);
     _historyHeader.titleLabel.text = @"最近搜索";
   }
   return _historyHeader;
 }
 
-- (NESectionHeaderView *)recordHeader {
+- (SectionHeaderView *)recordHeader {
   if (nil == _recordHeader) {
-    _recordHeader = [[NESectionHeaderView alloc] init];
-    _recordHeader.frame = CGRectMake(0, 0, self.view.frame.size.width, NESectionHeaderView.height);
+    _recordHeader = [[SectionHeaderView alloc] init];
+    _recordHeader.frame = CGRectMake(0, 0, self.view.frame.size.width, SectionHeaderView.height);
     _recordHeader.titleLabel.text = @"通话记录";
   }
   return _recordHeader;

@@ -3,11 +3,16 @@
 // found in the LICENSE file.
 
 #import "NEGroupCalledViewController.h"
+#import <Masonry/Masonry.h>
 #import "NEGroupUserController.h"
+// #import <NERtcSDK/NERtcSDK.h>
+#import <SDWebImage/SDWebImage.h>
+#import "NECallUIKitMacro.h"
+#import "NECustomButton.h"
 
 @interface NEGroupCalledViewController ()
 
-@property(nonatomic, strong) NEUser *caller;
+@property(nonatomic, strong) NEGroupUser *caller;
 
 @property(nonatomic, strong) UIImageView *bgImageView;
 /// 拒绝接听
@@ -34,7 +39,7 @@
 
 @implementation NEGroupCalledViewController
 
-- (instancetype)initWithCaller:(NEUser *)caller {
+- (instancetype)initWithCaller:(NEGroupUser *)caller {
   self = [super init];
   if (self) {
     self.caller = caller;
@@ -118,9 +123,19 @@
     make.size.mas_equalTo(buttonSize);
   }];
 
-  [self.bgImageView sd_setImageWithURL:[NSURL URLWithString:self.caller.avatar]];
-  [self.callerImageView sd_setImageWithURL:[NSURL URLWithString:self.caller.avatar]];
-  self.callerNameLabel.text = self.caller.mobile;
+  [self.bgImageView
+      sd_setImageWithURL:[NSURL URLWithString:nil]
+        placeholderImage:[UIImage imageNamed:@"avator"
+                                                  inBundle:[NSBundle bundleForClass:[NERtcCallUIKit
+                                                                                        class]]
+                             compatibleWithTraitCollection:nil]];
+  [self.callerImageView
+      sd_setImageWithURL:[NSURL URLWithString:self.caller.avatar]
+        placeholderImage:[UIImage imageNamed:@"avator"
+                                                  inBundle:[NSBundle bundleForClass:[NERtcCallUIKit
+                                                                                        class]]
+                             compatibleWithTraitCollection:nil]];
+  self.callerNameLabel.text = self.caller.nickname;
 }
 
 - (void)removeSelf {
@@ -128,7 +143,7 @@
   [self.view removeFromSuperview];
 }
 
-- (void)changeUsers:(NSArray<NEUser *> *)users {
+- (void)changeUsers:(NSArray<NEGroupUser *> *)users {
   [self.userController removeAllUsers];
   [self.userController addUsers:users];
   if ([self.userController getAllUsers].count > 0) {
@@ -177,7 +192,10 @@
   if (!_rejectBtn) {
     _rejectBtn = [[NECustomButton alloc] init];
     _rejectBtn.titleLabel.text = @"拒绝";
-    _rejectBtn.imageView.image = [UIImage imageNamed:@"call_cancel"];
+    _rejectBtn.imageView.image =
+        [UIImage imageNamed:@"call_cancel"
+                                 inBundle:[NSBundle bundleForClass:[NERtcCallUIKit class]]
+            compatibleWithTraitCollection:nil];
     [_rejectBtn.maskBtn addTarget:self
                            action:@selector(rejectEvent:)
                  forControlEvents:UIControlEventTouchUpInside];
@@ -189,7 +207,10 @@
   if (!_acceptBtn) {
     _acceptBtn = [[NECustomButton alloc] init];
     _acceptBtn.titleLabel.text = @"接听";
-    _acceptBtn.imageView.image = [UIImage imageNamed:@"call_accept"];
+    _acceptBtn.imageView.image =
+        [UIImage imageNamed:@"call_accept"
+                                 inBundle:[NSBundle bundleForClass:[NERtcCallUIKit class]]
+            compatibleWithTraitCollection:nil];
     _acceptBtn.imageView.contentMode = UIViewContentModeCenter;
     _acceptBtn.accessibilityIdentifier = @"accept";
     [_acceptBtn.maskBtn addTarget:self
@@ -212,7 +233,9 @@
 - (UIImageView *)callerImageView {
   if (nil == _callerImageView) {
     _callerImageView = [[UIImageView alloc] init];
-    _callerImageView.image = [UIImage imageNamed:@"avator"];
+    _callerImageView.image = [UIImage imageNamed:@"avator"
+                                        inBundle:[NSBundle bundleForClass:[NERtcCallUIKit class]]
+                   compatibleWithTraitCollection:nil];
     _callerImageView.clipsToBounds = YES;
     _callerImageView.layer.cornerRadius = self.radius;
   }

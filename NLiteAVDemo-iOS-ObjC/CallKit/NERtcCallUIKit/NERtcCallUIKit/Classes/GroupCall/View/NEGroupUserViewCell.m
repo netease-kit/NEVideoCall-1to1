@@ -2,17 +2,17 @@
 // Use of this source code is governed by a MIT license that can be
 // found in the LICENSE file.
 
-#import "GroupUserViewCell.h"
+#import "NEGroupUserViewCell.h"
 #import <Masonry/Masonry.h>
 #import <SDWebImage/SDWebImage.h>
 
-@interface GroupUserViewCell ()
+@interface NEGroupUserViewCell ()
 
 @property(nonatomic, strong) UIImageView *userHeader;
 
 @end
 
-@implementation GroupUserViewCell
+@implementation NEGroupUserViewCell
 
 - (instancetype)initWithFrame:(CGRect)frame {
   self = [super initWithFrame:frame];
@@ -33,7 +33,7 @@
   }];
 }
 
-- (void)configureWithUser:(NEUser *)user {
+- (void)configureWithUser:(NEGroupUser *)user {
   [self.userHeader sd_setImageWithURL:[NSURL URLWithString:user.avatar]];
 }
 

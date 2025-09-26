@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #import <UIKit/UIKit.h>
-#import "NEUser.h"
+#import "NEGroupUser.h"
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol NEGroupCalledDelegate <NSObject>
@@ -18,9 +18,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, weak) id<NEGroupCalledDelegate> delegate;
 
-- (instancetype)initWithCaller:(NEUser *)caller;
+- (instancetype)initWithCaller:(NEGroupUser *)caller;
 
-- (void)changeUsers:(NSArray<NEUser *> *)users;
+- (void)changeUsers:(NSArray<NEGroupUser *> *)users;
 
 @end
 

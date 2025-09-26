@@ -5,8 +5,8 @@ source 'https://github.com/CocoaPods/Specs.git'
 target 'NLiteAVDemo' do
   use_frameworks!
   # 云信基础SDK
-  pod 'NERtcSDK', '5.9.5'
-  pod 'NIMSDK_LITE', '10.9.10'
+  pod 'NERtcSDK', '5.9.10'
+  pod 'NIMSDK_LITE', '10.9.42'
   
   pod 'NECallKitPstn', :path => 'CallKit/NECallKitPstn/NECallKitPstn.podspec'
 
@@ -14,10 +14,10 @@ target 'NLiteAVDemo' do
   pod 'Masonry'
   
   #呼叫组件API组件
-  pod 'NERtcCallKit', '3.6.0'
+  pod 'NERtcCallKit', '3.7.0'
   
   #呼叫组件UI组件
-  pod 'NERtcCallUIKit', '3.6.0'
+  pod 'NERtcCallUIKit', '3.7.0'
   
   #如果需要查看呼叫组件UI组件源码请注释远端引用，打开下面本地引用
   #pod 'NERtcCallUIKit', :path => 'CallKit/NERtcCallUIKit/NERtcCallUIKit.podspec'

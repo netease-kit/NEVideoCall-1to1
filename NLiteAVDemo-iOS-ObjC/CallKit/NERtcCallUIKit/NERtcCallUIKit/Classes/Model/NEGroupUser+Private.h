@@ -2,14 +2,14 @@
 // Use of this source code is governed by a MIT license that can be
 // found in the LICENSE file.
 
-#import <UIKit/UIKit.h>
-#import "NEUser.h"
+#import "NEGroupUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GroupInCallViewCell : UICollectionViewCell
+@interface NEGroupUser (Private)
 
-- (void)configure:(NSArray<NEUser *> *)users;
+/// 原始位置索引（用于布局管理，内部使用）
+@property(assign, nonatomic) NSInteger originalIndex;
 
 @end
 
