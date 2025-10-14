@@ -69,7 +69,7 @@ class CallsFunctionWidget {
           children: [
             ExtendButton(
               imgUrl: "assets/images/hangup.png",
-              tips: CallKitUIL10n.localizations.hangUp,
+              tips: NECallKitUI.localizations.hangUp,
               textColor: Colors.white,
               imgHeight: 64,
               onTap: () {
@@ -78,7 +78,7 @@ class CallsFunctionWidget {
             ),
             ExtendButton(
               imgUrl: "assets/images/dialing.png",
-              tips: CallKitUIL10n.localizations.accept,
+              tips: NECallKitUI.localizations.accept,
               textColor: Colors.white,
               imgHeight: 64,
               onTap: () {
@@ -133,8 +133,8 @@ class CallsFunctionWidget {
                             : "assets/images/mute.png",
                         tips: CallsWidget.isFunctionExpand
                             ? (CallState.instance.isMicrophoneMute
-                                ? CallKitUIL10n.localizations.microphoneIsOff
-                                : CallKitUIL10n.localizations.microphoneIsOn)
+                                ? NECallKitUI.localizations.microphoneIsOff
+                                : NECallKitUI.localizations.microphoneIsOn)
                             : '',
                         textColor: Colors.white,
                         imgHeight: CallsWidget.isFunctionExpand
@@ -164,8 +164,8 @@ class CallsFunctionWidget {
                             : "assets/images/handsfree.png",
                         tips: CallsWidget.isFunctionExpand
                             ? (CallState.instance.isEnableSpeaker
-                                ? CallKitUIL10n.localizations.speakerIsOn
-                                : CallKitUIL10n.localizations.speakerIsOff)
+                                ? NECallKitUI.localizations.speakerIsOn
+                                : NECallKitUI.localizations.speakerIsOff)
                             : '',
                         textColor: Colors.white,
                         imgHeight: CallsWidget.isFunctionExpand
@@ -195,8 +195,8 @@ class CallsFunctionWidget {
                             : "assets/images/camera_off.png",
                         tips: CallsWidget.isFunctionExpand
                             ? (CallState.instance.isCameraOpen
-                                ? CallKitUIL10n.localizations.cameraIsOn
-                                : CallKitUIL10n.localizations.cameraIsOff)
+                                ? NECallKitUI.localizations.cameraIsOn
+                                : NECallKitUI.localizations.cameraIsOff)
                             : '',
                         textColor: Colors.white,
                         imgHeight: CallsWidget.isFunctionExpand
@@ -368,7 +368,7 @@ class CallsFunctionWidget {
           children: [
             ExtendButton(
               imgUrl: "assets/images/hangup.png",
-              tips: CallKitUIL10n.localizations.hangUp,
+              tips: NECallKitUI.localizations.hangUp,
               textColor: _getTextColor(),
               imgHeight: 60,
               onTap: () {
@@ -377,7 +377,7 @@ class CallsFunctionWidget {
             ),
             ExtendButton(
               imgUrl: "assets/images/dialing.png",
-              tips: CallKitUIL10n.localizations.accept,
+              tips: NECallKitUI.localizations.accept,
               textColor: _getTextColor(),
               imgHeight: 60,
               onTap: () {
@@ -418,8 +418,8 @@ class CallsFunctionWidget {
           ? "assets/images/handsfree_on.png"
           : "assets/images/handsfree.png",
       tips: CallState.instance.isEnableSpeaker
-          ? CallKitUIL10n.localizations.speakerIsOn
-          : CallKitUIL10n.localizations.speakerIsOff,
+          ? NECallKitUI.localizations.speakerIsOn
+          : NECallKitUI.localizations.speakerIsOff,
       textColor: _getTextColor(),
       imgHeight: 60,
       onTap: () {
@@ -434,8 +434,8 @@ class CallsFunctionWidget {
           ? "assets/images/camera_on.png"
           : "assets/images/camera_off.png",
       tips: CallState.instance.isCameraOpen
-          ? CallKitUIL10n.localizations.cameraIsOn
-          : CallKitUIL10n.localizations.cameraIsOff,
+          ? NECallKitUI.localizations.cameraIsOn
+          : NECallKitUI.localizations.cameraIsOff,
       textColor: _getTextColor(),
       imgHeight: 60,
       onTap: () {
@@ -450,8 +450,8 @@ class CallsFunctionWidget {
           ? "assets/images/mute_on.png"
           : "assets/images/mute.png",
       tips: CallState.instance.isMicrophoneMute
-          ? CallKitUIL10n.localizations.microphoneIsOff
-          : CallKitUIL10n.localizations.microphoneIsOn,
+          ? NECallKitUI.localizations.microphoneIsOff
+          : NECallKitUI.localizations.microphoneIsOn,
       textColor: _getTextColor(),
       imgHeight: 60,
       onTap: () {
@@ -463,7 +463,7 @@ class CallsFunctionWidget {
   static Widget _buildHangupButton(Function close) {
     return ExtendButton(
       imgUrl: "assets/images/hangup.png",
-      tips: CallKitUIL10n.localizations.hangUp,
+      tips: NECallKitUI.localizations.hangUp,
       textColor: _getTextColor(),
       imgHeight: 60,
       onTap: () {
@@ -503,7 +503,7 @@ class CallsFunctionWidget {
       imgUrl: CallState.instance.enableBlurBackground
           ? "assets/images/blur_background_waiting_enable.png"
           : "assets/images/blur_background_waiting_disable.png",
-      tips: CallKitUIL10n.localizations.blurBackground,
+      tips: NECallKitUI.localizations.blurBackground,
       textColor: _getTextColor(),
       imgHeight: 60,
       onTap: () {
@@ -515,7 +515,7 @@ class CallsFunctionWidget {
   static Widget _buildSwitchCameraButton() {
     return ExtendButton(
       imgUrl: "assets/images/switch_camera_group.png",
-      tips: CallKitUIL10n.localizations.switchCamera,
+      tips: NECallKitUI.localizations.switchCamera,
       textColor: _getTextColor(),
       imgHeight: 60,
       onTap: () {
@@ -553,7 +553,7 @@ class CallsFunctionWidget {
       }
     } else {
       CallManager.instance
-          .showToast(CallKitUIL10n.localizations.insufficientPermissions);
+          .showToast(NECallKitUI.localizations.insufficientPermissions);
     }
     NEEventNotify().notify(setStateEvent);
   }

@@ -4,12 +4,9 @@
 
 import 'dart:async';
 import 'dart:io';
-
 import 'package:netease_callkit/netease_callkit.dart';
 import 'package:netease_callkit_ui/ne_callkit_ui.dart';
-import 'package:netease_callkit_ui/src/call_define.dart';
 import 'package:netease_callkit_ui/src/event/event_notify.dart';
-import 'package:netease_callkit_ui/src/impl/call_manager.dart';
 import 'package:netease_callkit_ui/src/data/constants.dart';
 import 'package:netease_callkit_ui/src/data/user.dart';
 import 'package:netease_callkit_ui/src/extensions/calling_bell_feature.dart';
@@ -95,12 +92,12 @@ class CallState {
       CallKitUILog.i(_tag,
           'NECallObserver onCallEnd(reasonCode:${info.reasonCode}, message:${info.message})');
       if (info.reasonCode == NECallTerminalCode.busy) {
-        CallManager.instance.showToast(CallKitUIL10n.localizations.userBusy);
+        CallManager.instance.showToast(NECallKitUI.localizations.userBusy);
       } else if (info.reasonCode == NECallTerminalCode.calleeReject ||
           info.reasonCode == NECallTerminalCode.callerRejected) {
         if (CallState.instance.selfUser.callRole == NECallRole.caller) {
           CallManager.instance
-              .showToast(CallKitUIL10n.localizations.remoteUserReject);
+              .showToast(NECallKitUI.localizations.remoteUserReject);
         }
       } else {
         CallKitUILog.i(_tag, 'NECallObserver onCallEnd: ${info.reasonCode}');
@@ -202,11 +199,12 @@ class CallState {
   void init() {}
 
   Future<void> registerEngineObserver() async {
-    CallKitUILog.i(_tag, 'CallState registerEngineObserver');
+    CallKitUILog.i(_tag, 'registerEngineObserver');
     NECallEngine.instance.addCallDelegate(observer);
   }
 
   void unRegisterEngineObserver() {
+    CallKitUILog.i(_tag, 'unRegisterEngineObserver');
     NECallEngine.instance.removeCallDelegate(observer);
   }
 

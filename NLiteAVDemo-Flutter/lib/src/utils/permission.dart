@@ -21,26 +21,26 @@ enum PermissionType {
 class PermissionUtils {
   static String getPermissionRequestTitle(NECallType type) {
     if (NECallType.audio == type) {
-      return CallKitUIL10n.localizations.applyForMicrophonePermission;
+      return NECallKitUI.localizations.applyForMicrophonePermission;
     } else {
-      return CallKitUIL10n.localizations.applyForMicrophoneAndCameraPermissions;
+      return NECallKitUI.localizations.applyForMicrophoneAndCameraPermissions;
     }
   }
 
   static String getPermissionRequestDescription(NECallType type) {
     if (NECallType.audio == type) {
-      return CallKitUIL10n.localizations.needToAccessMicrophonePermission;
+      return NECallKitUI.localizations.needToAccessMicrophonePermission;
     } else {
-      return CallKitUIL10n
+      return NECallKitUI
           .localizations.needToAccessMicrophoneAndCameraPermissions;
     }
   }
 
   static String getPermissionRequestSettingsTip(NECallType type) {
     if (NECallType.audio == type) {
-      return "${CallKitUIL10n.localizations.applyForMicrophonePermission}\n${CallKitUIL10n.localizations.needToAccessMicrophonePermission}";
+      return "${NECallKitUI.localizations.applyForMicrophonePermission}\n${NECallKitUI.localizations.needToAccessMicrophonePermission}";
     } else {
-      return "${CallKitUIL10n.localizations.applyForMicrophoneAndCameraPermissions}\n${CallKitUIL10n.localizations.needToAccessMicrophoneAndCameraPermissions}";
+      return "${NECallKitUI.localizations.applyForMicrophoneAndCameraPermissions}\n${NECallKitUI.localizations.needToAccessMicrophoneAndCameraPermissions}";
     }
   }
 }
@@ -48,26 +48,26 @@ class PermissionUtils {
 class Permission {
   static String getPermissionRequestTitle(NECallType type) {
     if (NECallType.audio == type) {
-      return CallKitUIL10n.localizations.applyForMicrophonePermission;
+      return NECallKitUI.localizations.applyForMicrophonePermission;
     } else {
-      return CallKitUIL10n.localizations.applyForMicrophoneAndCameraPermissions;
+      return NECallKitUI.localizations.applyForMicrophoneAndCameraPermissions;
     }
   }
 
   static String getPermissionRequestDescription(NECallType type) {
     if (NECallType.audio == type) {
-      return CallKitUIL10n.localizations.needToAccessMicrophonePermission;
+      return NECallKitUI.localizations.needToAccessMicrophonePermission;
     } else {
-      return CallKitUIL10n
+      return NECallKitUI
           .localizations.needToAccessMicrophoneAndCameraPermissions;
     }
   }
 
   static String getPermissionRequestSettingsTip(NECallType type) {
     if (NECallType.audio == type) {
-      return "${CallKitUIL10n.localizations.applyForMicrophonePermission}\n${CallKitUIL10n.localizations.needToAccessMicrophonePermission}";
+      return "${NECallKitUI.localizations.applyForMicrophonePermission}\n${NECallKitUI.localizations.needToAccessMicrophonePermission}";
     } else {
-      return "${CallKitUIL10n.localizations.applyForMicrophoneAndCameraPermissions}\n${CallKitUIL10n.localizations.needToAccessMicrophoneAndCameraPermissions}";
+      return "${NECallKitUI.localizations.applyForMicrophoneAndCameraPermissions}\n${NECallKitUI.localizations.needToAccessMicrophoneAndCameraPermissions}";
     }
   }
 

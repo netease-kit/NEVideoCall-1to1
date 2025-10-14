@@ -1,4 +1,10 @@
-## 3.6.2+1
+## 3.6.2+3
+### Changed
+- 多语言优化
+### Fixed
+- 修复了修复只调用setupEngine情况下，无法展示被呼叫页面的case
+
+## 3.6.2+2
 ### Added
 - 不再依赖permission_handler
 
