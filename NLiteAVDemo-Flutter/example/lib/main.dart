@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
       home: const WelcomePage(),
       onGenerateRoute: (settings) {
         WidgetBuilder builder =
-        RoutesRegister.routes(settings)[settings.name] as WidgetBuilder;
+            RoutesRegister.routes(settings)[settings.name] as WidgetBuilder;
         return MaterialPageRoute(
           builder: (ctx) => builder(ctx),
           settings: RouteSettings(name: settings.name),
@@ -90,12 +90,12 @@ class _WelcomePageState extends State<WelcomePage> {
       if (value) {
         Navigator.of(context).pushNamedAndRemoveUntil(
           RouterName.homePage,
-              (route) => false,
+          (route) => false,
         );
       } else {
         Navigator.of(context).pushNamedAndRemoveUntil(
           RouterName.loginPage,
-              (route) => false,
+          (route) => false,
         );
       }
     });

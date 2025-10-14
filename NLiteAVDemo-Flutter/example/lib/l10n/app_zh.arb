@@ -56,6 +56,10 @@
   "extended_info_settings": "扩展信息设置",
   "offline_push_info_settings": "离线推送消息设置",
   "please_enter": "请输入",
+  "call_records": "通话记录",
+  "clear": "清除",
+  "login_info": "登录信息",
+  "app_info": "应用信息",
   "show_blur_background_button": "显示模糊背景按钮",
   "show_incoming_banner": "显示来电横幅",
   "optional_parameters": "可选参数"

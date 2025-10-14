@@ -221,7 +221,7 @@ class _SingleCallWidgetState extends State<SingleCallWidget> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '通话记录',
+                  AppLocalizations.of(context)!.call_records,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -231,9 +231,9 @@ class _SingleCallWidgetState extends State<SingleCallWidget> {
                 if (_callRecords.isNotEmpty)
                   GestureDetector(
                     onTap: _clearCallRecords,
-                    child: const Text(
-                      '清除',
-                      style: TextStyle(
+                    child: Text(
+                      AppLocalizations.of(context)!.clear,
+                      style: const TextStyle(
                         fontSize: 14,
                         color: Color(0xff056DF6),
                       ),

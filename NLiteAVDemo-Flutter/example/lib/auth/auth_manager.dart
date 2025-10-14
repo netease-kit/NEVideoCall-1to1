@@ -4,7 +4,6 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'package:callkit_example/auth/proto/base_proto.dart';
 import 'package:callkit_example/config/app_config.dart';
 import 'package:callkit_example/settings/settings_config.dart';
 import 'package:netease_callkit_ui/ne_callkit_ui.dart';
@@ -62,8 +61,8 @@ class AuthManager {
     return Future.value(result.code == 0);
   }
 
-  Future<Result<void>> loginCallKitWithToken(LoginInfo loginInfo) async {
-    var completer = Completer<Result<void>>();
+  Future<NEResult> loginCallKitWithToken(LoginInfo loginInfo) async {
+    var completer = Completer<NEResult>();
 
     // 创建证书配置
     final certificateConfig = NECertificateConfig(
@@ -90,7 +89,7 @@ class AuthManager {
         _syncAuthInfo(loginInfo);
       }
       return completer
-          .complete(Result(code: value.code, msg: value.message ?? ''));
+          .complete(NEResult(code: value.code, message: value.message ?? ''));
     });
     return completer.future;
   }
