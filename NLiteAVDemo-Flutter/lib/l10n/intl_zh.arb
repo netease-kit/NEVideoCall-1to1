@@ -1,5 +1,9 @@
 {
   "youHaveANewCall": "您有一个新的通话",
+  "initEngineFail": "引擎初始化失败",
+  "callFailedUserIdEmpty": "呼叫失败，用户ID为空",
+  "permissionResultFail": "权限校验失败",
+  "startCameraPermissionDenied": "启动摄像头权限被拒绝",
   "applyForMicrophonePermission": "申请麦克风权限",
   "applyForMicrophoneAndCameraPermissions": "申请麦克风、摄像头权限",
   "needToAccessMicrophonePermission": "需要访问您的麦克风权限，开启后用于语音通话、视频通话等功能。请点击“前往设置”按钮进入权限相关页面，进行设置。",

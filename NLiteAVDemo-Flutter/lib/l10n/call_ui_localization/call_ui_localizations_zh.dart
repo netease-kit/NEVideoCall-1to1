@@ -12,6 +12,18 @@ class CallKitClientLocalizationsZh extends CallKitClientLocalizations {
   String get youHaveANewCall => '您有一个新的通话';
 
   @override
+  String get initEngineFail => '引擎初始化失败';
+
+  @override
+  String get callFailedUserIdEmpty => '呼叫失败，用户ID为空';
+
+  @override
+  String get permissionResultFail => '权限校验失败';
+
+  @override
+  String get startCameraPermissionDenied => '启动摄像头权限被拒绝';
+
+  @override
   String get applyForMicrophonePermission => '申请麦克风权限';
 
   @override

@@ -62,5 +62,14 @@
   "app_info": "App Info",
   "show_blur_background_button": "Show blur background",
   "show_incoming_banner": "Show incoming banner",
-  "optional_parameters": "Optional parameters"
+  "optional_parameters": "Optional parameters",
+  "how_to_get_account_token": "How to get NetEase account and Token",
+  "sample_login_desc": "Please enter your NetEase account and Token to start exploring",
+  "enter_account": "Please enter account",
+  "enter_token": "Please enter Token",
+  "please_enter_account": "Please enter NetEase account",
+  "please_enter_token": "Please enter account Token",
+  "start_exploring": "Start Exploring",
+  "login_success": "Login successful",
+  "login_failed": "Login failed"
 }

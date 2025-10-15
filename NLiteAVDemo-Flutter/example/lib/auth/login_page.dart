@@ -4,7 +4,7 @@
 
 import 'package:callkit_example/auth/login_info.dart';
 import 'package:flutter/material.dart';
-import '../../constants/strings.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'auth_manager.dart';
 import '../../utils/loading.dart';
 import '../../utils/toast_utils.dart';
@@ -21,8 +21,6 @@ class LoginRoute extends StatefulWidget {
 }
 
 class LoginState extends State<LoginRoute> {
-  static const _tag = 'SampleLoginState';
-
   final TextEditingController _accountIdController = TextEditingController();
   final TextEditingController _tokenController = TextEditingController();
 
@@ -42,127 +40,141 @@ class LoginState extends State<LoginRoute> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromRGBO(239, 241, 244, 1),
+      resizeToAvoidBottomInset: true,
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
           FocusScope.of(context).unfocus();
         },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            const Align(
-              alignment: Alignment.center,
-              child: SizedBox(
-                height: 200,
-                child: Icon(
-                  Icons.phone_android,
-                  size: 100,
-                  color: Colors.blue,
-                ),
-              ),
-            ),
-            // Link to open registration doc in external browser
-            Container(
-              margin: const EdgeInsets.only(left: 30, top: 12, right: 30),
-              child: GestureDetector(
-                onTap: () async {
-                  final uri = Uri.parse(
-                      'https://doc.yunxin.163.com/messaging2/guide/jU0Mzg0MTU?platform=client#%E7%AC%AC%E4%BA%8C%E6%AD%A5%E6%B3%A8%E5%86%8C-im-%E8%B4%A6%E5%8F%B7');
-                  await launchUrl(uri, mode: LaunchMode.externalApplication);
-                },
-                child: const Text(
-                  '如何获取云信账号与Token',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
+        child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              const Align(
+                alignment: Alignment.center,
+                child: SizedBox(
+                  height: 200,
+                  child: Icon(
+                    Icons.phone_android,
+                    size: 100,
                     color: Colors.blue,
-                    decoration: TextDecoration.underline,
                   ),
                 ),
               ),
-            ),
-            const Align(
-              alignment: Alignment.center,
-              child: SizedBox(
-                height: 20,
-                child: Text(Strings.sampleLoginDesc),
-              ),
-            ),
-            Container(
-              margin: const EdgeInsets.only(left: 30, top: 50, right: 30),
-              child: Material(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                child: TextField(
-                  controller: _accountIdController,
-                  decoration: const InputDecoration(
-                    hintText: '请输入账号',
-                    border: OutlineInputBorder(),
-                    contentPadding:
-                    EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                ),
-              ),
-            ),
-            Container(
-              margin: const EdgeInsets.only(left: 30, top: 50, right: 30),
-              child: Material(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                child: TextField(
-                  controller: _tokenController,
-                  decoration: const InputDecoration(
-                    hintText: '请输入Token',
-                    border: OutlineInputBorder(),
-                    contentPadding:
-                    EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                ),
-              ),
-            ),
-
-            Container(
-              height: 50,
-              margin: const EdgeInsets.only(left: 30, top: 250, right: 30),
-              child: ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor:
-                  MaterialStateProperty.resolveWith<Color>((states) {
-                    if (states.contains(MaterialState.disabled)) {
-                      return Colors.blue.withOpacity(0.5);
+              // Link to open registration doc in external browser
+              Container(
+                margin: const EdgeInsets.only(left: 30, top: 12, right: 30),
+                child: GestureDetector(
+                  onTap: () async {
+                    try {
+                      final uri = Uri.parse(
+                          'https://doc.yunxin.163.com/messaging2/guide/jU0Mzg0MTU?platform=client#%E7%AC%AC%E4%BA%8C%E6%AD%A5%E6%B3%A8%E5%86%8C-im-%E8%B4%A6%E5%8F%B7');
+                      await launchUrl(uri,
+                          mode: LaunchMode.externalApplication);
+                    } catch (e) {
+                      print('Failed to launch URL: $e');
                     }
-                    return Colors.blue;
-                  }),
-                  padding: MaterialStateProperty.all(
-                    const EdgeInsets.symmetric(vertical: 13),
-                  ),
-                  shape: MaterialStateProperty.all(
-                    const RoundedRectangleBorder(
-                      side: BorderSide(color: Colors.blue, width: 0),
-                      borderRadius: BorderRadius.all(Radius.circular(25)),
+                  },
+                  child: Text(
+                    AppLocalizations.of(context)!.how_to_get_account_token,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
                     ),
                   ),
                 ),
-                onPressed: () {
-                  final accountId = _accountIdController.text.trim();
-                  if (accountId.isEmpty) {
-                    ToastUtils.showToast(context, '请输入云信账号');
-                    return;
-                  }
-                  final token = _tokenController.text.trim();
-                  if (token.isEmpty) {
-                    ToastUtils.showToast(context, '请输入账号对应的Token');
-                    return;
-                  }
-                  login(accountId, token);
-                },
-                child: const Text(
-                  Strings.startExploring,
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                  textAlign: TextAlign.center,
+              ),
+              Align(
+                alignment: Alignment.center,
+                child: SizedBox(
+                  height: 20,
+                  child: Text(AppLocalizations.of(context)!.sample_login_desc),
                 ),
               ),
-            ),
-          ],
+              Container(
+                margin: const EdgeInsets.only(left: 30, top: 50, right: 30),
+                child: Material(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  child: TextField(
+                    controller: _accountIdController,
+                    decoration: InputDecoration(
+                      hintText: AppLocalizations.of(context)!.enter_account,
+                      border: const OutlineInputBorder(),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.only(left: 30, top: 50, right: 30),
+                child: Material(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  child: TextField(
+                    controller: _tokenController,
+                    decoration: InputDecoration(
+                      hintText: AppLocalizations.of(context)!.enter_token,
+                      border: const OutlineInputBorder(),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                    ),
+                  ),
+                ),
+              ),
+
+              Container(
+                height: 50,
+                margin: const EdgeInsets.only(left: 30, top: 250, right: 30),
+                child: ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.resolveWith<Color>((states) {
+                      if (states.contains(MaterialState.disabled)) {
+                        return Colors.blue.withOpacity(0.5);
+                      }
+                      return Colors.blue;
+                    }),
+                    padding: MaterialStateProperty.all(
+                      const EdgeInsets.symmetric(vertical: 13),
+                    ),
+                    shape: MaterialStateProperty.all(
+                      const RoundedRectangleBorder(
+                        side: BorderSide(color: Colors.blue, width: 0),
+                        borderRadius: BorderRadius.all(Radius.circular(25)),
+                      ),
+                    ),
+                  ),
+                  onPressed: () {
+                    final accountId = _accountIdController.text.trim();
+                    if (accountId.isEmpty) {
+                      ToastUtils.showToast(context,
+                          AppLocalizations.of(context)!.please_enter_account);
+                      return;
+                    }
+                    final token = _tokenController.text.trim();
+                    if (token.isEmpty) {
+                      ToastUtils.showToast(context,
+                          AppLocalizations.of(context)!.please_enter_token);
+                      return;
+                    }
+                    login(accountId, token);
+                  },
+                  child: Text(
+                    AppLocalizations.of(context)!.start_exploring,
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -183,12 +195,13 @@ class LoginState extends State<LoginRoute> {
       print('loginCallKitWithToken result = ${result.code}');
       LoadingUtil.hideLoading();
       if (result.code == 0) {
-        ToastUtils.showToast(context, Strings.loginSuccess);
+        ToastUtils.showToast(
+            context, AppLocalizations.of(context)!.login_success);
         Navigator.of(context).pop();
         Navigator.of(context).pushNamed(RouterName.homePage);
       } else {
         ToastUtils.showToast(context,
-            "${Strings.loginFailed} code = ${result.code}, msg = ${result.message}");
+            "${AppLocalizations.of(context)!.login_failed} code = ${result.code}, msg = ${result.message}");
       }
     });
   }

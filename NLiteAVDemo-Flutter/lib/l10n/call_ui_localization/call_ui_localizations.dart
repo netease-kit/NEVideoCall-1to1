@@ -107,59 +107,83 @@ abstract class CallKitClientLocalizations {
   /// **'You have a new call'**
   String get youHaveANewCall;
 
+  /// No description provided for @initEngineFail.
+  ///
+  /// In en, this message translates to:
+  /// **'Init engine failed'**
+  String get initEngineFail;
+
+  /// No description provided for @callFailedUserIdEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Call failed, userId is empty'**
+  String get callFailedUserIdEmpty;
+
+  /// No description provided for @permissionResultFail.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission result fail'**
+  String get permissionResultFail;
+
+  /// No description provided for @startCameraPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Start camera permission denied.'**
+  String get startCameraPermissionDenied;
+
   /// No description provided for @applyForMicrophonePermission.
   ///
   /// In en, this message translates to:
-  /// **'youHaveANewCall'**
+  /// **'apply for microphone permission'**
   String get applyForMicrophonePermission;
 
   /// No description provided for @applyForMicrophoneAndCameraPermissions.
   ///
   /// In en, this message translates to:
-  /// **'youHaveANewCall'**
+  /// **'apply for microphone and camera permissions'**
   String get applyForMicrophoneAndCameraPermissions;
 
   /// No description provided for @needToAccessMicrophonePermission.
   ///
   /// In en, this message translates to:
-  /// **'youHaveANewCall'**
+  /// **'need to access microphone permission'**
   String get needToAccessMicrophonePermission;
 
   /// No description provided for @errorInPeerBlacklist.
   ///
   /// In en, this message translates to:
-  /// **'youHaveANewCall'**
+  /// **'error in peer blacklist'**
   String get errorInPeerBlacklist;
 
   /// No description provided for @insufficientPermissions.
   ///
   /// In en, this message translates to:
-  /// **'youHaveANewCall'**
+  /// **'insufficient permissions'**
   String get insufficientPermissions;
 
   /// No description provided for @displayPopUpWindowWhileRunningInTheBackgroundAndDisplayPopUpWindowPermissions.
   ///
   /// In en, this message translates to:
-  /// **'displayPopUpWindowWhileRunningInTheBackgroundAndDisplayPopUpWindowPermissions'**
+  /// **'display popUpWindow while running in the background and display popUpWindow permissions'**
   String
       get displayPopUpWindowWhileRunningInTheBackgroundAndDisplayPopUpWindowPermissions;
 
   /// No description provided for @needToAccessMicrophoneAndCameraPermissions.
   ///
   /// In en, this message translates to:
-  /// **'needToAccessMicrophoneAndCameraPermissions'**
+  /// **'need to access microphone and camera permissions'**
   String get needToAccessMicrophoneAndCameraPermissions;
 
   /// No description provided for @noFloatWindowPermission.
   ///
   /// In en, this message translates to:
-  /// **'noFloatWindowPermission'**
+  /// **'no float window permission'**
   String get noFloatWindowPermission;
 
   /// No description provided for @needFloatWindowPermission.
   ///
   /// In en, this message translates to:
-  /// **'needFloatWindowPermission'**
+  /// **'need float window permission'**
   String get needFloatWindowPermission;
 
   /// No description provided for @accept.

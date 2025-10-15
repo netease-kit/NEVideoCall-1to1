@@ -123,7 +123,8 @@ class _HomePageRouteState extends State<HomePageRoute> {
                             ? SettingsConfig.avatar
                             : SettingsConfig.defaultAvatar),
                         fit: BoxFit.cover,
-                        errorBuilder: (ctx, err, stackTrace) => Image.asset('images/people.webp'),
+                        errorBuilder: (ctx, err, stackTrace) =>
+                            Image.asset('images/people.webp'),
                       ),
                       onTap: () => _showDialog(),
                     )),
@@ -250,7 +251,7 @@ class _HomePageRouteState extends State<HomePageRoute> {
   }
 
   _logout() {
-    NECallKitUI.instance.logout();
+    AuthManager().logout();
     NECallKitUI.navigatorObserver.navigator?.pushAndRemoveUntil(
         MaterialPageRoute(builder: (widget) {
       return const LoginRoute();

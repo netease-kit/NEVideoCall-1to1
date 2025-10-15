@@ -82,7 +82,7 @@ class CallManager {
       CallKitUILog.i(_tag,
           'CallManager initEngine success with lckConfig: enable=${lckConfig.enableLiveCommunicationKit}, ringtone=${lckConfig.ringtoneName}');
     } else {
-      CallManager.instance.showToast('Init Engine Fail');
+      CallManager.instance.showToast(NECallKitUI.localizations.initEngineFail);
     }
   }
 
@@ -97,7 +97,8 @@ class CallManager {
         'CallManager call(userId:$accountId, callMediaType: $callMediaType, params:${params.toString()}), version:${Constants.pluginVersion}');
     if (accountId.isEmpty) {
       debugPrint("Call failed, userId is empty");
-      return NEResult(code: -1, message: "Call failed, userId is empty");
+      return NEResult(
+          code: -1, message: NECallKitUI.localizations.callFailedUserIdEmpty);
     }
 
     // 使用 NECallParams 中的 pushConfig
@@ -132,7 +133,8 @@ class CallManager {
       return NEResult(code: callResult.code, message: callResult.msg);
     } else {
       CallKitUILog.i(_tag, "Permission result fail");
-      return NEResult(code: -1, message: "Permission result fail");
+      return NEResult(
+          code: -1, message: NECallKitUI.localizations.permissionResultFail);
     }
   }
 
@@ -185,7 +187,9 @@ class CallManager {
         var ret = await NECallEngine.instance.enableLocalVideo(true);
         result = NEResult(code: ret.code, message: ret.msg);
       } else {
-        result = NEResult(code: -1, message: "Start camera permission denied.");
+        result = NEResult(
+            code: -1,
+            message: NECallKitUI.localizations.startCameraPermissionDenied);
       }
     } else {
       var ret = await NECallEngine.instance.enableLocalVideo(true);
@@ -290,8 +294,6 @@ class CallManager {
     }
     var initRet = await NimCore.instance.initialize(options);
     if (initRet.code == 0) {
-      NEEventNotify()
-          .notify(loginSuccessEvent, {'accountId': accountId, 'token': token});
       NEEventNotify().notify(imSDKInitSuccessEvent, {});
     }
     NEResult result = NEResult(code: 0, message: 'success');
@@ -300,6 +302,10 @@ class CallManager {
       token,
       NIMLoginOption(),
     );
+    if (imRet.code == 0) {
+      NEEventNotify()
+          .notify(loginSuccessEvent, {'accountId': accountId, 'token': token});
+    }
     result = NEResult(code: imRet.code, message: imRet.errorDetails);
     return result;
   }

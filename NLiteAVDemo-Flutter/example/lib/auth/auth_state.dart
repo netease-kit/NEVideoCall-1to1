@@ -6,6 +6,7 @@ enum AuthState {
   init,
   authed,
   tokenIllegal,
+  kicked,
 }
 
 class AuthStateManager {
