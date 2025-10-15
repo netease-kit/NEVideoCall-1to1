@@ -12,33 +12,47 @@ class CallKitClientLocalizationsEn extends CallKitClientLocalizations {
   String get youHaveANewCall => 'You have a new call';
 
   @override
-  String get applyForMicrophonePermission => 'youHaveANewCall';
+  String get initEngineFail => 'Init engine failed';
 
   @override
-  String get applyForMicrophoneAndCameraPermissions => 'youHaveANewCall';
+  String get callFailedUserIdEmpty => 'Call failed, userId is empty';
 
   @override
-  String get needToAccessMicrophonePermission => 'youHaveANewCall';
+  String get permissionResultFail => 'Permission result fail';
 
   @override
-  String get errorInPeerBlacklist => 'youHaveANewCall';
+  String get startCameraPermissionDenied => 'Start camera permission denied.';
 
   @override
-  String get insufficientPermissions => 'youHaveANewCall';
+  String get applyForMicrophonePermission => 'apply for microphone permission';
+
+  @override
+  String get applyForMicrophoneAndCameraPermissions =>
+      'apply for microphone and camera permissions';
+
+  @override
+  String get needToAccessMicrophonePermission =>
+      'need to access microphone permission';
+
+  @override
+  String get errorInPeerBlacklist => 'error in peer blacklist';
+
+  @override
+  String get insufficientPermissions => 'insufficient permissions';
 
   @override
   String get displayPopUpWindowWhileRunningInTheBackgroundAndDisplayPopUpWindowPermissions =>
-      'displayPopUpWindowWhileRunningInTheBackgroundAndDisplayPopUpWindowPermissions';
+      'display popUpWindow while running in the background and display popUpWindow permissions';
 
   @override
   String get needToAccessMicrophoneAndCameraPermissions =>
-      'needToAccessMicrophoneAndCameraPermissions';
+      'need to access microphone and camera permissions';
 
   @override
-  String get noFloatWindowPermission => 'noFloatWindowPermission';
+  String get noFloatWindowPermission => 'no float window permission';
 
   @override
-  String get needFloatWindowPermission => 'needFloatWindowPermission';
+  String get needFloatWindowPermission => 'need float window permission';
 
   @override
   String get accept => 'accept';

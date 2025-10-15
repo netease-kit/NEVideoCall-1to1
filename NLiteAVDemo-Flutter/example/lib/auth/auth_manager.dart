@@ -4,9 +4,12 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'package:callkit_example/auth/login_page.dart';
 import 'package:callkit_example/config/app_config.dart';
 import 'package:callkit_example/settings/settings_config.dart';
+import 'package:flutter/material.dart';
 import 'package:netease_callkit_ui/ne_callkit_ui.dart';
+import 'package:nim_core_v2/nim_core.dart';
 import '../utils/global_preferences.dart';
 import '../auth/auth_state.dart';
 import 'login_info.dart';
@@ -77,6 +80,12 @@ class AuthManager {
       ),
     );
 
+    NimCore.instance.loginService.onKickedOffline.listen((event) {
+      // 被踢下线处理
+      print('$_tag: 用户被踢下线');
+      kickedOffline('账号在其他设备登录');
+    });
+
     NECallKitUI.instance.enableFloatWindow(SettingsConfig.enableFloatWindow);
     NECallKitUI.instance
         .enableIncomingBanner(SettingsConfig.showIncomingBanner);
@@ -101,7 +110,7 @@ class AuthManager {
   }
 
   void logout() {
-    // CallKit 没有直接的 logout 方法
+    NECallKitUI.instance.logout();
     _loginInfo = null;
     GlobalPreferences().setLoginInfo('{}');
     _authInfoChanged.add(_loginInfo);
@@ -116,6 +125,18 @@ class AuthManager {
     logout();
     AuthStateManager()
         .updateState(state: AuthState.tokenIllegal, errorTip: errorTip);
+  }
+
+  void kickedOffline(String reason) {
+    print('$_tag: 处理被踢下线，原因: $reason');
+    // 清理登录信息
+    logout();
+    // 更新状态为被踢下线
+    AuthStateManager().updateState(state: AuthState.kicked, errorTip: reason);
+    NECallKitUI.navigatorObserver.navigator?.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (widget) {
+      return const LoginRoute();
+    }), (route) => false);
   }
 
   bool isLogined() {

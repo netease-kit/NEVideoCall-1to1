@@ -62,5 +62,14 @@
   "app_info": "应用信息",
   "show_blur_background_button": "显示模糊背景按钮",
   "show_incoming_banner": "显示来电横幅",
-  "optional_parameters": "可选参数"
+  "optional_parameters": "可选参数",
+  "how_to_get_account_token": "如何获取云信账号与Token",
+  "sample_login_desc": "请输入您的云信账号与Token开始探索",
+  "enter_account": "请输入账号",
+  "enter_token": "请输入Token",
+  "please_enter_account": "请输入云信账号",
+  "please_enter_token": "请输入账号对应的Token",
+  "start_exploring": "开始探索",
+  "login_success": "登录成功",
+  "login_failed": "登录失败"
 }
