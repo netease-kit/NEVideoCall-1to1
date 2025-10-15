@@ -16,8 +16,6 @@
   "speakerIsOff": "speakerIsOff",
   "microphoneIsOn": "microphoneIsOn",
   "microphoneIsOff": "microphoneIsOff",
-  "invitedToAudioCall": "invitedToAudioCall",
-  "invitedToVideoCall": "invitedToVideoCall",
   "blurBackground": "blurBackground",
   "switchCamera": "switchCamera",
   "waiting": "waiting",

@@ -1,6 +1,6 @@
 name: netease_callkit_ui
 description: "netease callkit_ui is a ui kit about audio&video calls launched by CommsEase."
-version: 3.6.2+1
+version: 3.6.2+2
 homepage: https://yunxin.163.com/
 #publish_to: none
 
@@ -11,7 +11,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  flutter_localizations:
+    sdk: flutter
   yunxin_alog: ^2.0.0
   hawk_meta: ^0.0.1
   file: ^6.1.4
@@ -21,6 +22,7 @@ dependencies:
   shared_preferences: ^2.2.0
   crypto: ^3.0.1
   netease_common: ^1.0.9
+  netease_common_ui: ^10.3.0
   nim_core_v2: ^10.5.0
   fluttertoast: ^8.2.12
   netease_callkit: 3.6.2

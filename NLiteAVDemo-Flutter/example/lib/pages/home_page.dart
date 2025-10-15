@@ -8,6 +8,7 @@ import 'package:callkit_example/auth/login_page.dart';
 import 'package:callkit_example/pages/single_call_page.dart';
 import 'package:callkit_example/service/call_record_service.dart';
 import 'package:callkit_example/service/call_record_service_impl.dart';
+import 'package:callkit_example/settings/settings_config.dart';
 import 'package:netease_callkit_ui/src/utils/callkit_ui_log.dart';
 import 'package:callkit_example/utils/record_utils.dart';
 import 'package:flutter/cupertino.dart';
@@ -99,10 +100,10 @@ class _HomePageRouteState extends State<HomePageRoute> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(
+            SizedBox(
               child: Text(
-                "登录信息:",
-                style: TextStyle(
+                "${AppLocalizations.of(context)!.login_info}：",
+                style: const TextStyle(
                   fontSize: 20,
                 ),
               ),
@@ -118,10 +119,11 @@ class _HomePageRouteState extends State<HomePageRoute> {
                     ),
                     child: InkWell(
                       child: Image(
-                        image: NetworkImage(AuthManager().avatar ?? ''),
+                        image: NetworkImage(SettingsConfig.avatar.isNotEmpty
+                            ? SettingsConfig.avatar
+                            : SettingsConfig.defaultAvatar),
                         fit: BoxFit.cover,
-                        errorBuilder: (ctx, err, stackTrace) =>
-                            Image.asset('images/people.webp'),
+                        errorBuilder: (ctx, err, stackTrace) => Image.asset('images/people.webp'),
                       ),
                       onTap: () => _showDialog(),
                     )),
@@ -171,16 +173,16 @@ class _HomePageRouteState extends State<HomePageRoute> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(
+            SizedBox(
               child: Text(
-                "应用信息:",
-                style: TextStyle(
+                "${AppLocalizations.of(context)!.app_info}:",
+                style: const TextStyle(
                   fontSize: 20,
                 ),
               ),
             ),
             SizedBox(
-              child: Text("呼叫组件版本：$_version"),
+              child: Text("Version:$_version"),
             )
           ],
         ));

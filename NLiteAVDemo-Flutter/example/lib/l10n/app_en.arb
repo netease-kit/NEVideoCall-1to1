@@ -56,6 +56,10 @@
   "extended_info_settings": "Extended information settings",
   "offline_push_info_settings": "Offline push message settings",
   "please_enter": "Please enter",
+  "call_records": "Call Records",
+  "clear": "clear",
+  "login_info": "Login Info",
+  "app_info": "App Info",
   "show_blur_background_button": "Show blur background",
   "show_incoming_banner": "Show incoming banner",
   "optional_parameters": "Optional parameters"

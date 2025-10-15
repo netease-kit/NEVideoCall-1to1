@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import 'package:netease_callkit_ui/src/impl/call_manager.dart';
-import 'package:netease_callkit_ui/src/impl/call_state.dart';
 import 'package:netease_callkit_ui/src/event/event_notify.dart';
 import 'package:netease_callkit_ui/src/platform/call_kit_platform_interface.dart';
 
@@ -22,9 +21,7 @@ class Boot {
     CallManager.instance.handleLogoutSuccess();
   };
 
-  NEEventCallback imSDKInitSuccessCallBack = (arg) {
-    CallState.instance.registerEngineObserver();
-  };
+  NEEventCallback imSDKInitSuccessCallBack = (arg) {};
 
   Boot._internal() {
     NECallKitPlatform.instance;

@@ -2,8 +2,6 @@
 // Use of this source code is governed by a MIT license that can be
 // found in the LICENSE file.
 
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 import 'package:yunxin_alog/yunxin_alog.dart';
 
 const moduleName = 'CallKit_UI_Flutter';
@@ -19,32 +17,5 @@ class CallKitUILog {
 
   static void e(String tag, String content) {
     Alog.e(tag: tag, moduleName: moduleName, content: content);
-  }
-
-  static Future<bool> _createDirectory(String path) async {
-    var isCreate = false;
-    var filePath = Directory(path);
-    try {
-      if (!await filePath.exists()) {
-        await filePath.create();
-        isCreate = true;
-      } else {
-        isCreate = true;
-      }
-    } catch (e) {
-      isCreate = false;
-      Alog.e(tag: 'CallKitUILog', content: 'error $e');
-    }
-    return isCreate;
-  }
-
-  static Future<String> get _defaultLogRootPath async {
-    Directory? directory;
-    if (Platform.isIOS) {
-      directory = await getApplicationDocumentsDirectory();
-    } else {
-      directory = await getExternalStorageDirectory();
-    }
-    return '${directory?.path}/log/';
   }
 }

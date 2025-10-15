@@ -31,7 +31,7 @@ class FloatPermissionDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              CallKitUIL10n.localizations.noFloatWindowPermission,
+              NECallKitUI.localizations.noFloatWindowPermission,
               style: const TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.w500,
@@ -40,7 +40,7 @@ class FloatPermissionDialog extends StatelessWidget {
             ),
             const SizedBox(height: 16.0),
             Text(
-              CallKitUIL10n.localizations.needFloatWindowPermission,
+              NECallKitUI.localizations.needFloatWindowPermission,
               style: const TextStyle(
                 fontSize: 14.0,
                 color: Color(0xFF666666),

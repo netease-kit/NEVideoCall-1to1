@@ -3,6 +3,8 @@
 // found in the LICENSE file.
 
 class SettingsConfig {
+  static const defaultAvatar =
+      "https://yx-web-nosdn.netease.im/common/28150847a7871d8cb031efc5dc62e909/avatar_meinv.png";
   static const version = '1.0.0';
 
   static String userId = '';

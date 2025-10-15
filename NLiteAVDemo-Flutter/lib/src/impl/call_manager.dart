@@ -63,6 +63,8 @@ class CallManager {
       {NEExtraConfig? extraConfig}) async {
     CallKitUILog.i(_tag,
         'CallManager setupEngine(appKey:$appKey, accountId: $accountId, extraConfig: $extraConfig)');
+    CallState.instance.unRegisterEngineObserver();
+    CallState.instance.registerEngineObserver();
     CallState.instance.selfUser.id = accountId;
     // 获取 lckConfig，如果没有则使用默认配置（默认关闭）
     NELCKConfig? lckConfig = extraConfig?.lckConfig ??
@@ -82,6 +84,11 @@ class CallManager {
     } else {
       CallManager.instance.showToast('Init Engine Fail');
     }
+  }
+
+  void releaseEngine() {
+    CallKitUILog.i(_tag, 'CallManager releaseEngine');
+    CallState.instance.unRegisterEngineObserver();
   }
 
   Future<NEResult> call(String accountId, NECallType callMediaType,
@@ -115,7 +122,7 @@ class CallManager {
         launchCallingPage();
         CallManager.instance.enableWakeLock(true);
       } else if (callResult.code == 20002) {
-        CallManager.instance.showToast(CallKitUIL10n.localizations.userInCall);
+        CallManager.instance.showToast(NECallKitUI.localizations.userInCall);
       } else {
         CallKitUILog.i(_tag,
             "callResult.code: ${callResult.code}, callResult.msg: ${callResult.msg}");

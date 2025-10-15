@@ -5,6 +5,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:netease_callkit_ui/ne_callkit_ui.dart';
 import 'package:netease_callkit_ui/src/call_define.dart';
 import 'package:netease_callkit_ui/src/event/event_notify.dart';
 import 'package:netease_callkit_ui/src/impl/call_manager.dart';
@@ -32,7 +33,8 @@ class CallsWidget extends StatefulWidget {
 
 class _CallsWidgetState extends State<CallsWidget>
     with TickerProviderStateMixin {
-  late NEEventCallback setSateCallBack;
+  static const String _tag = "CallsWidgetState";
+  late NEEventCallback setStateCallBack;
   late NEEventCallback groupCallUserWidgetRefreshCallback;
   late AnimationController _controller;
   late Animation<double> _fadeInAnimation;
@@ -86,8 +88,10 @@ class _CallsWidgetState extends State<CallsWidget>
 
     _initAnimation();
 
-    setSateCallBack = (arg) {
+    setStateCallBack = (arg) {
       if (mounted) {
+        CallKitUILog.i(_tag,
+            "state callback isMultiPerson:$isMultiPerson, remoteUserList length:${CallState.instance.remoteUserList.length}");
         if (isMultiPerson || CallState.instance.remoteUserList.length >= 2) {
           _initUsersViewWidget();
         } else {
@@ -107,7 +111,7 @@ class _CallsWidgetState extends State<CallsWidget>
       }
     };
 
-    NEEventNotify().register(setStateEvent, setSateCallBack);
+    NEEventNotify().register(setStateEvent, setStateCallBack);
     NEEventNotify().register(setStateEventGroupCallUserWidgetRefresh,
         groupCallUserWidgetRefreshCallback);
 
@@ -122,7 +126,7 @@ class _CallsWidgetState extends State<CallsWidget>
   void dispose() {
     _controller.dispose();
     super.dispose();
-    NEEventNotify().unregister(setStateEvent, setSateCallBack);
+    NEEventNotify().unregister(setStateEvent, setStateCallBack);
     NEEventNotify().unregister(setStateEventGroupCallUserWidgetRefresh,
         groupCallUserWidgetRefreshCallback);
   }

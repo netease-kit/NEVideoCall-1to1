@@ -5,14 +5,22 @@
 import 'dart:io';
 
 import 'package:netease_callkit/netease_callkit.dart';
+import 'package:netease_callkit_ui/l10n/l10n.dart';
+import 'package:netease_callkit_ui/l10n/call_ui_localization/call_ui_localizations.dart';
 import 'package:netease_callkit_ui/ne_callkit_ui.dart';
-import 'package:netease_callkit_ui/src/call_define.dart';
-import 'package:netease_callkit_ui/src/impl/call_manager.dart';
 import 'package:netease_callkit_ui/src/ui/call_navigator_observer.dart';
 
 class NECallKitUI {
   static const String _tag = 'NECallKitUI';
   static final NECallKitUI _instance = NECallKitUI();
+
+  static get delegate {
+    return S.delegate;
+  }
+
+  static CallKitClientLocalizations get localizations {
+    return S.of();
+  }
 
   static NECallKitUI get instance => _instance;
 
@@ -27,6 +35,11 @@ class NECallKitUI {
       {NEExtraConfig? extraConfig}) async {
     return await CallManager.instance
         .setupEngine(appKey, accountId, extraConfig: extraConfig);
+  }
+
+  /// release NECallKit
+  void releaseEngine() {
+    CallManager.instance.releaseEngine();
   }
 
   /// login NECallKit
