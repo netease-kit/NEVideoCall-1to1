@@ -16,6 +16,7 @@ class ExtendButton extends StatelessWidget {
       this.textColor,
       this.duration = const Duration(milliseconds: 200),
       this.userAnimation = false,
+      this.fallbackNetworkUrl,
       Key? key})
       : super(key: key);
   final String imgUrl;
@@ -28,27 +29,50 @@ class ExtendButton extends StatelessWidget {
   final Color? textColor;
   final bool? userAnimation;
   final Duration duration;
+  final String? fallbackNetworkUrl;
 
   Widget _buildImageView() {
+    Widget imageWidget = Image.asset(
+      imgUrl,
+      package: 'netease_callkit_ui',
+      color: imgColor,
+      errorBuilder: (context, error, stackTrace) {
+        // 如果本地图片加载失败且有备用网络URL，则使用网络图片
+        if (fallbackNetworkUrl != null && fallbackNetworkUrl!.isNotEmpty) {
+          return Image.network(
+            fallbackNetworkUrl!,
+            color: imgColor,
+            errorBuilder: (context, error, stackTrace) {
+              // 如果网络图片也加载失败，返回一个默认的占位图标
+              return Icon(
+                Icons.error_outline,
+                size: imgHeight > 0 ? imgHeight : 52.0,
+                color: imgColor ?? Colors.grey,
+              );
+            },
+          );
+        } else {
+          // 如果没有备用网络URL，返回默认图标
+          return Icon(
+            Icons.error_outline,
+            size: imgHeight > 0 ? imgHeight : 52.0,
+            color: imgColor ?? Colors.grey,
+          );
+        }
+      },
+    );
+
     return userAnimation!
         ? AnimatedContainer(
             duration: duration,
             height: imgHeight > 0 ? imgHeight : 52.0,
             width: imgHeight > 0 ? imgHeight : 52.0,
-            child: Image.asset(
-              imgUrl,
-              package: 'netease_callkit_ui',
-              color: imgColor,
-            ),
+            child: imageWidget,
           )
         : SizedBox(
             height: imgHeight > 0 ? imgHeight : 52.0,
             width: imgHeight > 0 ? imgHeight : 52.0,
-            child: Image.asset(
-              imgUrl,
-              package: 'netease_callkit_ui',
-              color: imgColor,
-            ),
+            child: imageWidget,
           );
   }
 

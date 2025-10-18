@@ -1,3 +1,8 @@
 arb-dir: lib/l10n
+output-dir: lib/l10n/call_ui_localization
 template-arb-file: intl_en.arb
 output-localization-file: call_ui_localizations.dart
+output-class: CallKitClientLocalizations
+header-file: header.txt
+synthetic-package: false
+untranslated-messages-file: untranslated.txt

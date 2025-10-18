@@ -19,6 +19,14 @@ import 'calls_widget.dart';
 
 class CallsFunctionWidget {
   static const String _tag = "CallsFunctionWidget";
+  static bool _isAccepting = false; // 添加接听状态标志
+
+  // 备用网络图片URL常量
+  static const String _hangupNetworkUrl =
+      "https://yx-web-nosdn.netease.im/common/e2ca6c0b7a35174efde6e3ec7eaf1609/hangup.png";
+  static const String _acceptNetworkUrl =
+      "https://yx-web-nosdn.netease.im/common/ed23abfde97d28036502095c071264e6/dialing.png";
+
   static Widget buildIndividualFunctionWidget(Function close) {
     CallKitUILog.i(_tag,
         "buildIndividualFunctionWidget current callStatus = ${CallState.instance.selfUser.callStatus}");
@@ -69,6 +77,7 @@ class CallsFunctionWidget {
           children: [
             ExtendButton(
               imgUrl: "assets/images/hangup.png",
+              fallbackNetworkUrl: _hangupNetworkUrl,
               tips: NECallKitUI.localizations.hangUp,
               textColor: Colors.white,
               imgHeight: 64,
@@ -78,6 +87,7 @@ class CallsFunctionWidget {
             ),
             ExtendButton(
               imgUrl: "assets/images/dialing.png",
+              fallbackNetworkUrl: _acceptNetworkUrl,
               tips: NECallKitUI.localizations.accept,
               textColor: Colors.white,
               imgHeight: 64,
@@ -220,6 +230,7 @@ class CallsFunctionWidget {
                       bottom: bottomEdge,
                       child: ExtendButton(
                         imgUrl: "assets/images/hangup.png",
+                        fallbackNetworkUrl: _hangupNetworkUrl,
                         textColor: Colors.white,
                         imgHeight: CallsWidget.isFunctionExpand
                             ? bigBtnHeight
@@ -368,6 +379,7 @@ class CallsFunctionWidget {
           children: [
             ExtendButton(
               imgUrl: "assets/images/hangup.png",
+              fallbackNetworkUrl: _hangupNetworkUrl,
               tips: NECallKitUI.localizations.hangUp,
               textColor: _getTextColor(),
               imgHeight: 60,
@@ -377,6 +389,7 @@ class CallsFunctionWidget {
             ),
             ExtendButton(
               imgUrl: "assets/images/dialing.png",
+              fallbackNetworkUrl: _acceptNetworkUrl,
               tips: NECallKitUI.localizations.accept,
               textColor: _getTextColor(),
               imgHeight: 60,
@@ -463,6 +476,7 @@ class CallsFunctionWidget {
   static Widget _buildHangupButton(Function close) {
     return ExtendButton(
       imgUrl: "assets/images/hangup.png",
+      fallbackNetworkUrl: _hangupNetworkUrl,
       tips: NECallKitUI.localizations.hangUp,
       textColor: _getTextColor(),
       imgHeight: 60,
@@ -535,26 +549,40 @@ class CallsFunctionWidget {
   }
 
   static _handleAccept(Function close) async {
+    // 防止重复点击
+    if (_isAccepting) {
+      CallKitUILog.i(
+          _tag, '_handleAccept already in progress, ignore duplicate click');
+      return;
+    }
+
+    _isAccepting = true;
     CallKitUILog.i(_tag, '_handleAccept');
-    PermissionResult permissionRequestResult = PermissionResult.requesting;
-    if (Platform.isAndroid || Platform.isIOS) {
-      permissionRequestResult =
-          await Permission.request(CallState.instance.mediaType);
-    }
-    if (permissionRequestResult == PermissionResult.granted) {
-      CallKitUILog.i(_tag,
-          '_handleAccept permissionRequestResult = $permissionRequestResult');
-      var result = await CallManager.instance.accept();
-      if (result.code == 0) {
-        CallState.instance.selfUser.callStatus = NECallStatus.accept;
-      } else {
-        CallState.instance.selfUser.callStatus = NECallStatus.none;
-        close();
+
+    try {
+      PermissionResult permissionRequestResult = PermissionResult.requesting;
+      if (Platform.isAndroid || Platform.isIOS) {
+        permissionRequestResult =
+            await Permission.request(CallState.instance.mediaType);
       }
-    } else {
-      CallManager.instance
-          .showToast(NECallKitUI.localizations.insufficientPermissions);
+      if (permissionRequestResult == PermissionResult.granted) {
+        CallKitUILog.i(_tag,
+            '_handleAccept permissionRequestResult = $permissionRequestResult');
+        var result = await CallManager.instance.accept();
+        if (result.code == 0) {
+          CallState.instance.selfUser.callStatus = NECallStatus.accept;
+        } else {
+          CallState.instance.selfUser.callStatus = NECallStatus.none;
+          close();
+        }
+      } else {
+        CallManager.instance
+            .showToast(NECallKitUI.localizations.insufficientPermissions);
+      }
+    } finally {
+      _isAccepting = false; // 确保无论成功还是失败都重置状态
     }
+
     NEEventNotify().notify(setStateEvent);
   }
 
