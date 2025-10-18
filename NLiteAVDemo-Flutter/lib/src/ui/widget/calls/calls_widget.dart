@@ -124,11 +124,12 @@ class _CallsWidgetState extends State<CallsWidget>
 
   @override
   void dispose() {
+    // Stop animations and unregister listeners before calling super.dispose()
     _controller.dispose();
-    super.dispose();
     NEEventNotify().unregister(setStateEvent, setStateCallBack);
     NEEventNotify().unregister(setStateEventGroupCallUserWidgetRefresh,
         groupCallUserWidgetRefreshCallback);
+    super.dispose();
   }
 
   @override

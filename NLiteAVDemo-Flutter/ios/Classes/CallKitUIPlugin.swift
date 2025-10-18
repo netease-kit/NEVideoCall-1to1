@@ -11,6 +11,12 @@ import UIKit
   private var audioPlayer: AVAudioPlayer?
   private var registrar: FlutterPluginRegistrar?
 
+  /// 是否处于 Incoming 状态（内存存储）
+  private var lckIsInIncomingState: Bool = false
+
+  /// 当前通话状态
+  private var currentCallStatus: NECallStatus = .none
+
   @objc public static func register(with registrar: FlutterPluginRegistrar) {
     print("CallKitUIPlugin: register called")
     let channel = FlutterMethodChannel(name: "call_kit_ui", binaryMessenger: registrar.messenger())
@@ -20,6 +26,12 @@ import UIKit
 
     // 设置 NEWindowManager 的 delegate
     NEWindowManager.instance.backToFlutterWidgetDelegate = instance
+
+    // 开始监听 Live Communication Kit 状态变化
+    instance.startListeningToIncomingState()
+
+    // 开始监听通话状态变化
+    instance.registerObserveCallStatus()
 
     print("CallKitUIPlugin: register completed")
   }
@@ -171,6 +183,13 @@ import UIKit
       return
     }
 
+    // 如果处于 Incoming 状态，直接返回，此时使用lck自带铃声，不需要额外播放铃声
+    if lckIsInIncomingState {
+      print("CallKitUIPlugin: Skipping startRing because in incoming state")
+      result(true)
+      return
+    }
+
     stopRing()
 
     if NECallState.instance.selfUser.value.callRole == NECallRole.called {
@@ -292,6 +311,93 @@ import UIKit
 
   @objc public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
     stopRing() // 停止铃声播放
+    stopListeningToIncomingState() // 停止监听状态变化
+    unregisterObserveCallStatus() // 取消注册通话状态监听
+  }
+
+  // MARK: - Live Communication Kit State Monitoring
+
+  /// 开始监听 Live Communication Kit 的 Incoming 状态变化
+  private func startListeningToIncomingState() {
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(handleIncomingStateChanged(_:)),
+      name: NSNotification.Name("NELiveCommunicationKitIncomingStateChanged"),
+      object: nil
+    )
+    print("CallKitUIPlugin: Started listening to Live Communication Kit state changes")
+  }
+
+  /// 停止监听 Live Communication Kit 的 Incoming 状态变化
+  private func stopListeningToIncomingState() {
+    NotificationCenter.default.removeObserver(self)
+    print("CallKitUIPlugin: Stopped listening to Live Communication Kit state changes")
+  }
+
+  /// 处理 Incoming 状态变化
+  @objc private func handleIncomingStateChanged(_ notification: Notification) {
+    guard let userInfo = notification.userInfo,
+          let lckIsInIncomingState = userInfo["lckIsInIncomingState"] as? Bool else {
+      return
+    }
+
+    print("CallKitUIPlugin: Live Communication Kit incoming state changed to \(lckIsInIncomingState)")
+
+    // 更新本地状态
+    self.lckIsInIncomingState = lckIsInIncomingState
+
+    // 根据状态执行相应操作
+    if lckIsInIncomingState {
+      handleLckEnterIncomingState()
+    } else {
+      handleLckExitIncomingState()
+    }
+  }
+
+  /// 处理进入 LCK Incoming 状态
+  private func handleLckEnterIncomingState() {
+    print("CallKitUIPlugin: Entered Live Communication Kit incoming state")
+    // 停止铃声播放
+    stopRing()
+  }
+
+  /// 处理退出 LCK Incoming 状态
+  private func handleLckExitIncomingState() {
+    print("CallKitUIPlugin: Exited Live Communication Kit incoming state")
+  }
+
+  // MARK: - Call Status Monitoring
+
+  /// 注册监听通话状态变化
+  private func registerObserveCallStatus() {
+    // 监听 selfUser 的变化
+    NECallState.instance.selfUser.addObserver(self, options: [.new]) { [weak self] newUser, _ in
+      guard let self = self else { return }
+
+      // 检查通话状态变化
+      if self.currentCallStatus == newUser.callStatus { return }
+      let oldStatus = self.currentCallStatus
+      self.currentCallStatus = newUser.callStatus
+
+      print("CallKitUIPlugin: Call status changed from \(oldStatus) to \(newUser.callStatus)")
+
+      // 根据状态变化执行相应操作
+      self.handleCallStatusChanged(from: oldStatus, to: newUser.callStatus)
+    }
+  }
+
+  /// 取消注册通话状态监听
+  private func unregisterObserveCallStatus() {
+    NECallState.instance.selfUser.removeObserver(self)
+  }
+
+  /// 处理通话状态变化
+  private func handleCallStatusChanged(from oldStatus: NECallStatus, to newStatus: NECallStatus) {
+    // 只要不是 waiting 状态，就设置 lckIsInIncomingState 为 false
+    if newStatus != .waiting {
+      print("CallKitUIPlugin: Live Communication Kit incoming state changed to false")
+      lckIsInIncomingState = false
+    }
   }
 }
 

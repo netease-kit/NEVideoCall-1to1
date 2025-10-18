@@ -109,15 +109,16 @@ class _CallsIndividualUserWidgetState extends State<CallsIndividualUserWidget>
 
   @override
   dispose() {
-    super.dispose();
+    // Dispose animation and unregister listeners before super.dispose()
     _animationController.dispose();
+    NEEventNotify().unregister(setStateEvent, setSateCallBack);
     // 清理所有视频view
     CallManager.instance.setupLocalView(-1);
     if (CallState.instance.remoteUserList.isNotEmpty) {
       CallManager.instance
           .setupRemoteView(CallState.instance.remoteUserList[0].id, -1);
     }
-    NEEventNotify().unregister(setStateEvent, setSateCallBack);
+    super.dispose();
   }
 
   @override
